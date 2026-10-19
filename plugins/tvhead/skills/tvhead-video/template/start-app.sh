@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
+# One click: starts tvhead studio in the background (if needed) and opens it in the browser.
 cd "$(dirname "$0")"
-[ -d node_modules/puppeteer-core ] || npm install --no-audit --no-fund
-exec node app/server.mjs --open
+exec node app/launch.mjs

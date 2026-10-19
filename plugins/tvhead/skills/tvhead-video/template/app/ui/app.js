@@ -94,12 +94,13 @@ form.addEventListener('submit', async e => {
   e.preventDefault();
   const voices = {}; document.querySelectorAll('[data-vlang]').forEach(i => { if (i.value.trim()) voices[i.dataset.vlang] = i.value.trim(); });
   const body = { topic: form.topic.value, languages: langs(), format: state.format, duration: +dur.value, theme: state.theme, voices, notes: form.notes.value,
-    captions: form.captions.checked, autoRender: form.autoRender.checked, engine: form.engine.value, refs: state.refs };
+    captions: form.captions.checked, autoRender: form.autoRender.checked, engine: form.engine.value, refs: state.refs,
+    castIdeas: form.castIdeas.value, worldIdeas: form.worldIdeas.value, invent: form.invent.checked, library: [...state.picked] };
   $('#sendBtn').disabled = true; msg('Отправляю…');
   try {
     const job = await api('/api/jobs', { method: 'POST', body });
     state.selected = job.id; LS.set('job', job.id);
-    form.topic.value = ''; form.notes.value = ''; state.refs = []; drawRefs();
+    form.topic.value = ''; form.notes.value = ''; form.castIdeas.value = ''; form.worldIdeas.value = ''; state.refs = []; drawRefs(); state.picked.clear(); drawPick();
     msg(body.engine === 'cli' ? 'Claude CLI уже пишет раскадровку.' : state.status?.claude.watching ? 'Claude получил бриф.' : 'Бриф сохранён. Напиши Claude в чате: «проверь tvhead-приложение».');
     await refreshJobs(); await refreshDetail();
   } catch (err) { msg(err.message, true); }
@@ -155,6 +156,8 @@ async function refreshDetail(force) {
       : 'Бриф ждёт Claude. Напиши ему в чате: «проверь tvhead-приложение» — он увидит задание и возьмёт его в работу.';
     html += `<div class="wait">${tvSvg()}<div><b>${h(text)}</b>${j.history?.length ? `<div class="meta">${h(j.history[j.history.length - 1].msg)}</div>` : ''}</div></div>`;
   }
+  if (j.brief && (j.brief.libraryItems?.length || j.brief.castIdeas || j.brief.worldIdeas)) html += briefCastHtml(j.brief);
+  if (j.storyboard?.cast && ['storyboard', 'rendering', 'done', 'revise', 'error'].includes(j.status)) html += castHtml(j.storyboard);
   if (j.storyboard && ['storyboard', 'rendering', 'done', 'revise', 'error'].includes(j.status)) html += boardHtml(j);
   if (j.status === 'storyboard') html += `<div class="actions">
       <button class="btn primary big" style="width:auto" id="goRender">Рендерить ▶</button>
@@ -210,10 +213,101 @@ function tvSvg() {
   return `<svg class="tv" viewBox="0 0 64 58" aria-hidden="true"><path d="M24 12 18 2M40 12l6-10" stroke="#141414" stroke-width="4" stroke-linecap="round"/><rect x="4" y="12" width="56" height="44" rx="8" fill="#585858" stroke="#141414" stroke-width="4"/><rect class="scr" x="12" y="19" width="40" height="30" rx="5" fill="#e9ebeb" stroke="#141414" stroke-width="3"/><circle cx="25" cy="31" r="3" fill="#141414"/><circle cx="39" cy="31" r="3" fill="#141414"/></svg>`;
 }
 
+// ─── cast & world: what the user asked for, and what Claude designed ─────
+const KIND_RU = { character: 'Персонаж', world: 'Место', style: 'Стиль', idea: 'Идея' };
+function briefCastHtml(b) {
+  const items = b.libraryItems || [];
+  return `<details class="castbrief"><summary>Твои идеи по персонажам и миру${items.length ? ` · карточек: ${items.length}` : ''}</summary>
+    ${b.castIdeas ? `<p><b>Персонажи:</b> ${h(b.castIdeas)}</p>` : ''}${b.worldIdeas ? `<p><b>Мир:</b> ${h(b.worldIdeas)}</p>` : ''}
+    ${items.length ? `<div class="libgrid mini">${items.map(it => libCardHtml({ ...it, images: it.images.map(f => `episodes/${state.selected}/${f}`) }, false)).join('')}</div>` : ''}
+    <p class="meta">${b.invent === false ? 'Claude использует только это.' : 'Остальное Claude придумывает сам по смыслу.'}</p></details>`;
+}
+function castHtml(sb) {
+  const c = sb.cast, byFrame = {};
+  (c.items || []).forEach(it => (byFrame[it.scene] ||= []).push(it));
+  return `<h3>Каст и мир</h3>
+    ${c.characters?.length ? `<ul class="castlist">${c.characters.map(ch => `<li><b>${h(ch.name)}</b>${ch.desc ? ` — ${h(ch.desc)}` : ''}</li>`).join('')}</ul>` : ''}
+    <div class="board castboard${sb.format === '9:16' ? ' tall' : ''}">${(c.frames || []).map((src, i) => `<figure class="scene"><div class="img"><img src="${src}" alt="" loading="lazy"></div>
+      <figcaption class="body">${(byFrame[i] || []).map(it => `<span class="chip">${it.kind === "set" ? "🏙 " + h(state.parts?.set?.[it.id] || it.name) : h(it.name)}</span>`).join(" ")}</figcaption></figure>`).join('')}</div>
+    <p class="hint">Не то? Опиши правку ниже — например «босс должен быть в короне» или «пусть всё происходит в метро».</p>`;
+}
+
+// ─── views: studio / library ─────────────────────────────────────
+function setView(v) {
+  LS.set('view', v);
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.view === v ? 'page' : 'false'));
+  $('#studioView').hidden = v !== 'studio'; $('#libView').hidden = v !== 'library';
+  if (v === 'library') loadLibrary();
+}
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+
+state.library = []; state.picked = new Set(); state.libImgs = []; state.libKind = 'character'; state.libFilter = 'all';
+function libCardHtml(it, actions = true) {
+  const img = it.images?.[0];
+  return `<article class="libcard ${it.kind}">
+    <div class="img">${img ? `<img src="/files/${h(img)}" alt="" loading="lazy">` : `<div class="noimg">${h((it.title || '?').slice(0, 1))}</div>`}${it.images?.length > 1 ? `<span class="more">+${it.images.length - 1}</span>` : ''}</div>
+    <div class="body"><span class="chip">${KIND_RU[it.kind] || it.kind}</span> <b>${h(it.title || 'без названия')}</b>${it.notes ? `<p>${h(it.notes)}</p>` : ''}
+      ${actions ? `<button type="button" class="link" data-del="${h(it.id)}">удалить</button>` : ''}</div></article>`;
+}
+async function loadLibrary() {
+  state.library = await api('/api/library').catch(() => []);
+  $('#libCount').textContent = state.library.length ? state.library.length : '';
+  const list = state.library.filter(it => state.libFilter === 'all' || it.kind === state.libFilter);
+  $('#libGrid').innerHTML = list.length ? list.map(it => libCardHtml(it)).join('') : `<div class="card empty"><h3>Пока пусто</h3><p>Добавь персонажа, место, стиль или просто идею слева. Потом отмечай карточки в брифе, и Claude соберёт по ним героев и окружение.</p></div>`;
+  $('#libGrid').querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', async () => { if (!confirm('Удалить карточку из библиотеки?')) return; await api(`/api/library/${b.dataset.del}/delete`, { method: 'POST' }); state.picked.delete(b.dataset.del); loadLibrary(); drawPick(); }));
+  drawPick();
+}
+function drawPick() {
+  const box = $('#libPick');
+  if (!state.library.length) { box.innerHTML = `<p class="hint">Свои персонажи и места живут во вкладке <a href="#" data-go="library">«Персонажи и мир»</a> — отметь их здесь, когда добавишь.</p>`; box.querySelector('[data-go]').addEventListener('click', e => { e.preventDefault(); setView('library'); }); return; }
+  box.innerHTML = state.library.map(it => `<button type="button" class="pick" aria-pressed="${state.picked.has(it.id)}" data-id="${h(it.id)}" title="${h(it.notes || '')}">
+    ${it.images?.[0] ? `<img src="/files/${h(it.images[0])}" alt="">` : `<span class="noimg">${h((it.title || '?').slice(0, 1))}</span>`}<span>${h(it.title || KIND_RU[it.kind])}</span></button>`).join('');
+  box.querySelectorAll('.pick').forEach(b => b.addEventListener('click', () => { const id = b.dataset.id; state.picked.has(id) ? state.picked.delete(id) : state.picked.add(id); b.setAttribute('aria-pressed', String(state.picked.has(id))); }));
+}
+document.querySelectorAll('#kindSeg button').forEach(b => b.addEventListener('click', () => { state.libKind = b.dataset.kind; document.querySelectorAll('#kindSeg button').forEach(x => x.setAttribute('aria-checked', String(x === b))); }));
+document.querySelectorAll('#libFilter button').forEach(b => b.addEventListener('click', () => { state.libFilter = b.dataset.f; document.querySelectorAll('#libFilter button').forEach(x => x.setAttribute('aria-checked', String(x === b))); loadLibrary(); }));
+const libDrop = $('#libDrop'), libInput = $('#libInput');
+libDrop.addEventListener('click', e => { if (e.target.tagName !== 'BUTTON') libInput.click(); });
+libDrop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); libInput.click(); } });
+libDrop.addEventListener('dragover', e => { e.preventDefault(); libDrop.classList.add('over'); });
+libDrop.addEventListener('dragleave', () => libDrop.classList.remove('over'));
+libDrop.addEventListener('drop', e => { e.preventDefault(); libDrop.classList.remove('over'); addLibImgs(e.dataTransfer.files); });
+libInput.addEventListener('change', () => { addLibImgs(libInput.files); libInput.value = ''; });
+function addLibImgs(files) {
+  [...files].filter(f => f.type.startsWith('image/')).slice(0, 6 - state.libImgs.length).forEach(f => { const r = new FileReader(); r.onload = () => { state.libImgs.push({ name: f.name, data: r.result }); drawLibImgs(); }; r.readAsDataURL(f); });
+}
+function drawLibImgs() {
+  $('#libRefs').innerHTML = state.libImgs.map((r, i) => `<figure><img src="${r.data}" alt="${h(r.name)}"><button type="button" aria-label="Убрать" data-rm="${i}">×</button></figure>`).join('');
+  $('#libRefs').querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); state.libImgs.splice(+b.dataset.rm, 1); drawLibImgs(); }));
+}
+$('#libForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, m = $('#libMsg');
+  try {
+    $('#libSave').disabled = true; m.textContent = 'Сохраняю…'; m.className = 'formmsg';
+    await api('/api/library', { method: 'POST', body: { kind: state.libKind, title: f.title.value, notes: f.notes.value, images: state.libImgs } });
+    f.title.value = ''; f.notes.value = ''; state.libImgs = []; drawLibImgs(); m.textContent = 'Карточка сохранена. Отметь её в брифе на вкладке «Студия».';
+    loadLibrary();
+  } catch (err) { m.textContent = err.message; m.className = 'formmsg err'; }
+  $('#libSave').disabled = false;
+});
+async function loadCatalog() {
+  const P = await api("/api/parts").catch(() => null); if (!P) return; state.parts = P;
+  const RU = { head: 'Головы', body: 'Тела', hat: 'Головные уборы', glasses: 'Очки', neck: 'На шее', back: 'За спиной', hair: 'Причёски', hold: 'В руках', set: 'Места', weather: 'Погода' };
+  $('#catalog').innerHTML = Object.entries(P).map(([k, v]) => `<div class="catrow"><b>${RU[k] || k}</b> ${Object.values(v).map(x => `<span class="chip">${h(x)}</span>`).join(' ')}</div>`).join('');
+}
+$('#quitBtn').addEventListener('click', async () => {
+  if (!confirm('Выключить tvhead studio? Идущий рендер остановится.')) return;
+  await api('/api/shutdown', { method: 'POST' }).catch(() => {});
+  document.body.innerHTML = '<main class="layout"><div class="card"><h2>Приложение выключено</h2><p>Запусти его снова ярлыком «tvhead studio» на рабочем столе.</p></div></main>';
+});
+
 // ─── boot ───────────────────────────────────────────────────────
 setLang(state.lang);
 setFormat(state.format);
 loadThemes();
+loadLibrary(); loadCatalog();
+setView(LS.get('view', 'studio'));
 refreshStatus(); refreshJobs().then(() => refreshDetail(true));
 setInterval(refreshStatus, 4000);
 setInterval(refreshJobs, 3000);

@@ -58,6 +58,37 @@ const T0 = Date.now(), el = () => `${((Date.now() - T0) / 1000).toFixed(1)}s`;
 const assetBase = path.relative(path.join(root, 'engine'), epDir).split(path.sep).join('/') + '/';
 const results = [];
 
+// ─── --cast: model sheet of the story's characters + one frame per environment (for the app's "Cast & world" panel) ──
+if (flag('--cast')) {
+  const lang = langs[0], story = localize(storyRaw, lang), chars = Object.entries(story.characters || {}).filter(([id]) => id !== '*');
+  const sets = [...new Map([story.set, ...story.scenes.map(s => s.set)].filter(Boolean).map(s => typeof s === 'string' ? { type: s } : s).map(s => [JSON.stringify(s), s])).values()];
+  const per = FMT.w > FMT.h ? 4 : 2, scenes = [], meta = [];
+  for (let i = 0; i < Math.max(chars.length, 0); i += per) {
+    const group = chars.slice(i, i + per), sp = 1040 / per;
+    scenes.push({ dur: 2, transition: 'cut', theme: story.theme, cam: 'still', particles: .5,
+      cast: group.map(([id, c], k) => ({ id, as: id, x: 640 + (k - (group.length - 1) / 2) * sp, face: c.face || 'happy', pose: c.pose || 'idle', enter: 'none', scale: per === 4 ? .85 : 1 })),
+      props: group.map(([id, c], k) => ({ type: 'text', text: c.name || id, x: 640 + (k - (group.length - 1) / 2) * sp, y: 120, size: 40, enter: 'none' })) });
+    group.forEach(([id, c]) => meta.push({ kind: 'character', id, name: c.name || id, desc: c.desc || '', scene: scenes.length - 1 }));
+  }
+  for (const s of sets) { scenes.push({ dur: 2, transition: 'cut', cam: 'still', set: s, particles: .5 }); meta.push({ kind: 'set', id: s.type, name: s.type, desc: Object.entries(s).filter(([k]) => k !== 'type').map(([k, v]) => `${k}: ${v}`).join(', '), scene: scenes.length - 1 }); }
+  if (!scenes.length) fail('--cast: the story has no "characters" and no "set" to show');
+  const TL = buildTimeline({ ...story, scenes, characters: story.characters, outro: 0 }, scenes.map(() => null), { lang, assetBase, format: FMT.id });
+  const buildDir = path.join(epDir, 'build', 'cast' + FSUF); rmSync(buildDir, { recursive: true, force: true }); mkdirSync(buildDir, { recursive: true });
+  writeFileSync(path.join(buildDir, 'timeline.js'), `window.TL = ${JSON.stringify(TL)};\n`);
+  const tlRel = path.relative(path.join(root, 'engine'), path.join(buildDir, 'timeline.js')).split(path.sep).join('/');
+  try {
+    const times = TL.scenes.map(s => +(s.from + 1.2).toFixed(2));
+    const files = await renderStills({ root, tlRel, times, outDir: path.join(buildDir, 'stills'), dsf: 1, world: TL.world });
+    const cols = Math.min(FMT.w > FMT.h ? 3 : 4, files.length), rows = Math.ceil(files.length / cols);
+    spawnSync('ffmpeg', ['-y', '-v', 'error', '-framerate', '1', '-i', path.join(buildDir, 'stills', 's_%03d.png'), '-vf', `scale=${FMT.w > FMT.h ? 480 : 270}:-1,tile=${cols}x${rows}:padding=6:color=0x222222`, '-frames:v', '1', path.join(buildDir, 'sheet.png')]);
+    const rel = f => path.relative(root, f).split(path.sep).join('/');
+    writeFileSync(path.join(buildDir, 'cast.json'), JSON.stringify({ sheet: rel(path.join(buildDir, 'sheet.png')), frames: files.map(rel), items: meta }, null, 2));
+    console.log(`✓ cast sheet → ${rel(path.join(buildDir, 'sheet.png'))} (${chars.length} characters, ${sets.length} sets)`);
+    emit({ stage: 'cast', sheet: rel(path.join(buildDir, 'sheet.png')), items: meta, frames: files.map(rel) });
+  } catch (e) { fail(e.message); }
+  process.exit(0);
+}
+
 for (const lang of (STILLS ? langs.slice(0, 1) : langs)) {
   const story = localize(storyRaw, lang);
   const buildDir = path.join(epDir, 'build', lang + FSUF); mkdirSync(buildDir, { recursive: true });

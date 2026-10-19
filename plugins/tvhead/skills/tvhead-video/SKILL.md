@@ -25,8 +25,8 @@ Creates or refreshes the studio (engine and app files only; `episodes/`, `out/` 
 cd "$STUDIO" && node app/bridge.mjs status      # app running? key? which jobs wait for you
 node app/bridge.mjs wait --timeout 1800         # run in the BACKGROUND: returns the next brief as JSON; while it runs the app shows "Claude на связи"
 ```
-- No app running → tell the user to start it: `start-app.cmd` (Windows) / `./start-app.sh` / `npm run app` in `$STUDIO`. It opens http://localhost:4777.
-- For each job: `node app/bridge.mjs claim <id>` → read `brief.json` (topic, languages, format, duration, theme or `reference`, voices, notes, captions; copy `format` into story.json) and **Read every image in `refs/`** → write `episodes/<id>/story.json` → `node app/bridge.mjs storyboard <id>`. This renders the stills and moves the job to "check the storyboard" in the app (or straight to render if the brief has `autoRender`). Read the sheet it prints and fix obvious problems once.
+- No app running → tell the user to double-click the **tvhead studio** shortcut on the desktop (one click: it starts the app in the background and opens http://localhost:4777). No shortcut yet → create it with `node app/install-shortcut.mjs` (Windows/macOS/Linux) once the user agrees, or run `node app/launch.mjs`.
+- For each job: `node app/bridge.mjs claim <id>` → read `brief.json` (topic, languages, format, duration, theme or `reference`, voices, notes, captions; copy `format` into story.json) and **Read every image in `refs/`** and every image in `castAndWorld.library` → design the cast and world (`references/cast-and-world.md`) → write `episodes/<id>/story.json` → `node app/bridge.mjs storyboard <id>`. This renders the stills and the cast sheet, and moves the job to "check the storyboard" in the app (or straight to render if the brief has `autoRender`). Read both sheets it prints and fix obvious problems once.
 - The user reviews it in the app. They either press «Рендерить» (the app renders; you're done) or send feedback, which makes the job `revise` → `wait` returns it again with `feedback` → edit story.json → `storyboard` again.
 - After handling a job, start `wait` again in the background so the app keeps showing that you're listening. Stop when the user says so.
 
@@ -34,10 +34,12 @@ node app/bridge.mjs wait --timeout 1800         # run in the BACKGROUND: returns
 Before the first story of a session, read:
 - `references/writing.md`: how the genre sounds and looks;
 - `references/motion.md`: seams, staging, kinetic type, infographics, references, custom GSAP;
-- `references/story-api.md`: the full JSON API.
+- `references/story-api.md`: the full JSON API;
+- `references/cast-and-world.md`: designing characters (heads, bodies, hats, props) and places (sets, weather) for the topic, and drawing new ones.
 Glance at `references/images/demo_sheet.jpg` for the target look (`demo_sheet_9x16.jpg` for vertical). Example: `$STUDIO/episodes/demo/story.json` (bilingual).
 
 Checklist for `story.json`:
+- **Cast & world first.** Use 2–4 named `characters` whose looks come from the topic's meaning (and from the user's library cards and ideas, if any), plus 2–4 `set`s that follow the story arc. Don't default to the bare grey TV-head on empty paper unless the user asked for that. Check with `node make.mjs <slug> --cast`.
 - Hook in line 1. ~150 words per minute, 6–22 words per scene. Every scene has a `note` (one line describing the picture, shown in the app).
 - Languages: `"languages": ["en","ru"]`, and `say` (and any on-screen text) as `{ "en": "...", "ru": "..." }`. Write each language natively; don't translate word for word. Cue words differ per language, so prefer `at` for multilingual cues or give `on` per language.
 - Every scene has a visual metaphor and something happening on a key word or fraction. One recurring hero with an `id`; `keep: true` for consecutive beats on one picture.

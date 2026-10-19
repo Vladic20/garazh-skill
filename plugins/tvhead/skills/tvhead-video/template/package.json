@@ -1,11 +1,11 @@
 {
   "name": "tvhead-studio",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "private": true,
   "type": "module",
   "description": "Hand-drawn TV-head explainer videos from a story.json: Fish Audio narration via OpenRouter, SVG frames in headless Chrome, ffmpeg",
   "scripts": {
-    "app": "node app/server.mjs --open",
+    "app": "node app/launch.mjs", "shortcut": "node app/install-shortcut.mjs",
     "demo": "node make.mjs demo",
     "preview": "node make.mjs demo --preview"
   },

@@ -159,6 +159,7 @@ function layersAt(t) {
 function layerSvg(L, t, idx) {
   const sc = L.sc, [cx, cy, z] = camAt(sc, t);
   const items = [...sc.items].sort((a, b) => (a.z ?? 0) - (b.z ?? 0)).map(it => itemSvg(it, t)).join('');
+  const SL = setLayers(sc, t);   // environment + weather (engine/sets.js)
   const cam = `translate(${f2(CX - cx * z)} ${f2(CY - cy * z)}) scale(${f2(z)})`;
   const pz = 1 + (z - 1) * .5, pcam = `translate(${f2(CX - (CX + (cx - CX) * .5) * pz)} ${f2(CY - (CY + (cy - CY) * .5) * pz)}) scale(${f2(pz)})`;
   const tf = `translate(${f2(L.dx)} ${f2(L.dy)}) translate(${CX} ${CY}) scale(${f2(L.s)}) translate(${-CX} ${-CY})`;
@@ -169,7 +170,7 @@ function layerSvg(L, t, idx) {
   const shadow = L.shadow ? pageShadow(L.shadow) : '';
   const dark = sc.dark ? `<rect x="-40" y="-40" width="${W + 80}" height="${H + 80}" fill="${THEME.dark}" opacity=".72"/>` : '';
   return `${clip}<g transform="${tf}" opacity="${f2(clamp(L.op))}" ${fl} ${L.clip ? `clip-path="url(#${clipId})"` : ''}>${shadow}${paper}${dark}
-      <g filter="${boilFilter(t)}"><g transform="${pcam}">${particles(t, sc.particles ?? 1)}</g><g transform="${cam}">${sc.ground === false ? '' : groundSvg()}${items}</g></g>
+      <g filter="${boilFilter(t)}"><g transform="${pcam}">${particles(t, sc.particles ?? 1)}</g><g transform="${cam}">${SL.back}${sc.ground === false || SL.noGround ? '' : groundSvg()}${items}${SL.front}${SL.weather}</g></g>
       ${L.shade ? `<rect width="${W}" height="${H}" fill="#000" opacity="${f2(L.shade)}"/>` : ''}
     </g>${L.edge || ''}${L.overlay || ''}`;
 }

@@ -64,6 +64,13 @@ Vertical videos (`"format": "9:16"`) use a 720×1280 world (rendered 1080×1920)
 - `"outOn"` / `"outAt"` / `"out"` (seconds) — when it disappears.
 - `"then": [{ "on": "word", "face": "shock" }, { "at": 0.8, "x": 900, "dur": 1.2 }]` — changes over time on the same item. Numbers (`x`, `y`, `scale`, `rot`, `opacity`) animate over `dur` (default 0.6 s); `pose` blends over 0.3 s; everything else switches instantly.
 
+## Cast & world (full guide: cast-and-world.md)
+
+- Top level `"characters": { "<id>": { "name", "desc", "head", "body", "hat", "glasses", "neck", "back", "hair", "hold", "button", "color", … } }`. Cast entries with that `id` (or `"as": "<id>"`) inherit the design; `"*"` is the default look for unnamed figures. `name`/`desc` show on the app's cast sheet.
+- Scene `"set"`: `room` · `bedroom` · `office` · `classroom` · `cafe` · `kitchen` · `city` · `street` · `subway` · `forest` · `park` · `sea` · `mountains` · `desert` · `space` · `stage`, or `{ "type": "city", "night": true }`. Use `null` for a clean page; a top-level `set` is the default.
+- Scene `"weather"`: `rain` · `snow` · `leaves` · `wind` (or `{ "type", "amount" }`). `set`/`weather` carry over to `keep` scenes.
+- `node make.mjs <ep> --cast` renders the model sheet (characters with names, then one frame per set).
+
 ## Characters
 
 ```json

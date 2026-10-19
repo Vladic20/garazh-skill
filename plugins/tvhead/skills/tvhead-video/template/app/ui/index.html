@@ -2,19 +2,24 @@
 <html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>tvhead studio</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M24 12 18 2M40 12l6-10' stroke='%23141414' stroke-width='4' stroke-linecap='round'/%3E%3Crect x='6' y='12' width='52' height='44' rx='8' fill='%23585858' stroke='%23141414' stroke-width='4'/%3E%3Crect x='14' y='19' width='36' height='30' rx='5' fill='%23e9ebeb' stroke='%23141414' stroke-width='3'/%3E%3Ccircle cx='25' cy='31' r='3' fill='%23141414'/%3E%3Ccircle cx='39' cy='31' r='3' fill='%23141414'/%3E%3Cpath d='M26 39q6 5 12 0' stroke='%23141414' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="/ui/icon.png">
 <link rel="stylesheet" href="/ui/style.css">
 </head><body>
 <header class="top">
   <div class="brand"><svg viewBox="0 0 64 64" width="38" height="38" aria-hidden="true"><path d="M24 12 18 2M40 12l6-10" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><rect x="6" y="12" width="52" height="44" rx="8" fill="#585858" stroke="currentColor" stroke-width="4"/><rect x="14" y="19" width="36" height="30" rx="5" fill="#e9ebeb" stroke="currentColor" stroke-width="3"/><circle cx="25" cy="31" r="3" fill="currentColor"/><circle cx="39" cy="31" r="3" fill="currentColor"/><path d="M26 39q6 5 12 0" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
     <span>tvhead <b>studio</b></span></div>
+  <nav class="tabs" aria-label="Разделы">
+    <button type="button" data-view="studio" aria-current="page">Студия</button>
+    <button type="button" data-view="library">Персонажи и мир <span class="count" id="libCount"></span></button>
+  </nav>
   <div class="pills">
     <span class="pill" id="pillClaude" title="Claude видит приложение, когда в сессии запущено ожидание (bridge wait)">Claude: …</span>
     <span class="pill" id="pillTts">Озвучка: …</span>
+    <button type="button" class="pill off-btn" id="quitBtn" title="Выключить приложение (сервер остановится)" aria-label="Выключить приложение"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7.5 6.5a7.5 7.5 0 1 0 9 0" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M12 3v8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
   </div>
 </header>
 
-<main class="layout">
+<main class="layout" id="studioView">
   <section class="card brief" aria-labelledby="hBrief">
     <h2 id="hBrief">Новый ролик</h2>
     <form id="briefForm" autocomplete="off">
@@ -48,6 +53,13 @@
           <div class="refs" id="refs"></div>
         </div></div>
 
+      <div class="field"><span>Персонажи и мир</span>
+        <div class="libpick" id="libPick" aria-label="Карточки из библиотеки"></div>
+        <textarea name="castIdeas" rows="2" placeholder="Кто герои: «уставший студент в худи», «босс — телевизор в цилиндре», «кот-философ»…" aria-label="Идеи персонажей"></textarea>
+        <textarea name="worldIdeas" rows="2" placeholder="Где всё происходит: «ночной город под дождём», «офис», «космос», «школа»…" aria-label="Идеи окружения" style="margin-top:8px"></textarea>
+        <label class="check"><input type="checkbox" name="invent" checked> Остальное Claude придумает сам — по смыслу темы</label>
+      </div>
+
       <details class="field more">
         <summary>Голос, субтитры, режим</summary>
         <div class="voices" id="voices"></div>
@@ -80,6 +92,50 @@
         <p class="hint">Чтобы Claude в чате увидел бриф, напиши ему: <b>«проверь tvhead-приложение»</b>.</p>
       </div>
     </div>
+  </section>
+</main>
+
+<main class="layout" id="libView" hidden>
+  <section class="card brief" aria-labelledby="hLib">
+    <h2 id="hLib">Добавить в библиотеку</h2>
+    <form id="libForm" autocomplete="off">
+      <div class="field"><span>Что это</span>
+        <div class="seg small" role="radiogroup" aria-label="Тип карточки" id="kindSeg">
+          <button type="button" role="radio" data-kind="character" aria-checked="true">Персонаж</button>
+          <button type="button" role="radio" data-kind="world" aria-checked="false">Место</button>
+          <button type="button" role="radio" data-kind="style" aria-checked="false">Стиль</button>
+          <button type="button" role="radio" data-kind="idea" aria-checked="false">Идея</button>
+        </div></div>
+      <label class="field"><span>Название</span><input name="title" placeholder="Например: Босс, Ночной город, Мой стиль" maxlength="120"></label>
+      <label class="field"><span>Как выглядит / что важно</span>
+        <textarea name="notes" rows="4" placeholder="Голова-телевизор с помехами, строгий костюм, цилиндр. Всегда держит портфель. Говорит медленно…"></textarea></label>
+      <div class="field"><span>Картинки-референсы</span>
+        <div class="drop" id="libDrop" tabindex="0" role="button" aria-label="Добавить картинки">
+          <input type="file" id="libInput" accept="image/*" multiple hidden>
+          <span>Перетащи картинки или <u>выбери файлы</u></span>
+          <small>Скриншоты, наброски, фото, кадры из видео — Claude перенесёт идею в стиль ролика.</small>
+          <div class="refs" id="libRefs"></div>
+        </div></div>
+      <button class="btn primary big" type="submit" id="libSave">Сохранить карточку</button>
+      <p class="formmsg" id="libMsg" role="status"></p>
+    </form>
+  </section>
+  <section class="work">
+    <div class="libhead">
+      <div class="seg small filters" role="radiogroup" aria-label="Фильтр" id="libFilter">
+        <button type="button" role="radio" data-f="all" aria-checked="true">Все</button>
+        <button type="button" role="radio" data-f="character" aria-checked="false">Персонажи</button>
+        <button type="button" role="radio" data-f="world" aria-checked="false">Места</button>
+        <button type="button" role="radio" data-f="style" aria-checked="false">Стиль</button>
+        <button type="button" role="radio" data-f="idea" aria-checked="false">Идеи</button>
+      </div>
+    </div>
+    <div class="libgrid" id="libGrid"></div>
+    <details class="card catalog">
+      <summary>Из чего Claude собирает персонажей и места</summary>
+      <div id="catalog"></div>
+      <p class="hint">Если в каталоге чего-то нет, Claude дорисует новую деталь или место кодом прямо в ролике.</p>
+    </details>
   </section>
 </main>
 

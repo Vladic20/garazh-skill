@@ -247,12 +247,24 @@ function wordTimes(text, sc) {
   return ws.map((w, i) => [w, r3(out[i])]);
 }
 
+// ─── cast: story-level character designs ("characters": { "<id>": { head, body, hat, … } }) ─────────────
+// A cast entry inherits the design of characters[entry.as || entry.id]; "*" is the default look for everyone else.
+// name / desc / voice / ref are notes for the storyboard (not drawn).
+const LOOK_SKIP = new Set(['name', 'desc', 'ref', 'refs', 'voice', 'role']);
+export function lookOf(story, id, as) {
+  const C = story.characters || {}, src = C[as || id] || (id && C[id]) || C['*'] || {};
+  const o = {}; for (const k in src) if (!LOOK_SKIP.has(k)) o[k] = src[k];
+  return o;
+}
+// sets: "set": "city" | { "type": "city", "night": true, … }; weather: "rain" | "snow" | "leaves" | "wind" | { "type": "rain", "amount": 1.5 }
+const normSet = v => v == null || v === false ? null : typeof v === 'string' ? { type: v } : v;
+
 function finalState(it) {   // apply all changes → base for an inherited (keep:true) item
   const s = { ...it }; for (const c of it.then || []) for (const k in c) if (k !== 't' && k !== 'dur') s[k] = c[k];
   delete s.then; return s;
 }
 
-const META = new Set(['on', 'at', 'delay', 'then', 'char', 'type', 'out', 'outOn', 'outAt', 'note']);
+const META = new Set(['on', 'at', 'delay', 'then', 'char', 'type', 'out', 'outOn', 'outAt', 'note', 'as', 'name', 'desc', 'ref', 'refs', 'role']);
 function makeItem(raw, sc, idx, ctx, g) {
   const isChar = raw.char || raw.kind || (!raw.type && raw.face !== undefined) || raw.type === 'char';
   const it = { el: isChar ? 'char' : 'prop' };
@@ -316,8 +328,9 @@ export function buildTimeline(story0, clips, ctx = { lang: 'en', assetBase: '' }
       const drop = new Set(raw.remove || []); items = items.filter(it => !drop.has(it.id));
     }
     const lay = layoutItems(raw, g);
-    const raws = [...lay.map(o => ({ ...o, ...(raw.cast || []).find(c => c.id === o.id), ...(raw.props || []).find(c => c.id === o.id) })),
-      ...(raw.cast || []).filter(c => !lay.some(o => o.id === c.id)).map(c => ({ char: true, ...c })),
+    const look = o => o.char || o.kind || o.head || (!o.type && o.face !== undefined) ? { ...lookOf(story, o.id, o.as), ...o } : o;
+    const raws = [...lay.map(o => look({ ...o, ...(raw.cast || []).find(c => c.id === o.id), ...(raw.props || []).find(c => c.id === o.id) })),
+      ...(raw.cast || []).filter(c => !lay.some(o => o.id === c.id)).map(c => look({ char: true, ...c })),
       ...(raw.props || []).filter(c => !lay.some(o => o.id === c.id))];
     const perType = {};
     raws.forEach(r => {
@@ -337,7 +350,8 @@ export function buildTimeline(story0, clips, ctx = { lang: 'en', assetBase: '' }
 
     const prevSc = keep ? scenes[scenes.length - 1] : null;
     scenes.push({ from, to, cam: resolveCam(raw.cam, g), transition, ground: raw.ground ?? prevSc?.ground ?? (raw.layout === 'pile' || raw.layout === 'title' ? false : true),
-      particles: raw.particles ?? prevSc?.particles ?? story.particles ?? 1, dark: raw.dark ?? prevSc?.dark ?? false, items });
+      particles: raw.particles ?? prevSc?.particles ?? story.particles ?? 1, dark: raw.dark ?? prevSc?.dark ?? false,
+      set: normSet(raw.set !== undefined ? raw.set : prevSc ? prevSc.set : story.set), weather: normSet(raw.weather !== undefined ? raw.weather : prevSc ? prevSc.weather : story.weather), items });
     // captions: phrases of ≤ 6 words / ≤ 38 chars (9:16: ≤ 5 / ≤ 28), broken after punctuation
     let cur = [];
     const flush = end => { if (!cur.length) return; subs.push({ from: cur[0][1], to: end, words: cur }); cur = []; };

@@ -1,5 +1,4 @@
 @echo off
+rem One click: starts tvhead studio in the background (if needed) and opens it in the browser.
 cd /d "%~dp0"
-if not exist node_modules\puppeteer-core call npm install --no-audit --no-fund
-node app\server.mjs --open
-pause
+node app\launch.mjs

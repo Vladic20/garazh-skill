@@ -25,7 +25,14 @@ const pending = () => listJobs().filter(j => j.status === 'brief' || j.status ==
 function details(j) {
   const dir = jobDir(j.id);
   return { id: j.id, status: j.status, dir, brief: readJson(path.join(dir, 'brief.json')), feedback: j.feedback || [],
-    refs: existsSync(path.join(dir, 'refs')) ? readdirSync(path.join(dir, 'refs')).map(f => path.join(dir, 'refs', f)) : [],
+    refs: existsSync(path.join(dir, 'refs')) ? readdirSync(path.join(dir, 'refs')).filter(f => f !== 'library').map(f => path.join(dir, 'refs', f)) : [],
+    // the user's cast & world ideas: library cards (absolute image paths — Read them) + free-text ideas
+    castAndWorld: (() => {
+      const b = readJson(path.join(dir, 'brief.json')) || {};
+      return { castIdeas: b.castIdeas || '', worldIdeas: b.worldIdeas || '', inventTheRest: b.invent !== false,
+        library: (b.libraryItems || []).map(it => ({ ...it, images: it.images.map(f => path.join(dir, f)) })),
+        how: 'design story "characters" and scene "set"/"weather" from these (references/cast-and-world.md); invent what is missing by the meaning of the topic' };
+    })(),
     story: existsSync(path.join(dir, 'story.json')) ? path.join(dir, 'story.json') : null,
     next: j.status === 'revise' ? `apply the latest feedback to story.json, then: node app/bridge.mjs storyboard ${j.id}` : `node app/bridge.mjs claim ${j.id}  → write ${path.join(dir, 'story.json')} → node app/bridge.mjs storyboard ${j.id}` };
 }
@@ -68,6 +75,10 @@ switch (cmd) {
     if (r.status !== 0) { setStatus(j.id, 'error', 'Раскадровка не собралась', { error: (r.stderr || r.stdout).split('\n').filter(Boolean).pop() }); die('stills failed'); }
     const warnings = (r.stdout + r.stderr).split('\n').filter(l => /story:|warn/i.test(l));
     const sheet = path.join(jobDir(j.id), 'build', lang, 'sheet.png');
+    if (story.characters || story.set || story.scenes.some(s => s.set)) {   // model sheet of the cast + environments for the app
+      const c = spawnSync(process.execPath, [path.join(STUDIO, 'make.mjs'), j.id, '--cast', '--offline'], { cwd: STUDIO, encoding: 'utf8' });
+      console.log(c.status === 0 ? `cast sheet: ${path.join(jobDir(j.id), 'build', 'cast', 'sheet.png')} (Read it too)` : `(cast sheet failed: ${(c.stderr || c.stdout).trim().split('\n').pop()})`);
+    }
     if (j.brief?.autoRender) {
       const viaApp = await api(`/api/jobs/${j.id}/approve`, 'POST');
       if (!viaApp) { setStatus(j.id, 'rendering', 'Рендер запущен'); spawn(process.execPath, [path.join(STUDIO, 'make.mjs'), j.id], { cwd: STUDIO, detached: true, stdio: 'ignore' }).unref(); }

@@ -9,3 +9,5 @@ app/thumbs/
 episodes/*/job.json
 episodes/*/make.log
 episodes/*/claude.log
+app/server.log
+library/

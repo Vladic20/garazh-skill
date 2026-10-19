@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Deploys / updates the studio from the skill template and installs puppeteer-core.
-# usage: bootstrap.sh [studio_dir]   (default: $TVHEAD_STUDIO or ~/tvhead-studio)
+# usage: bootstrap.sh [studio_dir] [--shortcut]   (default dir: $TVHEAD_STUDIO or ~/tvhead-studio; --shortcut adds a one-click desktop launcher)
 # Engine files are refreshed on every run; your episodes/, out/ and .env are never touched.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 TPL="$HERE/../template"
-STUDIO="${1:-${TVHEAD_STUDIO:-$HOME/tvhead-studio}}"
+SHORTCUT=0; ARGS=(); for a in "$@"; do [ "$a" = --shortcut ] && SHORTCUT=1 || ARGS+=("$a"); done
+STUDIO="${ARGS[0]:-${TVHEAD_STUDIO:-$HOME/tvhead-studio}}"
 mkdir -p "$STUDIO/episodes"
 for f in engine lib fonts app make.mjs voices.mjs package.json package-lock.json .gitignore .env.example start-app.cmd start-app.sh; do
   [ -e "$TPL/$f" ] || continue
@@ -18,6 +19,7 @@ command -v ffmpeg >/dev/null || echo "!! need ffmpeg in PATH (Windows: winget in
 (cd "$STUDIO" && npm install --silent --no-audit --no-fund)   # fast no-op when up to date; picks up new deps after updates
 if [ -f "$STUDIO/.env" ] && grep -Eq '^(OPENROUTER_API_KEY|FISH_AUDIO_API_KEY)=.+' "$STUDIO/.env"; then KEY=yes; else KEY=no; [ -f "$STUDIO/.env" ] || cp "$STUDIO/.env.example" "$STUDIO/.env"; fi
 chmod +x "$STUDIO/start-app.sh" 2>/dev/null || true
+[ "$SHORTCUT" = 1 ] && (cd "$STUDIO" && node app/install-shortcut.mjs)
 echo "studio: $STUDIO"
 echo "app:    $STUDIO/start-app.cmd (Windows) · ./start-app.sh · npm run app  → http://localhost:4777"
 echo "tts key: $KEY$([ $KEY = no ] && echo "  → put OPENROUTER_API_KEY=... into $STUDIO/.env (https://openrouter.ai/keys)")"

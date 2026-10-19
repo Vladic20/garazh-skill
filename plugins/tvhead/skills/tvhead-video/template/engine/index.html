@@ -40,7 +40,7 @@
   // ?tl=<path to build/<lang>/timeline.js relative to this file>.
   // Load order: timeline → gsap (for custom scenes) → core → character → props → scene → episode scripts (TL.scripts).
   const TLQ = new URLSearchParams(location.search).get('tl') || '../episodes/demo/build/en/timeline.js';
-  [TLQ, '../node_modules/gsap/dist/gsap.min.js', 'core.js', 'character.js', 'props.js', 'mgprops.js', 'scene.js'].forEach(s => document.write(`<script src="${s}"><\/script>`));
+  [TLQ, '../node_modules/gsap/dist/gsap.min.js', 'core.js', 'character.js', 'looks.js', 'props.js', 'mgprops.js', 'sets.js', 'scene.js'].forEach(s => document.write(`<script src="${s}"><\/script>`));
 </script>
 <script>
   // custom props written per episode (story.json "scripts": ["art/intro.js"]); make.mjs rewrites paths relative to this file

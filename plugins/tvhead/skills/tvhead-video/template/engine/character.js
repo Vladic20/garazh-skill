@@ -182,14 +182,14 @@ function characterSvg(c, t) {
   const R = mixPts(armPts(Pp.R, 'R', t, Pp.anim, coil), armPts(P.R, 'R', t, anim, coil), k);
   // follow-through: antennas keep swinging for ~0.8 s after the figure appears or changes pose (damped spring)
   const since = t - Math.max(c.poseT ?? c.t0 ?? 0, c.t0 ?? 0), wig = since >= 0 && since < 1.2 ? 9 * Math.exp(-since * 5) * Math.sin(since * 21) : 0;
-  const head = c.kind === 'mask' ? maskHeadSvg(c.face, t, phase, look, c.talking) : tvHeadSvg(c.face, t, c.seed, phase, look, c.talking, wig);
+  const head = headOf(c, t, phase, look, wig), B = bodyOf(c);   // parts: engine/looks.js
   const heldR = c.hold ? propInHand(c.hold, R[2], t, c) : '';
   const upper = `<g transform="translate(0 ${f2(drop + breathe * .4 + (c.antic || 0) * 7)})">
-      ${bodySvg(c)}
+      ${B.back}${B.svg}
       <g transform="translate(0 ${f2(HEAD_Y + breathe * .6)}) rotate(${f2(tilt)} 0 50)">${head}</g>
       ${armSvg(L, coil)}${armSvg(R, coil)}${heldR}
     </g>`;
-  const legs = anim === 'sit' ? `<g transform="translate(0 0)">${legsSvg(t, anim, phase)}</g>` : legsSvg(t, anim, phase);
+  const legs = anim !== 'sit' && B.legs === 'trousers' ? trousersSvg(t, anim, phase, c) : legsSvg(t, anim, phase);
   return `<g transform="translate(${f2(c.x)} ${f2(c.y + bounce)}) scale(${f2((c.flip ? -1 : 1) * c.scale)} ${f2(c.scale)})">${anim === 'sit' ? `<g transform="translate(0 0)">${legs}</g><g transform="translate(0 0)">${upper}</g>` : legs + upper}</g>`;
 }
 
@@ -207,5 +207,7 @@ function propInHand(kind, h, t, c) {
   if (kind.startsWith('sign:')) { const txt = esc(kind.slice(5)); const w = Math.max(70, txt.length * 15 + 24);
     return `<g transform="translate(${f2(x)} ${f2(y)})"><path d="M0 0 L0 -70" stroke="${INK}" stroke-width="4"/><rect x="${-w / 2}" y="-128" width="${w}" height="58" rx="4" fill="${WHITE}" stroke="${INK}" stroke-width="3.4"/>
       <text x="0" y="-90" text-anchor="middle" font-family="${FONT}" font-size="30" fill="${INK}" transform="scale(${c.flip ? -1 : 1} 1)">${txt}</text></g>`; }
+  const base = kind.split(':')[0];
+  if (window.HELD && HELD[base]) return HELD[base](h, kind.slice(base.length + 1), c);
   return '';
 }
