@@ -1,0 +1,106 @@
+# story.json — the whole API
+
+A film is a list of **scenes**. Each scene = one narration line (`say`) + one picture. Timing is automatic:
+the scene lasts as long as its voice clip plus a short pause, so you never write seconds by hand.
+Things inside a scene appear **on a spoken word** (`"on": "word"`), which keeps picture and voice in sync.
+
+World: 1280×720 (rendered 1920×1080). Ground line at `y = 615`. Centre `x = 640`. A character at `scale: 1` is ~395 px tall (feet on the ground, antenna tip at y ≈ 220).
+
+## Top level
+
+| key | default | meaning |
+|---|---|---|
+| `title` | — | for you; not drawn |
+| `voice` | `TVHEAD_VOICE` from .env, else `bf322df2096a46f18c579d0baa36f41d` (Adrian, deep storyteller) | Fish Audio voice id (`fish.audio/m/<id>`) |
+| `model` | `fish-audio/drama-3` | any OpenRouter TTS model id; free: `fish-audio/s2.1-pro-free:free` |
+| `style` | — | delivery direction prepended to every line, e.g. `"calm, low, reflective"` (skipped for lines that start with their own `[tag]`) |
+| `mood` | `dark` | drone under the voice: `dark` · `calm` · `tense` · `hope` · `none` |
+| `music` | — | path (relative to the episode folder) to an mp3 to loop under the voice, auto-ducked |
+| `captions` | `false` | burn karaoke captions into the video (an `.srt` is always written next to the mp4) |
+| `pace` | `1` | multiplies the pause after every line (0.7 = snappier, 1.4 = slower) |
+| `pause` | `0.38` | seconds of silence after each line |
+| `outro` | `1.4` | extra hold on the last picture |
+| `particles` | `1` | floating doodle density 0–2 |
+| `flips` | `true` | soft paper-flip sound on every cut |
+
+## Scene
+
+| key | meaning |
+|---|---|
+| `say` | narration. Drama-3 direction tags allowed: `[whispering]`, `[sad, barely holding it together]`, `(sighs)`, `<emphasis>word</emphasis>`. Tags are not shown in captions. 6–22 words per scene is the sweet spot. |
+| `layout` | shortcut that places characters/props: `solo`, `duo`, `lineup` (+`count` 2–6), `crowd`, `pile` (mask figure on a mound of TVs holding up an endless feed) |
+| `cast` | characters (below). A cast entry with the same `id` as a layout figure overrides it (`p1…pN` for lineup, `hero` for solo/crowd/pile, `a`/`b` for duo) |
+| `props` | objects (below) |
+| `keep` | `true` = continue the previous picture: same characters/props in their final state, no re-entry animation. Combine with `change`, `remove`, new `cast`/`props` |
+| `change` | timed changes for kept items: `[{ "id": "p1", "on": "word", "face": "sad", "pose": "slump" }]` |
+| `remove` | ids to drop when `keep`ing |
+| `cam` | `push` (default slow zoom-in) · `pull` · `still` · `pan-left` · `pan-right` · `up` · `down` · `{ "focus": [x, y], "zoom": 1.4 }` · `{ "from": [cx,cy,s], "to": [cx,cy,s] }` |
+| `dark` | night look: paper goes dark grey (pair with a `spotlight` prop) |
+| `ground` | `false` hides the ground line |
+| `particles` | per-scene doodle density |
+| `speaker` | id of a character whose mouth moves with this line (default: narrator, nobody's mouth moves) |
+| `hold` | extra seconds on this picture after the line |
+| `pause`, `lead` | per-scene overrides of the pause after / delay before the voice |
+| `dur` | length of a scene **without** `say` (default 2.2 s) — a silent visual beat |
+
+## Timing cues (characters, props, changes)
+
+- `"on": "scroll"` — at the moment that word is spoken (first occurrence; `"scroll#2"` = second). Prefix match for words ≥ 4 letters (`"connect"` hits "connected").
+- `"at": 0.5` — at that fraction of the scene.
+- `"delay": 0.8` — seconds after the scene starts.
+- nothing — appears at the cut.
+- `"outOn"` / `"outAt"` / `"out"` (seconds) — when it disappears.
+- `"then": [{ "on": "word", "face": "shock" }, { "at": 0.8, "x": 900, "dur": 1.2 }]` — changes over time on the same item. Numbers (`x`, `y`, `scale`, `rot`, `opacity`) animate over `dur` (default 0.6 s); `pose` blends over 0.3 s; everything else switches instantly.
+
+## Characters
+
+```json
+{ "id": "me", "x": 640, "face": "happy", "pose": "idle", "kind": "tv", "scale": 1, "flip": false, "hold": "phone", "enter": "pop" }
+```
+
+- `kind`: `tv` (TV head, black dress with power button) · `mask` (white oval mask, ragged robe). `robe: true` gives a tv figure the ragged hem. `arms: "coil"` = springy zig-zag arms. `button: false` hides the power icon. `color` changes the dress (e.g. `"#f1f2f1"` for a white "different one").
+- `face`: `happy` `neutral` `blank` `sad` `shock` `tired` `angry` `cry` `love` `dead` `hypno` `joy` `worried` `smug` `awe` · screen states `static` (TV noise) and `off` (black screen).
+- `pose`: `idle` `wave` `raise` `point` `up` `head` (hands on head) `facepalm` `shrug` `hip` `phone` `hold` `think` `cross` `reach` `cheer` (bouncing) `slump` `walk` `run` `sit`.
+  Move while walking: `"pose": "walk", "then": [{ "delay": 0, "x": 1000, "dur": 3 }]`.
+- `hold` (right hand): `phone` · `heart` · `balloon` · `coffee` · `flower` · `sign:Your text`.
+- `tilt` (deg), `look: "down"`, `y` (default 615 = standing on the ground), `z` (draw order).
+
+## Props
+
+Every prop takes `x`, `y`, `scale`, `rot`, `flip`, `enter`, `z`, cues and `then`. Standing props anchor at their **bottom centre** (default `y` = ground); floating icons anchor at their **centre** (default `y` = 300).
+
+| type | options |
+|---|---|
+| `text` | `text` (use `\n` for lines), `size` (64), `align`, `underline`, `outline`, `color: "white"`; types itself in by default |
+| `tv` | `face` (`static` default, `off`, or any face) |
+| `tvpile` | `width` (620), `height` (300) — mound of static TVs, anchor bottom (default y 790, below frame edge) |
+| `feed` | endless scrolling social feed column: `height`, `width`, `speed` |
+| `phone` | big phone: `screen` = `feed` · `static` · `heart` · `off` · `text:Words` |
+| `like` | notification bubble with heart: `count` |
+| `bell` | ringing bell, optional `count` badge |
+| `heart` | `fill: "black"`, `broken: true`, `beat: false` |
+| `bubble` | speech/thought bubble, anchor = tail tip: `text`, `kind: "thought"`, `dir: "right"`, `size` |
+| `arrow` | `from: [x,y]`, `to: [x,y]` (world coords), `curve` (0.2) — draws itself |
+| `chart` | `trend`: `up` `down` `crash` `zigzag` `flat`; `w`, `h`, `drawDur` |
+| `clock` | `speed` (8 = time flying) |
+| `hourglass` | `dur` (seconds to run out) |
+| `battery` | `level` 0–1, `drain` (seconds to empty) |
+| `coin` · `money` (`count`) · `crown` · `target` · `check` · `cross` · `lock` |  |
+| `bulb` (`lit: false`) · `brain` · `eye` (blinks, looks around) · `question` · `exclaim` (`size`) |  |
+| `cloud` (`rain: false`, `dark`) · `sun` · `moon` |  |
+| `chain` (`links`, `ball`) · `scribble` (`r`) — anxious pencil mess |  |
+| `door` (`open`, `light`) · `stairs` (`steps`, `stepW`, `stepH`) · `house` (`lit`) · `bed` · `laptop` (`screen: "static"`) | standing |
+| `crowd` | rows of small TV heads: `rows`, `cols`, `width`, `face` |
+| `spotlight` | cone of light from the top onto `x`; `w` = half-width of the pool. Use with `"dark": true` |
+| `sign` | white board with `text`, `size`, `w`, `h` |
+
+`enter`: `pop` (default) · `fade` · `drop` · `rise` · `slide-left` · `slide-right` · `grow` · `write` (text) · `none`. `exit`: `pop` · `fade`.
+
+## Patterns that work
+
+- **Reveal on the key word**: put the metaphor prop on the word that names it — `{ "type": "chain", "on": "trapped" }`.
+- **Same picture, new beat**: next scene with `"keep": true` and a `change` — cheaper for the eye than a new cut every line.
+- **Before/after**: two scenes, same layout, second one `keep` + faces switch to `static`.
+- **Push into a detail**: `"cam": { "focus": [x, y], "zoom": 1.5 }` on the thing being talked about.
+- **Silent beat**: a scene with no `say`, `"dur": 1.5` — lets a strong image land.
+- Keep characters inside x 180–1100 and text above y 200 so nothing touches the frame edge.

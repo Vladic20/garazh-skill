@@ -4,3 +4,4 @@ node_modules/
 out/
 .frames/
 plugins/garazh/skills/cartoon-reel/references/images/private/
+plugins/tvhead/skills/tvhead-video/template/episodes/*/build/

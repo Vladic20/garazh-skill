@@ -1,0 +1,56 @@
+{
+  "title": "The Infinite Scroll",
+  "style": "calm, low, reflective",
+  "mood": "dark",
+  "captions": false,
+  "scenes": [
+    {
+      "say": "We were promised a world where everyone would be connected.",
+      "layout": "lineup", "count": 4,
+      "props": [{ "type": "text", "text": "connected", "x": 640, "y": 120, "size": 60, "on": "connected" }]
+    },
+    {
+      "say": "And for a while... it felt exactly like that.",
+      "keep": true, "remove": ["text1"],
+      "change": [{ "id": "p1", "on": "felt", "pose": "wave" }, { "id": "p3", "on": "felt", "pose": "cheer", "face": "joy" }],
+      "cam": "pull"
+    },
+    {
+      "say": "Then the screens started looking back.",
+      "keep": true,
+      "change": [
+        { "id": "p1", "on": "screens", "face": "static", "pose": "idle" },
+        { "id": "p2", "on": "started", "face": "static", "pose": "idle" },
+        { "id": "p3", "on": "looking", "face": "static", "pose": "idle" },
+        { "id": "p4", "on": "back", "face": "static", "pose": "idle" }
+      ],
+      "cam": "still"
+    },
+    {
+      "say": "One more post. One more like. One more minute.",
+      "cast": [{ "id": "me", "x": 470, "pose": "phone", "hold": "phone", "face": "tired" }],
+      "props": [
+        { "type": "like", "x": 760, "y": 230, "count": "1", "on": "post" },
+        { "type": "like", "x": 900, "y": 330, "count": "12", "on": "like" },
+        { "type": "clock", "x": 860, "y": 480, "scale": 0.9, "speed": 8, "on": "minute" }
+      ],
+      "cam": { "focus": [620, 380], "zoom": 1.15 }
+    },
+    {
+      "say": "We climbed higher and higher, standing on everything we threw away.",
+      "layout": "pile", "cam": "up", "particles": 1.4
+    },
+    {
+      "say": "And the higher we climbed, the quieter it got.",
+      "cast": [{ "id": "me", "x": 640, "pose": "slump", "face": "sad" }],
+      "props": [{ "type": "spotlight", "x": 640, "y": 615, "w": 170 }],
+      "dark": true, "cam": "push", "particles": 0.6
+    },
+    {
+      "say": "[softly] Maybe the off button... was never on the screen.",
+      "keep": true,
+      "change": [{ "id": "me", "on": "off", "face": "off" }, { "id": "me", "on": "never", "face": "blank", "pose": "idle" }],
+      "cam": "still", "hold": 0.6
+    }
+  ]
+}

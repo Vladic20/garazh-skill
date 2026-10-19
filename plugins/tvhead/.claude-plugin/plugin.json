@@ -1,0 +1,8 @@
+{
+  "name": "tvhead",
+  "description": "Topic → finished narrated 16:9 doodle video: TV-head stick figures on grey paper, Fish Audio English voice-over via OpenRouter, rendered from code (SVG + headless Chrome + ffmpeg)",
+  "author": { "name": "Vladic20" },
+  "version": "1.0.0",
+  "license": "MIT",
+  "keywords": ["video", "animation", "explainer", "tts", "fish-audio", "openrouter", "skill"]
+}

@@ -1,8 +1,13 @@
 {
   "name": "garazh-skill",
-  "owner": { "name": "lubluniky" },
-  "description": "Code-rendered vertical cartoon reels in the «garage IT-startup» style for Claude Code",
+  "owner": { "name": "Vladic20" },
+  "description": "Code-rendered cartoon videos for Claude Code: TV-head doodle explainers (tvhead) and the original «garage IT-startup» reels (garazh)",
   "plugins": [
+    {
+      "name": "tvhead",
+      "source": "./plugins/tvhead",
+      "description": "Ask for a video on any topic, get a finished 1080p mp4 with English Fish Audio narration in the hand-drawn TV-head style"
+    },
     {
       "name": "garazh",
       "source": "./plugins/garazh",

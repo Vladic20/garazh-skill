@@ -1,0 +1,53 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Patrick Hand'; src: url(../fonts/PatrickHand-latin.woff2) format('woff2'); font-weight: 400; font-display: block; }
+  html, body { margin: 0; background: #000; }
+  #stage { position: relative; width: 1280px; height: 720px; overflow: hidden; background: #c6ccd0; }
+  #art, #paper { position: absolute; inset: 0; }
+  #art svg, #paper svg { display: block; }
+  #paper, #vignette { will-change: transform; }
+  .grain { position: absolute; inset: 0; width: 1280px; height: 720px; opacity: .10; mix-blend-mode: overlay; display: none; pointer-events: none; }
+  #vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 78% 70% at 50% 47%, transparent 55%, rgba(30,34,36,.28) 85%, rgba(20,22,24,.55) 100%); }
+  #flicker { position: absolute; inset: 0; background: #fff; mix-blend-mode: soft-light; }
+  #fade { position: absolute; inset: 0; background: #c6ccd0; opacity: 0; }
+  #ui { position: absolute; inset: 0; }
+  .cap { position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%); white-space: nowrap;
+         font: 400 50px/1 'Patrick Hand', sans-serif; color: #7d8387; letter-spacing: .5px;
+         text-shadow: 0 0 6px #d4d9dc, 0 0 3px #d4d9dc, 0 0 2px #d4d9dc; }
+  .cap .on { color: #141414; }
+</style></head>
+<body>
+<div id="defs"></div>
+<div id="stage">
+  <div id="paper"></div>
+  <div id="art"></div>
+  <div id="grains"></div>
+  <div id="vignette"></div>
+  <div id="flicker"></div>
+  <div id="ui"></div>
+  <div id="fade"></div>
+</div>
+<script>
+  // ?tl=<path to build/<ep>/timeline.js relative to this file>. Load order: timeline → core → character → props → scene.
+  const TLQ = new URLSearchParams(location.search).get('tl') || '../episodes/demo/build/timeline.js';
+  [TLQ, 'core.js', 'character.js', 'props.js', 'scene.js'].forEach(s => document.write(`<script src="${s}"><\/script>`));
+</script>
+<script>
+  (function () {   // film grain: 6 deterministic tiles, one per frame in rotation
+    const host = document.getElementById('grains');
+    for (let k = 0; k < 6; k++) {
+      const c = document.createElement('canvas'); c.width = 640; c.height = 360; c.className = 'grain';
+      const ctx = c.getContext('2d'), img = ctx.createImageData(640, 360);
+      let s = 4321 + k * 977;
+      for (let i = 0; i < img.data.length; i += 4) {
+        s = (s * 16807) % 2147483647; const v = 128 + ((s / 2147483647) - .5) * 255;
+        img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0); host.appendChild(c);
+    }
+  })();
+  installStatic();
+  render(parseFloat(new URLSearchParams(location.search).get('t') || '0'));
+</script>
+</body></html>

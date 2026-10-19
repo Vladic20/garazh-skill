@@ -1,0 +1,5 @@
+.env
+node_modules/
+out/
+episodes/*/build/
+.DS_Store
