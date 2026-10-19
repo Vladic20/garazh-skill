@@ -1,0 +1,19 @@
+{
+ "v": 2,
+ "text": "[calm, low, reflective] From the moment you open your eyes, something is asking for your attention.",
+ "voice": "bf322df2096a46f18c579d0baa36f41d",
+ "model": "fish-audio/s2.1-pro-free:free",
+ "fileDur": 4.389,
+ "speech": [
+  [
+   0,
+   1.785
+  ],
+  [
+   2.256,
+   4.174
+  ]
+ ],
+ "stt": null,
+ "sttTried": false
+}

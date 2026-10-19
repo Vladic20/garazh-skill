@@ -1,0 +1,23 @@
+{
+ "v": 2,
+ "text": "[calm, low, reflective] Because sleep... is not the same thing as rest.",
+ "voice": "bf322df2096a46f18c579d0baa36f41d",
+ "model": "fish-audio/s2.1-pro-free:free",
+ "fileDur": 2.978,
+ "speech": [
+  [
+   0,
+   0.738
+  ],
+  [
+   0.999,
+   1.385
+  ],
+  [
+   1.479,
+   2.812
+  ]
+ ],
+ "stt": null,
+ "sttTried": false
+}

@@ -68,7 +68,7 @@ function itemSvg(it, t) {
 }
 
 function camAt(sc, t) {
-  const c = sc.cam || { from: [640, 360, 1], to: [640, 360, 1.06] }, k = easeInOut(prog(t, sc.from, sc.to));
+  const c = sc.cam || { from: [CX, CY, 1], to: [CX, CY, 1.06] }, k = easeInOut(prog(t, sc.from, sc.to));
   // zoom interpolated in log space so push-ins feel constant-speed
   return [lerp(c.from[0], c.to[0], k), lerp(c.from[1], c.to[1], k), Math.exp(lerp(Math.log(c.from[2]), Math.log(c.to[2]), k))];
 }
@@ -89,7 +89,7 @@ function sceneIndex(t) {
 const e4in = k => k * k * k * k, e4out = k => 1 - Math.pow(1 - k, 4), e3in = k => k * k * k, e3out = k => 1 - Math.pow(1 - k, 3);
 const expoOut = k => k >= 1 ? 1 : 1 - Math.pow(2, -10 * k);
 const DIRV = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] };
-const TRAVEL = 230 * W / 1920;   // partial travel ≈ 12% of the frame
+const TRAVEL = 230 * Math.max(W, H) / 1920;   // partial travel ≈ 12% of the frame's long side
 const COVER = Math.hypot(W, H) / 2 + 40;
 
 // layer = { sc, dx, dy, s, op, blur, hblur, paper, clip, overlay, shade }
@@ -100,7 +100,7 @@ function applyOut(L, tr, k) {
     case 'zoom': L.s *= lerp(1, 1.2, e3in(k)); L.op *= lerp(1, .15, k); L.blur = 6 * k; break;
     case 'pull': L.s *= lerp(1, .8, e3in(k)); L.op *= lerp(1, .15, k); L.blur = 6 * k; break;
     case 'whip': L.dx += vx * W * .55 * e3in(k); L.dy += vy * H * .55 * e3in(k); L.hblur = vy ? 0 : 22 * k; L.vblur = vy ? 22 * k : 0; break;
-    case 'iris': L.overlay = irisSvg(tr.from || [640, 360], COVER * (1 - e3in(k))); break;
+    case 'iris': L.overlay = irisSvg(tr.from || [CX, CY], COVER * (1 - e3in(k))); break;
     case 'fade': L.op *= 1 - easeInOut(k); break;
   }
 }
@@ -111,7 +111,7 @@ function applyIn(L, prevL, tr, k) {
     case 'zoom': L.s *= lerp(.75, 1, expoOut(k)); L.op *= lerp(.15, 1, expoOut(k)); L.blur = 6 * (1 - k); break;
     case 'pull': L.s *= lerp(1.25, 1, expoOut(k)); L.op *= lerp(.15, 1, expoOut(k)); L.blur = 6 * (1 - k); break;
     case 'whip': { const r = 1 - e3out(k); L.dx -= vx * W * .55 * r; L.dy -= vy * H * .55 * r; L.hblur = vy ? 0 : 22 * (1 - k); L.vblur = vy ? 22 * (1 - k) : 0; break; }
-    case 'iris': L.overlay = irisSvg(tr.at || [640, 360], COVER * e3out(k)); break;
+    case 'iris': L.overlay = irisSvg(tr.at || [CX, CY], COVER * e3out(k)); break;
     case 'fade': L.op *= easeInOut(k); break;
     case 'wipe': { L.paper = true; L.clip = wipeClip(vx, vy, easeInOut(k)); L.edge = wipeEdge(vx, vy, easeInOut(k)); break; }
     case 'page': { const e = easeInOut(k); L.paper = true; L.dx -= vx * W * (1 - e); L.dy -= vy * H * (1 - e); L.shadow = [vx, vy];
@@ -159,9 +159,9 @@ function layersAt(t) {
 function layerSvg(L, t, idx) {
   const sc = L.sc, [cx, cy, z] = camAt(sc, t);
   const items = [...sc.items].sort((a, b) => (a.z ?? 0) - (b.z ?? 0)).map(it => itemSvg(it, t)).join('');
-  const cam = `translate(${f2(640 - cx * z)} ${f2(360 - cy * z)}) scale(${f2(z)})`;
-  const pz = 1 + (z - 1) * .5, pcam = `translate(${f2(640 - (640 + (cx - 640) * .5) * pz)} ${f2(360 - (360 + (cy - 360) * .5) * pz)}) scale(${f2(pz)})`;
-  const tf = `translate(${f2(L.dx)} ${f2(L.dy)}) translate(640 360) scale(${f2(L.s)}) translate(-640 -360)`;
+  const cam = `translate(${f2(CX - cx * z)} ${f2(CY - cy * z)}) scale(${f2(z)})`;
+  const pz = 1 + (z - 1) * .5, pcam = `translate(${f2(CX - (CX + (cx - CX) * .5) * pz)} ${f2(CY - (CY + (cy - CY) * .5) * pz)}) scale(${f2(pz)})`;
+  const tf = `translate(${f2(L.dx)} ${f2(L.dy)}) translate(${CX} ${CY}) scale(${f2(L.s)}) translate(${-CX} ${-CY})`;
   const fl = L.hblur > .5 ? `filter="url(#hblur${Math.min(4, Math.ceil(L.hblur / 6))})"` : L.vblur > .5 ? `filter="url(#vblur${Math.min(4, Math.ceil(L.vblur / 6))})"` : L.blur > .5 ? `filter="url(#blur${Math.min(8, Math.round(L.blur))})"` : '';
   const clipId = `wc${idx}`;
   const clip = L.clip ? `<clipPath id="${clipId}"><path d="M${L.clip.map(q => q.map(f2).join(' ')).join(' L')}Z"/></clipPath>` : '';

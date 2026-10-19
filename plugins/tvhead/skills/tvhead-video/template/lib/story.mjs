@@ -4,7 +4,70 @@
 export const GROUND = 615;
 export const LANGS = ['en', 'ru'];
 const STANDING = new Set(['tv', 'tvpile', 'feed', 'door', 'stairs', 'house', 'crowd', 'bed', 'laptop', 'money', 'spotlight', 'grid']);
-const PROP_Y = { tvpile: 790, crowd: GROUND, spotlight: GROUND, tv: GROUND - 60, money: GROUND - 14, words: 330, counter: 330, grid: GROUND - 20 };
+
+// ─── formats ───────────────────────────────────────────────────────────────────
+// World size per format (rendered ×1.5: 1920×1080 or 1080×1920). Stories are written in 16:9 world coordinates by default;
+// in 9:16 those numbers are mapped (x squeezed toward the centre, y stretched so the ground stays the ground) unless the
+// value is format-keyed — { "16:9": 470, "9:16": 250 } — or the story says "remap": false (numbers are already portrait).
+export const FORMATS = {
+  '16:9': { id: '16:9', w: 1280, h: 720, ground: 615, out: [1920, 1080] },
+  '9:16': { id: '9:16', w: 720, h: 1280, ground: 940, out: [1080, 1920] },
+};
+const FORMAT_ALIAS = { landscape: '16:9', horizontal: '16:9', wide: '16:9', portrait: '9:16', vertical: '9:16', shorts: '9:16', reels: '9:16' };
+export function resolveFormat(f) {
+  if (f == null || f === '') return FORMATS['16:9'];
+  const id = FORMAT_ALIAS[String(f).toLowerCase()] || String(f).replace(/x/i, ':');
+  if (!FORMATS[id]) throw new Error(`unknown format "${f}" (have: ${Object.keys(FORMATS).join(', ')})`);
+  return FORMATS[id];
+}
+const isFmtObj = v => v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length && Object.keys(v).every(k => k in FORMATS);
+// resolve every format-keyed value to this format's entry (falls back to the 16:9 one)
+function pickFormat(v, F) {
+  if (isFmtObj(v)) return pickFormat(v[F.id] !== undefined ? v[F.id] : v['16:9'], F);
+  if (Array.isArray(v)) return v.map(x => pickFormat(x, F));
+  if (v && typeof v === 'object') { const o = {}; for (const k in v) o[k] = pickFormat(v[k], F); return o; }
+  return v;
+}
+// geometry of one format: centre, default heights, 16:9 → this-world mapping
+function geo(F, remap) {
+  const port = F.id === '9:16', G = F.ground, cx = F.w / 2;
+  const kx = F.w / 1280, ky = G / GROUND;
+  const on = port && remap !== false;
+  return { F, port, G, cx, W: F.w, H: F.h, on,
+    mx: x => on && typeof x === 'number' ? r3(cx + (x - 640) * kx) : x,
+    my: y => on && typeof y === 'number' ? r3(y * ky) : y,
+    propY: port ? { tvpile: F.h + 70, crowd: G, spotlight: G, tv: G - 60, money: G - 14, words: 600, counter: 560, grid: G - 20 }
+                : { tvpile: 790, crowd: G, spotlight: G, tv: G - 60, money: G - 14, words: 330, counter: 330, grid: G - 20 },
+    floatY: port ? 460 : 300, charScale: port ? 1.2 : 1 };   // 9:16: figures a bit bigger in the tall frame
+}
+const pt = (g, p) => Array.isArray(p) ? [g.mx(p[0]), g.my(p[1]), ...p.slice(2)] : p;
+// map one raw cast/prop/change entry's coordinates into this world. A format-keyed value is taken as-is (already native).
+function adaptRaw(raw, g) {
+  if (!raw || typeof raw !== 'object') return raw;
+  const o = {}, nat = k => isFmtObj(raw[k]);
+  for (const k in raw) o[k] = k === 'then' && Array.isArray(raw.then) ? raw.then.map(c => adaptRaw(c, g)) : pickFormat(raw[k], g.F);
+  const fix = (k, f) => { if (o[k] !== undefined && !nat(k)) o[k] = f(o[k]); };
+  fix('x', g.mx); fix('y', g.my); fix('from', p => pt(g, p)); fix('to', p => pt(g, p));
+  if (g.port) portraitFit(o, raw, g);
+  return o;
+}
+// props whose 16:9 size cannot fit 720 px wide get re-laid (only when their size was not given per format)
+function portraitFit(o, raw, g) {
+  const maxW = g.W - 100, plain = k => !isFmtObj(raw[k]);
+  if (o.type === 'words' && plain('maxWidth')) o.maxWidth = Math.min(+pickFormat(raw.maxWidth, g.F) || maxW, maxW);
+  for (const k of ['w', 'width']) if (['timeline', 'progress', 'chart', 'bars', 'crowd'].includes(o.type) && o[k] > maxW && plain(k)) o[k] = maxW;
+  if (o.type === 'grid' && g.on && plain('cols') && plain('rows')) {
+    let rows = o.rows || 3, cols = o.cols || 7, odd = o.odd;
+    if (cols > rows) {   // transpose: 3×7 → 7×3, keep the odd one in the same (transposed) cell
+      if (Number.isInteger(odd)) odd = (odd % cols) * rows + Math.floor(odd / cols);
+      [rows, cols] = [cols, rows];
+    }
+    const cell = Math.min(o.cell || 120, (g.W - 60) / cols, 760 / (rows * .95));
+    Object.assign(o, { rows, cols, cell: r3(cell), odd });
+    if (plain('y')) o.y = r3(560 + (rows - 1) * cell * .95 / 2 + cell * .45);   // block centred around y≈560
+    if (plain('x')) o.x = g.cx;
+  }
+}
 
 // ─── themes (pick with "theme": "<name>" or { "preset": "<name>", …overrides }) ───────────────
 export const THEMES = {
@@ -61,13 +124,29 @@ const CAM = {
   up: [[640, 430, 1.08], [640, 320, 1.08]], down: [[640, 320, 1.08], [640, 430, 1.08]],
   'push-fast': [[640, 360, 1], [640, 360, 1.18]], drift: [[620, 368, 1.04], [660, 352, 1.06]],
 };
-function resolveCam(c) {
-  if (!c) return { from: CAM.push[0], to: CAM.push[1] };
-  if (typeof c === 'string') { const p = CAM[c]; if (!p) throw new Error(`unknown cam "${c}" (have: ${Object.keys(CAM).join(', ')})`); return { from: p[0], to: p[1] }; }
-  if (c.from && c.to) return { from: c.from, to: c.to, ease: c.ease };
-  if (c.focus) { const z = c.zoom || 1.4, [x, y] = c.focus; const cl = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-    const fx = cl(x, 640 / z, 1280 - 640 / z), fy = cl(y, 360 / z, 720 - 360 / z);
-    if (c.from) return { from: c.from, to: [fx, fy, z] };   // travel from a wide shot onto the subject
+// 9:16: same moves around (360, 640); pans/tilts zoom a little more so the travel stays inside the narrow frame
+const CAM_P = {
+  push: [[360, 640, 1], [360, 640, 1.07]], pull: [[360, 640, 1.08], [360, 640, 1]], still: [[360, 640, 1], [360, 640, 1]],
+  'pan-left': [[392, 640, 1.1], [328, 640, 1.1]], 'pan-right': [[328, 640, 1.1], [392, 640, 1.1]],
+  up: [[360, 706, 1.12], [360, 574, 1.12]], down: [[360, 574, 1.12], [360, 706, 1.12]],
+  'push-fast': [[360, 640, 1], [360, 640, 1.18]], drift: [[350, 648, 1.04], [370, 632, 1.06]],
+};
+// keep the view inside the world: centre within [W/2z, W − W/2z] (no clamping in 16:9, whose presets predate it)
+function clampCam(p, g) {
+  if (!g.port || !Array.isArray(p)) return p;
+  const z = Math.max(1, p[2] ?? 1), cl = (v, a, b) => Math.min(b, Math.max(a, v));
+  return [r3(cl(p[0], g.W / 2 / z, g.W - g.W / 2 / z)), r3(cl(p[1], g.H / 2 / z, g.H - g.H / 2 / z)), p[2] ?? 1];
+}
+function resolveCam(c, g) {
+  if (isFmtObj(c)) return resolveCam(pickFormat(c, g.F), { ...g, mx: x => x, my: y => y });   // per-format cam = native values
+  const P = g.port ? CAM_P : CAM, nat = k => isFmtObj(c[k]);
+  if (!c) return { from: P.push[0], to: P.push[1] };
+  if (typeof c === 'string') { const p = P[c]; if (!p) throw new Error(`unknown cam "${c}" (have: ${Object.keys(CAM).join(', ')})`); return { from: p[0], to: p[1] }; }
+  const v = k => nat(k) ? pickFormat(c[k], g.F) : pt(g, pickFormat(c[k], g.F));
+  if (c.from && c.to) return { from: clampCam(v('from'), g), to: clampCam(v('to'), g), ease: c.ease };
+  if (c.focus) { const z = pickFormat(c.zoom, g.F) || 1.4, [x, y] = v('focus'); const cl = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+    const fx = cl(x, g.W / 2 / z, g.W - g.W / 2 / z), fy = cl(y, g.H / 2 / z, g.H - g.H / 2 / z);
+    if (c.from) return { from: clampCam(v('from'), g), to: [fx, fy, z] };   // travel from a wide shot onto the subject
     return c.push === false ? { from: [fx, fy, z], to: [fx, fy, z] } : { from: [fx, fy, z * .96], to: [fx, fy, z * 1.03] }; }
   throw new Error(`bad cam ${JSON.stringify(c)}`);
 }
@@ -86,18 +165,21 @@ export const TRANSITIONS = {
   page:  { dOut: 0, dIn: .6 },       // new sheet of paper slides over the old one
   fade:  { dOut: .3, dIn: .35 },     // dip to paper (use for chapter breaks only)
 };
-function resolveTransition(raw, story, i, keep) {
+function resolveTransition(raw, story, i, keep, g) {
   if (i === 0) return { type: 'none', dOut: 0, dIn: 0 };
   let tr = raw.transition ?? (keep ? 'none' : story.transition ?? 'curve');
   if (typeof tr === 'string') tr = { type: tr };
   const base = TRANSITIONS[tr.type];
   if (!base) throw new Error(`scene ${i + 1}: unknown transition "${tr.type}" (have: ${Object.keys(TRANSITIONS).join(', ')})`);
-  return { ...base, dir: story.direction || 'left', ...tr };
+  const out = { ...base, dir: story.direction || 'left', ...tr };
+  for (const k of ['at', 'from']) if (tr[k]) out[k] = isFmtObj(tr[k]) ? pickFormat(tr[k], g.F) : pt(g, tr[k]);
+  return out;
 }
 
-function layoutItems(sc) {
+function layoutItems(sc, g) {
   const L = sc.layout; if (!L) return [];
   const n = sc.count || 4;
+  if (g.port) return layoutPortrait(L, n, sc, g);
   if (L === 'solo') return [{ char: true, id: 'hero', x: 640 }];
   if (L === 'duo') return [{ char: true, id: 'a', x: 450 }, { char: true, id: 'b', x: 830, flip: true }];
   if (L === 'lineup') {
@@ -111,6 +193,27 @@ function layoutItems(sc) {
     { char: true, id: 'hero', kind: 'mask', x: 640, y: 482, scale: 1, pose: 'up', arms: 'coil', face: 'neutral', enter: 'none' },
   ];
   if (L === 'title') return [{ type: 'words', id: 'title', x: 640, y: 330, size: 92 }];
+  throw new Error(`unknown layout "${L}" (have: solo, duo, lineup, crowd, pile, title)`);
+}
+// the same layouts re-laid for the 720×1280 world: figures smaller and closer, the pile taller, type narrower
+function layoutPortrait(L, n, sc, g) {
+  const { cx, G, H } = g;
+  if (L === 'solo') return [{ char: true, id: 'hero', x: cx }];
+  if (L === 'duo') return [{ char: true, id: 'a', x: cx - 165 }, { char: true, id: 'b', x: cx + 165, flip: true }];
+  if (L === 'lineup') {
+    const sp = Math.min(190, 560 / Math.max(1, n - 1)), scale = n > 4 ? .66 : n > 2 ? .8 : 1;
+    return Array.from({ length: n }, (_, i) => ({ char: true, id: `p${i + 1}`, x: r3(cx + (i - (n - 1) / 2) * sp), pose: i % 2 ? 'raise' : 'idle', face: 'happy', delay: i * .12, scale }));
+  }
+  if (L === 'crowd') return [{ type: 'crowd', id: 'crowd', x: cx, y: G - 10, rows: 3, cols: 6, width: g.W + 40, enter: 'fade' }, ...(sc.hero === false ? [] : [{ char: true, id: 'hero', x: cx }])];
+  if (L === 'pile') {
+    const py = H + 70, ph = 560, hy = r3(py - ph * .83);
+    return [
+      { type: 'feed', id: 'feed', x: cx, y: r3(hy - 342), height: 1200, enter: 'none' },
+      { type: 'tvpile', id: 'pile', x: cx, y: py, width: g.W + 40, height: ph, enter: 'none' },
+      { char: true, id: 'hero', kind: 'mask', x: cx, y: hy, scale: 1, pose: 'up', arms: 'coil', face: 'neutral', enter: 'none' },
+    ];
+  }
+  if (L === 'title') return [{ type: 'words', id: 'title', x: cx, y: 600, size: 80, maxWidth: g.W - 100 }];
   throw new Error(`unknown layout "${L}" (have: solo, duo, lineup, crowd, pile, title)`);
 }
 
@@ -150,21 +253,21 @@ function finalState(it) {   // apply all changes → base for an inherited (keep
 }
 
 const META = new Set(['on', 'at', 'delay', 'then', 'char', 'type', 'out', 'outOn', 'outAt', 'note']);
-function makeItem(raw, sc, idx, ctx) {
+function makeItem(raw, sc, idx, ctx, g) {
   const isChar = raw.char || raw.kind || (!raw.type && raw.face !== undefined) || raw.type === 'char';
   const it = { el: isChar ? 'char' : 'prop' };
   for (const k in raw) if (!META.has(k)) it[k] = raw[k];
   if (isChar) {
-    Object.assign(it, { kind: raw.kind || 'tv', face: raw.face || 'happy', pose: raw.pose || 'idle', y: raw.y ?? GROUND, scale: raw.scale ?? 1 });
+    Object.assign(it, { kind: raw.kind || 'tv', face: raw.face || 'happy', pose: raw.pose || 'idle', y: raw.y ?? g.G, scale: raw.scale ?? g.charScale });
   } else {
     it.type = raw.type;
-    it.y = raw.y ?? PROP_Y[raw.type] ?? (STANDING.has(raw.type) ? GROUND : 300);
-    it.x = raw.x ?? 640; it.scale = raw.scale ?? 1;
+    it.y = raw.y ?? g.propY[raw.type] ?? (STANDING.has(raw.type) ? g.G : g.floatY);
+    it.x = raw.x ?? g.cx; it.scale = raw.scale ?? 1;
     if (raw.type === 'text' && !raw.enter) it.enter = 'write';
     if (raw.type === 'words') { it.words = wordTimes(raw.text ?? sc.say, sc); it.enter = raw.enter || 'none'; }
     if (raw.type === 'photo' && raw.src && !/^(https?:|data:)/.test(raw.src)) it.src = ctx.assetBase + raw.src.replace(/\\/g, '/');
   }
-  it.x = it.x ?? 640;
+  it.x = it.x ?? g.cx;
   it.id = raw.id || `${raw.type || 'char'}${idx}`;   // idx = per-type counter
   it.seed = hash(`${it.id}:${sc.index}`) + 1;
   const firstWord = sc.words.length ? sc.words[0][1] : sc.from;
@@ -175,20 +278,29 @@ function makeItem(raw, sc, idx, ctx) {
 }
 
 // story = already localized to `lang`; clips[i] = { dur, lead, words:[[w, tRel]], speech:[[a,b]], file?, silent? }
-// ctx = { lang, assetBase (episode dir relative to engine/, with trailing slash) }
-export function buildTimeline(story, clips, ctx = { lang: 'en', assetBase: '' }) {
-  if (!Array.isArray(story.scenes) || !story.scenes.length) throw new Error('story.json: "scenes" must be a non-empty array');
+// ctx = { lang, assetBase (episode dir relative to engine/, with trailing slash), format? (overrides story.format) }
+export function buildTimeline(story0, clips, ctx = { lang: 'en', assetBase: '' }) {
+  if (!Array.isArray(story0.scenes) || !story0.scenes.length) throw new Error('story.json: "scenes" must be a non-empty array');
+  const F = resolveFormat(ctx.format || story0.format), g = geo(F, story0.remap);
+  // scene fields other than coordinates just pick their format's value; cast/props/change/cam/transition are mapped into the world
+  const SPECIAL = new Set(['cast', 'props', 'change', 'cam', 'transition']);
+  const story = { ...pickFormat({ ...story0, scenes: undefined }, F), scenes: story0.scenes.map(s => {
+    const o = {}; for (const k in s) o[k] = SPECIAL.has(k) ? s[k] : pickFormat(s[k], F);
+    for (const k of ['cast', 'props', 'change']) if (Array.isArray(s[k])) o[k] = s[k].map(c => adaptRaw(c, g));
+    return o;
+  }) };
   const pace = story.pace ?? 1, scenes = [], subs = [], talk = [], voice = [];
+  const capWords = g.port ? 5 : 6, capChars = g.port ? 28 : 38;
   let cursor = 0;
   story.scenes.forEach((raw, i) => {
     const clip = clips[i];
     const keep = !!(raw.keep && scenes.length);
-    const transition = resolveTransition(raw, story, i, keep);
+    const transition = resolveTransition(raw, story, i, keep, g);
     const lead = i === 0 ? .55 : (raw.lead ?? Math.max(.12, transition.dIn * .6));
     const from = r3(cursor);
     const vStart = r3(from + lead);
     const speechEnd = clip ? clip.dur : 0;
-    const nextTr = story.scenes[i + 1] ? resolveTransition(story.scenes[i + 1], story, i + 1, !!story.scenes[i + 1].keep) : null;
+    const nextTr = story.scenes[i + 1] ? resolveTransition(story.scenes[i + 1], story, i + 1, !!story.scenes[i + 1].keep, g) : null;
     const gap = Math.max((raw.pause ?? story.pause ?? .38) * pace, nextTr ? nextTr.dOut + .08 : 0);   // exit motion happens after the line ends
     let to = r3(Math.max(from + (raw.minDur ?? 1.4), clip ? vStart + speechEnd + gap : from + (raw.dur ?? 2.2)) + (raw.hold ?? 0));
     if (i === story.scenes.length - 1) to = r3(to + (story.outro ?? 1.4));
@@ -203,14 +315,14 @@ export function buildTimeline(story, clips, ctx = { lang: 'en', assetBase: '' })
       items = prev.items.filter(it => it.out == null || it.out >= prev.to).map(it => ({ ...finalState(it), t0: from, enter: 'none', out: undefined }));
       const drop = new Set(raw.remove || []); items = items.filter(it => !drop.has(it.id));
     }
-    const lay = layoutItems(raw);
+    const lay = layoutItems(raw, g);
     const raws = [...lay.map(o => ({ ...o, ...(raw.cast || []).find(c => c.id === o.id), ...(raw.props || []).find(c => c.id === o.id) })),
       ...(raw.cast || []).filter(c => !lay.some(o => o.id === c.id)).map(c => ({ char: true, ...c })),
       ...(raw.props || []).filter(c => !lay.some(o => o.id === c.id))];
     const perType = {};
     raws.forEach(r => {
       const ty = r.type || 'char'; perType[ty] = (perType[ty] || 0) + 1;
-      const it = makeItem(r, sc, perType[ty], ctx);
+      const it = makeItem(r, sc, perType[ty], ctx, g);
       const ex = items.findIndex(x => x.id === it.id);
       if (ex >= 0) items[ex] = it; else items.push(it);
     });
@@ -224,13 +336,13 @@ export function buildTimeline(story, clips, ctx = { lang: 'en', assetBase: '' })
     if (speaker && clip) for (const [a, b] of clip.speech) talk.push([r3(vStart + a), r3(vStart + b), speaker.id]);
 
     const prevSc = keep ? scenes[scenes.length - 1] : null;
-    scenes.push({ from, to, cam: resolveCam(raw.cam), transition, ground: raw.ground ?? prevSc?.ground ?? (raw.layout === 'pile' || raw.layout === 'title' ? false : true),
+    scenes.push({ from, to, cam: resolveCam(raw.cam, g), transition, ground: raw.ground ?? prevSc?.ground ?? (raw.layout === 'pile' || raw.layout === 'title' ? false : true),
       particles: raw.particles ?? prevSc?.particles ?? story.particles ?? 1, dark: raw.dark ?? prevSc?.dark ?? false, items });
-    // captions: phrases of ≤ 6 words / ≤ 38 chars, broken after punctuation
+    // captions: phrases of ≤ 6 words / ≤ 38 chars (9:16: ≤ 5 / ≤ 28), broken after punctuation
     let cur = [];
     const flush = end => { if (!cur.length) return; subs.push({ from: cur[0][1], to: end, words: cur }); cur = []; };
     words.forEach(([w, t], k) => {
-      if (cur.length && (cur.length >= 6 || [...cur.map(x => x[0]), w].join(' ').length > 38)) flush(t);
+      if (cur.length && (cur.length >= capWords || [...cur.map(x => x[0]), w].join(' ').length > capChars)) flush(t);
       cur.push([w, t]);
       if (/[.!?;:…]$/.test(w) && k < words.length - 1) flush(words[k + 1][1]);
     });
@@ -239,7 +351,7 @@ export function buildTimeline(story, clips, ctx = { lang: 'en', assetBase: '' })
   });
   for (let k = 0; k < subs.length - 1; k++) subs[k].to = r3(Math.min(subs[k].to, subs[k + 1].from));
   const scripts = (story.scripts || []).map(s => ctx.assetBase + String(s).replace(/\\/g, '/'));
-  return { lang: ctx.lang, duration: r3(cursor), captions: !!story.captions, theme: resolveTheme(story.theme), scripts, scenes, subs, talk, voice };
+  return { lang: ctx.lang, format: F.id, world: { w: F.w, h: F.h, ground: F.ground }, duration: r3(cursor), captions: !!story.captions, theme: resolveTheme(story.theme), scripts, scenes, subs, talk, voice };
 }
 
 // SubRip file from caption phrases

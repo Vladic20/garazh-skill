@@ -7,12 +7,15 @@ Things inside a scene appear **on a spoken word** (`"on": "word"`), which keeps 
 **Languages.** Any text value may be `{ "en": "...", "ru": "..." }` — `say`, `text`, `note`, labels, list items and even cue words (`"on": { "en": "scroll", "ru": "ленту" }`). One story renders one video per language with the same pictures and its own voice and timing. Cue words must be in that language's line; when they are not, the item falls back to `at` (so give multilingual items an `at` as well, or use `at` only).
 
 World: 1280×720 (rendered 1920×1080). Ground line at `y = 615`. Centre `x = 640`. A character at `scale: 1` is ~395 px tall (feet on the ground, antenna tip at y ≈ 220).
+Vertical videos (`"format": "9:16"`) use a 720×1280 world (rendered 1080×1920); you still write 16:9 coordinates, see **Vertical 9:16** below.
 
 ## Top level
 
 | key | default | meaning |
 |---|---|---|
 | `title` | — | shown in the app; not drawn |
+| `format` | `16:9` | `16:9` (1920×1080, YouTube) or `9:16` (1080×1920, Shorts / Reels / TikTok); also `landscape` / `portrait`. `node make.mjs <slug> --format 9:16` renders any story the other way without editing it |
+| `remap` | `true` | 9:16 only: `false` = plain numbers are already 720×1280 world coordinates (write this when the story is vertical-only) |
 | `languages` | detected from `say` | `["en"]`, `["ru"]` or `["en", "ru"]` |
 | `voice` | per language: EN `bf322df2096a46f18c579d0baa36f41d` (Adrian), RU `868377a7b08f4c0d9acf8c9f059571aa` (Молодой Аналитик); .env `TVHEAD_VOICE_EN` / `TVHEAD_VOICE_RU` | Fish Audio voice id (`fish.audio/m/<id>`), or `{ "en": "<id>", "ru": "<id>" }` |
 | `model` | `fish-audio/s2.1-pro-free:free` (**free**) or .env `TVHEAD_TTS_MODEL` | any OpenRouter TTS model; paid, more acted: `fish-audio/drama-3` |
@@ -113,6 +116,18 @@ Every prop takes `x`, `y`, `scale`, `rot`, `flip`, `enter`, `z`, cues and `then`
 | `photo` | the user's image as a taped grayscale polaroid: `src: "refs/<file>"`, `w`, `h`, `caption`, `color: true` |
 
 `enter`: `pop` (default) · `fade` · `drop` · `rise` · `slide-left` · `slide-right` · `grow` · `write` (text) · `none`. `exit`: `pop` · `fade`.
+
+## Vertical 9:16
+
+`"format": "9:16"` renders 1080×1920 from a 720×1280 world. Ground at `y = 940`, centre `x = 360`; figures default to `scale: 1.2`. Everything is laid out for you:
+
+- **Coordinates.** Write the story in 16:9 numbers as usual. In 9:16 they are mapped: `x → 360 + (x − 640) × 0.5625` (squeezed toward the centre) and `y → y × 1.53` (the ground stays the ground, things above it spread over the taller sky). This applies to `x`, `y`, arrow `from`/`to`, `then`/`change` moves, `cam` points and iris `at`/`from`. Defaults follow the world (standing props on y 940, floating icons at y 460, `words` at y 600).
+- **Exact placement.** Any value can be given per format: `"x": { "16:9": 900, "9:16": 560 }`, `"layout": { "16:9": "lineup", "9:16": "solo" }`, `"cam": { "16:9": "pan-left", "9:16": "up" }`. A format-keyed value is used as-is (no mapping) — use it when the mapped position overlaps something. With `"remap": false` every plain number is a 720×1280 coordinate.
+- **Layouts re-laid:** `solo`/`duo` (x 195 / 525) at 1.2×, `lineup` closer and smaller (0.8 for 3–4, 0.66 for 5–6), `crowd` narrower, `pile` taller (mound fills the bottom, the feed reaches past the top), `title` narrower (size 80, wraps at 620 px).
+- **Type and infographics wrap narrower:** `words` wrap at 620 px, `text` shrinks to fit the frame, `timeline`/`progress`/`chart`/`bars`/`crowd` widths are capped, a wide `grid` (e.g. 3×7) is transposed to 7×3 and resized (the `odd` one stays the same figure).
+- **Camera presets** are re-centred and kept inside the frame (`pan-*` and `up`/`down` zoom 1.1–1.12 so the travel fits); `focus` points are clamped the same way.
+- **Captions** (`captions: true`) wrap to ≤ 600 px, ≤ 5 words per phrase, on a soft paper slip 238 px above the bottom — clear of the Shorts/Reels/TikTok UI. Keep important things between y ≈ 120 and 1040; the strip under the ground is caption space.
+- Compose for the tall frame: text and infographics in the top third, figures in the middle, one or two subjects per picture. A 16:9 story usually works unchanged; check the sheet and fix collisions with format-keyed values.
 
 ## Patterns that work
 

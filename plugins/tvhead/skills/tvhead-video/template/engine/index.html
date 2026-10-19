@@ -12,7 +12,7 @@
   #art, #paper { position: absolute; inset: 0; }
   #art svg, #paper svg { display: block; }
   #paper, #vignette { will-change: transform; }
-  .grain { position: absolute; inset: 0; width: 1280px; height: 720px; opacity: .10; mix-blend-mode: overlay; display: none; pointer-events: none; }
+  .grain { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .10; mix-blend-mode: overlay; display: none; pointer-events: none; }
   #vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 78% 70% at 50% 47%, transparent 55%, rgba(30,34,36,.28) 85%, rgba(20,22,24,.55) 100%); }
   #flicker { position: absolute; inset: 0; background: #fff; mix-blend-mode: soft-light; }
   #fade { position: absolute; inset: 0; background: var(--paper); opacity: 0; }
@@ -21,6 +21,9 @@
          font: 400 50px/1 Hand, sans-serif; color: var(--muted); letter-spacing: .5px;
          text-shadow: 0 0 6px var(--paper-light), 0 0 3px var(--paper-light), 0 0 2px var(--paper-light); }
   .cap .on { color: var(--ink); }
+  /* 9:16: captions wrap and sit above the bottom ~18% that Shorts/Reels/TikTok cover with their own UI */
+  .portrait .cap { bottom: 238px; width: max-content; max-width: 600px; white-space: normal; text-align: center; font-size: 46px; line-height: 1.08;
+                  padding: 2px 16px 8px; border-radius: 14px; background: color-mix(in srgb, var(--paper-light) 80%, transparent); }
 </style></head>
 <body>
 <div id="defs"></div>
@@ -47,8 +50,8 @@
   (function () {   // film grain: 6 deterministic tiles, one per two frames in rotation
     const host = document.getElementById('grains');
     for (let k = 0; k < 6; k++) {
-      const c = document.createElement('canvas'); c.width = 640; c.height = 360; c.className = 'grain';
-      const ctx = c.getContext('2d'), img = ctx.createImageData(640, 360);
+      const c = document.createElement('canvas'); c.width = W / 2; c.height = H / 2; c.className = 'grain';
+      const ctx = c.getContext('2d'), img = ctx.createImageData(W / 2, H / 2);
       let s = 4321 + k * 977;
       for (let i = 0; i < img.data.length; i += 4) {
         s = (s * 16807) % 2147483647; const v = 128 + ((s / 2147483647) - .5) * 255;
@@ -56,6 +59,11 @@
       }
       ctx.putImageData(img, 0, 0); host.appendChild(c);
     }
+  })();
+  (function () {   // stage = world size of this timeline (1280×720 or 720×1280)
+    const st = document.getElementById('stage');
+    st.style.width = W + 'px'; st.style.height = H + 'px';
+    if (PORTRAIT) st.classList.add('portrait');
   })();
   installStatic();
   render(parseFloat(new URLSearchParams(location.search).get('t') || '0'));

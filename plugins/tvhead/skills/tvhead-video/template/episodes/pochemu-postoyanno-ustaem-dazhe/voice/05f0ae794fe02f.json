@@ -1,0 +1,19 @@
+{
+ "v": 2,
+ "text": "[calm, low, reflective] Тело лежало в кровати. А мозг так и не ушёл с работы.",
+ "voice": "868377a7b08f4c0d9acf8c9f059571aa",
+ "model": "fish-audio/s2.1-pro-free:free",
+ "fileDur": 3.683,
+ "speech": [
+  [
+   0,
+   1.417
+  ],
+  [
+   1.706,
+   3.538
+  ]
+ ],
+ "stt": null,
+ "sttTried": false
+}

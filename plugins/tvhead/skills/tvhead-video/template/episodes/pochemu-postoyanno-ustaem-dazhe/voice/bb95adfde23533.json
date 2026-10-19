@@ -1,0 +1,23 @@
+{
+ "v": 2,
+ "text": "[calm, low, reflective] And scrolling isn't a break. It's just a quieter kind of work.",
+ "voice": "bf322df2096a46f18c579d0baa36f41d",
+ "model": "fish-audio/s2.1-pro-free:free",
+ "fileDur": 4.702,
+ "speech": [
+  [
+   0,
+   1.675
+  ],
+  [
+   2.512,
+   3.09
+  ],
+  [
+   3.177,
+   4.39
+  ]
+ ],
+ "stt": null,
+ "sttTried": false
+}

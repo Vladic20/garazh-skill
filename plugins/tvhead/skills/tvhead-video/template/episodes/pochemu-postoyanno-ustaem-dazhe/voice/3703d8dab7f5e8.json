@@ -1,0 +1,31 @@
+{
+ "v": 2,
+ "text": "[calm, low, reflective] Thousands of tiny decisions. Reply or ignore. Scroll or stop.",
+ "voice": "bf322df2096a46f18c579d0baa36f41d",
+ "model": "fish-audio/s2.1-pro-free:free",
+ "fileDur": 6.295,
+ "speech": [
+  [
+   0,
+   0.865
+  ],
+  [
+   0.955,
+   2.021
+  ],
+  [
+   2.776,
+   4.15
+  ],
+  [
+   4.7,
+   5.305
+  ],
+  [
+   5.523,
+   6.1
+  ]
+ ],
+ "stt": null,
+ "sttTried": false
+}

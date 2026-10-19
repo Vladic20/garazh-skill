@@ -9,7 +9,7 @@ Object.assign(PROPS, {
   // kinetic words: each word rises in (waterfall entry) exactly when it is spoken; emph words get the accent + a scribble underline.
   // p.words = [[word, t]] (filled by make.mjs from the narration), size, maxWidth, align, emph: ["word", …], lineGap
   words(p, t) {
-    const fs = p.size || 76, maxW = p.maxWidth || 1040, gap = fs * .28, lines = [[]];
+    const fs = p.size || 76, maxW = p.maxWidth || Math.min(1040, W - 100), gap = fs * .28, lines = [[]];
     let lw = 0;
     const ws = (p.words || []).map(([w, wt]) => ({ w, wt, wd: approxW(w, fs) }));
     for (const o of ws) { if (lw && lw + gap + o.wd > maxW) { lines.push([]); lw = 0; } lines[lines.length - 1].push(o); lw += (lw ? gap : 0) + o.wd; }
@@ -71,7 +71,7 @@ Object.assign(PROPS, {
   },
   // timeline of dots with labels: items ["2007", …] or [{label, sub}], w (900), step (0.35 s), hi
   timeline(p, t, lt) {
-    const it = (p.items || []).map(x => typeof x === 'object' ? x : { label: x }), n = it.length, w = p.w || 900, step = p.step ?? .35;
+    const it = (p.items || []).map(x => typeof x === 'object' ? x : { label: x }), n = it.length, w = Math.min(p.w || 900, W - (PORTRAIT ? 170 : 100)), step = p.step ?? .35;
     const k = easeInOut(clamp(lt / (p.dur || n * step + .2)));
     let s = `<path d="M${-w / 2} 0 H${f2(-w / 2 + w * k)}" ${ST(4.5)}/>`;
     it.forEach((o, i) => {

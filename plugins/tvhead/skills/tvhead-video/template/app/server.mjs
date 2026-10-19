@@ -8,7 +8,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { createReadStream, existsSync, statSync, readFileSync, writeFileSync, mkdirSync, rmSync, unlinkSync, copyFileSync, createWriteStream } from 'node:fs';
 import path from 'node:path';
 import { STUDIO, EPISODES, APP_STATE, getJob, saveJob, setStatus, listJobs, createJob, claudeWatching, jobDir, readJson, writeJson } from './jobs.mjs';
-import { THEMES, localize, storyLanguages } from '../lib/story.mjs';
+import { THEMES, localize, storyLanguages, resolveFormat } from '../lib/story.mjs';
 import { DEFAULT_VOICES, provider } from '../lib/voice.mjs';
 
 const PORT = +(process.env.TVHEAD_PORT || 4777), VERSION = '2.0.0';
@@ -57,7 +57,7 @@ function storyboard(id) {
   const stillsDir = `episodes/${id}/build/${first}/stills`;
   const tl = (() => { try { const s = readFileSync(path.join(jobDir(id), 'build', first, 'timeline.js'), 'utf8'); return JSON.parse(s.split('window.TL = ')[1].replace(/;\s*$/, '')); } catch { return null; } })();
   return {
-    title: localize(story.title, first) || id, languages: langs, theme: typeof story.theme === 'object' ? story.theme.preset || 'custom' : story.theme || 'paper',
+    title: localize(story.title, first) || id, languages: langs, format: (() => { try { return resolveFormat(story.format).id; } catch { return '16:9'; } })(), theme: typeof story.theme === 'object' ? story.theme.preset || 'custom' : story.theme || 'paper',
     mood: story.mood || 'dark', duration: tl?.duration ?? null,
     scenes: story.scenes.map((s, i) => ({
       i, note: localize(s.note, first) || '', say: Object.fromEntries(langs.map(l => [l, localize(s.say, l) || ''])),
@@ -108,7 +108,7 @@ function startClaudeCli(id, feedback) {
   if (!HAS_CLAUDE_CLI || running.has(id)) return false;
   const prompt = `Use the tvhead-video skill. You are processing a job from the tvhead studio app in ${STUDIO}.
 Job id: ${id}. ${feedback ? `The user sent storyboard feedback: "${feedback}". Revise episodes/${id}/story.json accordingly.` : `Read episodes/${id}/brief.json (and any images in episodes/${id}/refs/) and write episodes/${id}/story.json.`}
-Follow SKILL.md section "App jobs": claim with \`node app/bridge.mjs claim ${id}\`, write the story (every scene gets a "note"; say as {"en","ru"} for each language in the brief), then run \`node app/bridge.mjs storyboard ${id}\` and look at the sheet it prints; fix obvious problems once. Do not render the final video — the app does that after the user approves.`;
+Follow SKILL.md section "App jobs": claim with \`node app/bridge.mjs claim ${id}\`, write the story (every scene gets a "note"; say as {"en","ru"} for each language in the brief; copy the brief's "format" into story.json), then run \`node app/bridge.mjs storyboard ${id}\` and look at the sheet it prints; fix obvious problems once. Do not render the final video — the app does that after the user approves.`;
   const log = createWriteStream(path.join(jobDir(id), 'claude.log'), { flags: 'a' });
   const p = spawn('claude', ['-p', '--permission-mode', 'acceptEdits', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Bash(node:*)'],
     { cwd: STUDIO, shell: process.platform === 'win32', env: { ...process.env } });
@@ -168,7 +168,7 @@ const server = http.createServer(async (req, res) => {
       const b = await body(req);
       if (!String(b.topic || '').trim()) return send(res, 400, { error: 'Нужна тема ролика' });
       const langs = (b.languages || ['en']).filter(l => ['en', 'ru'].includes(l));
-      const brief = { topic: String(b.topic).trim().slice(0, 2000), languages: langs.length ? langs : ['en'], duration: Math.min(300, Math.max(15, +b.duration || 60)),
+      const brief = { topic: String(b.topic).trim().slice(0, 2000), languages: langs.length ? langs : ['en'], format: b.format === '9:16' ? '9:16' : '16:9', duration: Math.min(300, Math.max(15, +b.duration || 60)),
         theme: THEMES[b.theme] ? b.theme : b.theme === 'reference' ? 'reference' : 'paper', voices: b.voices || {}, notes: String(b.notes || '').slice(0, 4000),
         captions: !!b.captions, autoRender: !!b.autoRender, engine: b.engine === 'cli' ? 'cli' : 'session' };
       const job = createJob(brief, Array.isArray(b.refs) ? b.refs.slice(0, 8) : []);

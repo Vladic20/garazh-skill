@@ -1,6 +1,8 @@
 // ─── core: constants, math, deterministic randomness, shared textures ──────────
-// World is 1280×720. Every frame is a pure function of t (seconds): never use Math.random or Date in drawing code.
-const W = 1280, H = 720, GROUND = 615;
+// World is 1280×720 (16:9) or 720×1280 (9:16), set by the timeline (TL.world). Every frame is a pure function of t (seconds):
+// never use Math.random or Date in drawing code.
+const WORLD = (typeof TL === 'object' && TL.world) || { w: 1280, h: 720, ground: 615 };
+const W = WORLD.w, H = WORLD.h, GROUND = WORLD.ground, CX = W / 2, CY = H / 2, PORTRAIT = H > W;
 // Palette comes from the theme (TL.theme, resolved by lib/story.mjs from a preset + overrides). Defaults = grey paper.
 let INK = '#141414', BEZEL = '#585858', SCREEN = '#e9ebeb', PAPER = '#c6ccd0', WHITE = '#f1f2f1', ACCENT = '#141414';
 let THEME = { paper: PAPER, paperLight: '#d3d8db', paperDark: '#9fa6aa', ink: INK, bezel: BEZEL, screen: SCREEN, fill: WHITE, accent: ACCENT, dark: '#2c3134', halo: '#aab0b4' };

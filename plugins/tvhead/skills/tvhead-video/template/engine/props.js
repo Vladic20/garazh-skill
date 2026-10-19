@@ -77,7 +77,8 @@ const PROPS = {
   },
   // handwritten text; enter 'write' reveals letters one by one. anchor = baseline centre (align: middle|start|end)
   text(p, t, lt) {
-    const fs = p.size || 64, txt = String(p.text || '');
+    const txt = String(p.text || ''), fit = p.maxWidth || W - 80, widest = Math.max(...txt.split('\n').map(l => approxW(l, p.size || 64)));
+    const fs = (p.size || 64) * Math.min(1, fit / Math.max(1, widest));   // shrink to fit the frame (matters in 9:16)
     const shown = p.enter === 'write' ? txt.slice(0, Math.ceil(clamp(lt / (p.writeDur || Math.min(1.2, .06 * txt.length + .2))) * txt.length)) : txt;
     const lines = shown.split('\n'), anchor = p.align || 'middle';
     const under = p.underline ? `<path d="M${-txt.length * fs * .24} ${fs * .22} q${txt.length * fs * .24} ${fs * .1} ${txt.length * fs * .48} -2" fill="none" ${ST(Math.max(3, fs / 14))}/>` : '';
@@ -153,7 +154,7 @@ const PROPS = {
     return `<path d="${d}" fill="none" ${ST(2.6)}/>`; },
   target(p) { return `<circle r="70" fill="${WHITE}" ${ST(5)}/><circle r="46" fill="none" ${ST(5)}/><circle r="20" fill="${INK}"/>`; },
   // background crowd of small TV heads (no bodies) — "everyone"; anchor = bottom centre
-  crowd(p, t) { const rows = p.rows || 3, cols = p.cols || 9, w = p.width || 1100, r = rng(p.seed + 3); let s = '';
+  crowd(p, t) { const rows = p.rows || 3, cols = p.cols || 9, w = p.width || Math.min(1100, W + 40), r = rng(p.seed + 3); let s = '';
     for (let j = rows - 1; j >= 0; j--) for (let i = 0; i < cols; i++) {
       const x = -w / 2 + (i + .5 + (j % 2) * .5) * w / cols + (r() - .5) * 16, y = -j * 52 - 30, sc = .38 + (rows - j) * .03, face = p.face || (r() < .5 ? 'blank' : 'static');
       s += `<g transform="translate(${f2(x)} ${f2(y + Math.sin(t * 2 + i + j) * 2)}) scale(${f2(sc)})"><rect x="-40" y="0" width="80" height="140" rx="10" fill="${INK}"/>${tvHeadSvg(face, t, i + j * 7, (i * 13 + j) % 7 / 7, null, false)}</g>`;

@@ -59,6 +59,8 @@ switch (cmd) {
   case 'storyboard': {
     const j = need(), file = path.join(jobDir(j.id), 'story.json');
     const story = readJson(file); if (!story) die(`${file} missing or not valid JSON`);
+    const brief = readJson(path.join(jobDir(j.id), 'brief.json')) || {};
+    if (brief.format && !story.format) { story.format = brief.format; writeFileSync(file, JSON.stringify(story, null, 2)); console.log(`story.format ← brief (${brief.format})`); }
     const lang = storyLanguages(story)[0];
     setStatus(j.id, 'storyboarding', 'Рисую кадры раскадровки');
     const r = spawnSync(process.execPath, [path.join(STUDIO, 'make.mjs'), j.id, '--stills', 'auto', '--lang', lang], { cwd: STUDIO, encoding: 'utf8' });

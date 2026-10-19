@@ -1,0 +1,23 @@
+{
+ "v": 2,
+ "text": "[calm, low, reflective] Тысячи мелких решений. Ответить или нет. Листать дальше или остановиться.",
+ "voice": "868377a7b08f4c0d9acf8c9f059571aa",
+ "model": "fish-audio/s2.1-pro-free:free",
+ "fileDur": 5.303,
+ "speech": [
+  [
+   0.136,
+   1.606
+  ],
+  [
+   1.849,
+   2.826
+  ],
+  [
+   3.129,
+   5.134
+  ]
+ ],
+ "stt": null,
+ "sttTried": false
+}

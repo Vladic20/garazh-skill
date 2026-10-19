@@ -1,0 +1,23 @@
+{
+ "v": 2,
+ "text": "[calm, low, reflective] Most of us live like this. Always on. Never charged.",
+ "voice": "bf322df2096a46f18c579d0baa36f41d",
+ "model": "fish-audio/s2.1-pro-free:free",
+ "fileDur": 4.65,
+ "speech": [
+  [
+   0,
+   1.511
+  ],
+  [
+   2.159,
+   3.013
+  ],
+  [
+   3.536,
+   4.492
+  ]
+ ],
+ "stt": null,
+ "sttTried": false
+}

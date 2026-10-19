@@ -9,7 +9,7 @@ const STEPS = [['brief', 'Бриф'], ['storyboarding', 'Раскадровка'
 const STEP_OF = { brief: 0, revise: 1, storyboarding: 1, storyboard: 2, rendering: 3, done: 4, error: -1 };
 const TR_RU = { curve: '→ сдвиг', zoom: '⊕ зум сквозь', pull: '⊖ отъезд', whip: '⇢ whip-пан', iris: '◉ ирис', wipe: '▥ шторка', page: '▤ новый лист', fade: '◌ растворение', cut: '| склейка', none: '= тот же кадр' };
 
-const state = { lang: LS.get('lang', 'en'), theme: LS.get('theme', 'paper'), refs: [], selected: LS.get('job', null), status: null, defaults: {}, editing: false };
+const state = { lang: LS.get('lang', 'en'), format: LS.get('format', '16:9'), theme: LS.get('theme', 'paper'), refs: [], selected: LS.get('job', null), status: null, defaults: {}, editing: false };
 
 // ─── header status ───────────────────────────────────────────────
 async function refreshStatus() {
@@ -30,10 +30,17 @@ async function refreshStatus() {
 const LANG_HINT = { en: 'Один ролик на английском', ru: 'Один ролик на русском', both: 'Два ролика: EN и RU, одна картинка, своя озвучка у каждого' };
 function setLang(l) {
   state.lang = l; LS.set('lang', l);
-  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.lang === l)));
+  document.querySelectorAll('.seg [data-lang]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.lang === l)));
   $('#langHint').textContent = LANG_HINT[l]; buildVoices();
 }
-document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+document.querySelectorAll('.seg [data-lang]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+const FMT_HINT = { '16:9': 'Горизонтальный 1920×1080 — YouTube', '9:16': 'Вертикальный 1080×1920 — Shorts, Reels, TikTok' };
+function setFormat(f) {
+  state.format = FMT_HINT[f] ? f : '16:9'; LS.set('format', state.format);
+  document.querySelectorAll('.seg [data-format]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.format === state.format)));
+  $('#fmtHint').textContent = FMT_HINT[state.format];
+}
+document.querySelectorAll('.seg [data-format]').forEach(b => b.addEventListener('click', () => setFormat(b.dataset.format)));
 const langs = () => state.lang === 'both' ? ['en', 'ru'] : [state.lang];
 
 function buildVoices() {
@@ -86,7 +93,7 @@ function msg(t, err) { const m = $('#formMsg'); m.textContent = t; m.className =
 form.addEventListener('submit', async e => {
   e.preventDefault();
   const voices = {}; document.querySelectorAll('[data-vlang]').forEach(i => { if (i.value.trim()) voices[i.dataset.vlang] = i.value.trim(); });
-  const body = { topic: form.topic.value, languages: langs(), duration: +dur.value, theme: state.theme, voices, notes: form.notes.value,
+  const body = { topic: form.topic.value, languages: langs(), format: state.format, duration: +dur.value, theme: state.theme, voices, notes: form.notes.value,
     captions: form.captions.checked, autoRender: form.autoRender.checked, engine: form.engine.value, refs: state.refs };
   $('#sendBtn').disabled = true; msg('Отправляю…');
   try {
@@ -137,7 +144,7 @@ async function refreshDetail(force) {
   lastSig = sig;
   const d = $('#detail'), step = STEP_OF[j.status];
   let html = `<div class="dhead"><div><h2>${h(j.brief?.topic || j.id)}</h2>
-      <div class="meta">${h(j.id)} · ${(j.brief?.languages || []).join(' + ').toUpperCase()} · ~${j.brief?.duration || '?'} с · стиль: ${h(j.brief?.theme || 'paper')}${j.brief?.refs?.length ? ` · референсов: ${j.brief.refs.length}` : ''}</div></div>
+      <div class="meta">${h(j.id)} · ${(j.brief?.languages || []).join(' + ').toUpperCase()} · ${h(j.storyboard?.format || j.brief?.format || '16:9')} · ~${j.brief?.duration || '?'} с · стиль: ${h(j.brief?.theme || 'paper')}${j.brief?.refs?.length ? ` · референсов: ${j.brief.refs.length}` : ''}</div></div>
       <span class="chip ${j.status}">${STATUS_RU[j.status] || j.status}</span></div>
     <ol class="steps">${STEPS.map(([k, label], i) => `<li class="step ${i < step || j.status === 'done' ? 'done' : i === step ? 'now' : ''}">${label}</li>`).join('')}</ol>`;
 
@@ -173,7 +180,7 @@ async function refreshDetail(force) {
 const fmt = s => s == null ? '' : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 function boardHtml(j) {
   const sb = j.storyboard, editable = j.status === 'storyboard';
-  return `<h3>Раскадровка · ${sb.scenes.length} сцен${sb.duration ? ` · ${fmt(sb.duration)}` : ''}</h3><div class="board">${sb.scenes.map(s => `
+  return `<h3>Раскадровка · ${sb.scenes.length} сцен${sb.duration ? ` · ${fmt(sb.duration)}` : ''}</h3><div class="board${sb.format === '9:16' ? ' tall' : ''}">${sb.scenes.map(s => `
     <article class="scene">
       <div class="img">${s.thumb ? `<img src="${s.thumb}" alt="Кадр сцены ${s.i + 1}" loading="lazy">` : ''}<span class="num">#${s.i + 1} ${fmt(s.from)}</span>
         ${s.transition ? `<span class="chip tr" title="переход в эту сцену">${h(TR_RU[s.transition] || s.transition)}</span>` : ''}</div>
@@ -194,7 +201,7 @@ function renderProgress(j) {
 function videosHtml(j) {
   const outs = Object.values(j.outputs || {});
   if (!outs.length) return '';
-  return `<h3>Готовые видео</h3><div class="videos">${outs.map(o => `<figure>
+  return `<h3>Готовые видео</h3><div class="videos">${outs.map(o => `<figure${o.height > o.width ? ' class="tall"' : ''}>
     <video controls preload="metadata" src="/files/${h(o.file)}#t=1.5"></video>
     <figcaption><b>${o.lang.toUpperCase()}</b> <span class="meta">${o.width}×${o.height} · ${fmt(o.duration)} · ${o.mb} МБ${o.silentLines ? ' · без голоса (нет ключа)' : ''}</span>
       <span><a href="/files/${h(o.file)}" download>mp4</a> · <a href="/files/${h(o.file.replace(/\.mp4$/, '.srt'))}" download>srt</a></span></figcaption></figure>`).join('')}</div>`;
@@ -205,6 +212,7 @@ function tvSvg() {
 
 // ─── boot ───────────────────────────────────────────────────────
 setLang(state.lang);
+setFormat(state.format);
 loadThemes();
 refreshStatus(); refreshJobs().then(() => refreshDetail(true));
 setInterval(refreshStatus, 4000);

@@ -113,6 +113,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
 .scene { border: 2px solid var(--ink); border-radius: 10px; background: #fff; overflow: hidden; display: flex; flex-direction: column; }
 .scene .img { position: relative; aspect-ratio: 16/9; background: var(--paper); border-bottom: 2px solid var(--ink); }
 .scene img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.board.tall { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.board.tall .scene .img { aspect-ratio: 9/16; }
 .scene .num { position: absolute; left: 8px; top: 8px; background: var(--ink); color: #fff; font: 17px/1 Hand; padding: 4px 8px 5px; border-radius: 6px; }
 .scene .tr { position: absolute; right: 8px; top: 8px; }
 .scene .body { padding: 10px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
@@ -130,6 +132,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
 .videos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 12px; }
 .videos figure { margin: 0; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; background: #000; }
 .videos video { width: 100%; display: block; aspect-ratio: 16/9; background: #000; }
+.videos figure.tall { max-width: 360px; }
+.videos .tall video { aspect-ratio: 9/16; }
 .videos figcaption { background: #fff; padding: 8px 10px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; border-top: 2px solid var(--ink); }
 .err { color: #b3261e; }
 

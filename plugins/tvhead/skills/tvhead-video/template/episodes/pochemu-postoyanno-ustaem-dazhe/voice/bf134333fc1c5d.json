@@ -1,0 +1,35 @@
+{
+ "v": 2,
+ "text": "[calm, low, reflective] Real rest is boring. A walk. A window. Ten minutes of nothing.",
+ "voice": "bf322df2096a46f18c579d0baa36f41d",
+ "model": "fish-audio/s2.1-pro-free:free",
+ "fileDur": 6.609,
+ "speech": [
+  [
+   0,
+   0.858
+  ],
+  [
+   0.99,
+   1.14
+  ],
+  [
+   1.225,
+   1.604
+  ],
+  [
+   2.692,
+   3.222
+  ],
+  [
+   3.927,
+   4.529
+  ],
+  [
+   5.28,
+   6.415
+  ]
+ ],
+ "stt": null,
+ "sttTried": false
+}
