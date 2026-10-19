@@ -1,7 +1,16 @@
 // ─── core: constants, math, deterministic randomness, shared textures ──────────
 // World is 1280×720. Every frame is a pure function of t (seconds): never use Math.random or Date in drawing code.
 const W = 1280, H = 720, GROUND = 615;
-const INK = '#141414', BEZEL = '#585858', SCREEN = '#e9ebeb', PAPER = '#c6ccd0', WHITE = '#f1f2f1';
+// Palette comes from the theme (TL.theme, resolved by lib/story.mjs from a preset + overrides). Defaults = grey paper.
+let INK = '#141414', BEZEL = '#585858', SCREEN = '#e9ebeb', PAPER = '#c6ccd0', WHITE = '#f1f2f1', ACCENT = '#141414';
+let THEME = { paper: PAPER, paperLight: '#d3d8db', paperDark: '#9fa6aa', ink: INK, bezel: BEZEL, screen: SCREEN, fill: WHITE, accent: ACCENT, dark: '#2c3134', halo: '#aab0b4' };
+function applyTheme(th) {
+  THEME = { ...THEME, ...(th || {}) };
+  INK = THEME.ink; BEZEL = THEME.bezel; SCREEN = THEME.screen; PAPER = THEME.paper; WHITE = THEME.fill; ACCENT = THEME.accent || THEME.ink;
+  const st = document.documentElement.style;
+  st.setProperty('--paper', PAPER); st.setProperty('--ink', INK); st.setProperty('--paper-light', THEME.paperLight); st.setProperty('--muted', THEME.muted || '#7d8387');
+}
+const FONT = 'Hand';   // Patrick Hand (latin) + Neucha (cyrillic), see index.html @font-face
 
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -36,20 +45,24 @@ const NOISE = (() => {
 // references them by id. Rebuilding filters/textures every frame made Chrome re-rasterise the paper each time (≈4× slower).
 const BOIL_N = 12;
 function installStatic() {
+  applyTheme(typeof TL === 'object' && TL.theme);
   const pats = [];
   for (let i = 0; i < 12; i++) pats.push(`<pattern id="static${i}" patternUnits="userSpaceOnUse" width="64" height="64" patternTransform="translate(${(i * 23) % 64} ${(i * 41) % 64})"><image href="${NOISE[i % 4]}" width="64" height="64"/></pattern>`);
   const boils = Array.from({ length: BOIL_N }, (_, i) => `<filter id="boil${i + 1}" x="-5%" y="-5%" width="110%" height="110%">
       <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="${i + 1}" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>`).join("");
   document.getElementById("defs").innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute"><defs>${boils}
+    ${[1,2,3,4,5,6,7,8].map(n => `<filter id="blur${n}" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="${n}"/></filter>`).join("")}
+    ${[1,2,3,4].map(n => `<filter id="hblur${n}" x="-20%" y="0" width="140%" height="100%"><feGaussianBlur stdDeviation="${n * 6} 0"/></filter><filter id="vblur${n}" x="0" y="-20%" width="100%" height="140%"><feGaussianBlur stdDeviation="0 ${n * 6}"/></filter>`).join("")}
+    <filter id="gray"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="linear" slope="1.1" intercept="-.05"/><feFuncG type="linear" slope="1.1" intercept="-.05"/><feFuncB type="linear" slope="1.1" intercept="-.05"/></feComponentTransfer></filter>
     <radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
     ${pats.join("")}</defs></svg>`;
   document.getElementById("paper").innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs>
     <filter id="paperTex" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="3"/>
-      <feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 0.16"/></feComponentTransfer></filter>
+      <feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 ${THEME.texture ?? 0.16}"/></feComponentTransfer></filter>
     <filter id="fibers" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.004 0.06" numOctaves="2" seed="9"/>
       <feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 0.10"/></feComponentTransfer></filter>
-    <radialGradient id="paperGrad" cx="50%" cy="46%" r="75%"><stop offset="0" stop-color="#d3d8db"/><stop offset=".62" stop-color="${PAPER}"/><stop offset="1" stop-color="#9fa6aa"/></radialGradient></defs>
+    <radialGradient id="paperGrad" cx="50%" cy="46%" r="75%"><stop offset="0" stop-color="${THEME.paperLight}"/><stop offset=".62" stop-color="${PAPER}"/><stop offset="1" stop-color="${THEME.paperDark}"/></radialGradient></defs>
     <rect width="${W}" height="${H}" fill="url(#paperGrad)"/><rect width="${W}" height="${H}" filter="url(#paperTex)"/><rect width="${W}" height="${H}" filter="url(#fibers)"/></svg>`;
 }
 const staticFill = (seed, t) => `url(#static${(Math.abs(seed) + Math.floor(t * 12)) % 12})`;

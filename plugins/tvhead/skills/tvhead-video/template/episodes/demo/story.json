@@ -1,55 +1,80 @@
 {
-  "title": "The Infinite Scroll",
+  "title": { "en": "The Infinite Scroll", "ru": "Бесконечная лента" },
+  "languages": ["en", "ru"],
   "style": "calm, low, reflective",
   "mood": "dark",
-  "captions": false,
+  "theme": "paper",
+  "transition": "curve",
   "scenes": [
     {
-      "say": "We were promised a world where everyone would be connected.",
+      "note": "Lineup of four happy TV-heads, the word 'connected' writes itself above them",
+      "say": { "en": "We were promised a world where everyone would be connected.", "ru": "Нам обещали мир, где все будут связаны." },
       "layout": "lineup", "count": 4,
-      "props": [{ "type": "text", "text": "connected", "x": 640, "y": 120, "size": 60, "on": "connected" }]
+      "props": [{ "id": "word", "type": "text", "text": { "en": "connected", "ru": "связаны" }, "x": 640, "y": 120, "size": 60, "on": { "en": "connected", "ru": "связаны" } }]
     },
     {
-      "say": "And for a while... it felt exactly like that.",
-      "keep": true, "remove": ["text1"],
-      "change": [{ "id": "p1", "on": "felt", "pose": "wave" }, { "id": "p3", "on": "felt", "pose": "cheer", "face": "joy" }],
+      "note": "Same picture: they wave and cheer",
+      "say": { "en": "And for a while... it felt exactly like that.", "ru": "И какое-то время... так и было." },
+      "keep": true, "remove": ["word"],
+      "change": [{ "id": "p1", "at": 0.35, "pose": "wave" }, { "id": "p3", "at": 0.35, "pose": "cheer", "face": "joy" }],
       "cam": "pull"
     },
     {
-      "say": "Then the screens started looking back.",
+      "note": "One by one their screens turn to static",
+      "say": { "en": "Then the screens started looking back.", "ru": "А потом экраны начали смотреть на нас." },
       "keep": true,
       "change": [
-        { "id": "p1", "on": "screens", "face": "static", "pose": "idle" },
-        { "id": "p2", "on": "started", "face": "static", "pose": "idle" },
-        { "id": "p3", "on": "looking", "face": "static", "pose": "idle" },
-        { "id": "p4", "on": "back", "face": "static", "pose": "idle" }
+        { "id": "p1", "at": 0.2, "face": "static", "pose": "idle" },
+        { "id": "p2", "at": 0.35, "face": "static", "pose": "idle" },
+        { "id": "p3", "at": 0.5, "face": "static", "pose": "idle" },
+        { "id": "p4", "at": 0.65, "face": "static", "pose": "idle" }
       ],
       "cam": "still"
     },
     {
-      "say": "One more post. One more like. One more minute.",
+      "note": "Kinetic statement, key words underlined",
+      "transition": "zoom",
+      "say": { "en": "The average person checks their phone dozens of times a day.", "ru": "Обычный человек проверяет телефон десятки раз в день." },
+      "layout": "title",
+      "props": [{ "id": "title", "type": "words", "size": 84, "emph": ["dozens", "десятки"] }]
+    },
+    {
+      "note": "Tired figure with a phone, likes and a fast clock pop on the words",
+      "say": { "en": "One more post. One more like. One more minute.", "ru": "Ещё один пост. Ещё один лайк. Ещё минута." },
       "cast": [{ "id": "me", "x": 470, "pose": "phone", "hold": "phone", "face": "tired" }],
       "props": [
-        { "type": "like", "x": 760, "y": 230, "count": "1", "on": "post" },
-        { "type": "like", "x": 900, "y": 330, "count": "12", "on": "like" },
-        { "type": "clock", "x": 860, "y": 480, "scale": 0.9, "speed": 8, "on": "minute" }
+        { "type": "like", "x": 760, "y": 230, "count": "1", "at": 0.12 },
+        { "type": "like", "x": 900, "y": 330, "count": "12", "at": 0.4 },
+        { "type": "clock", "x": 860, "y": 480, "scale": 0.9, "speed": 8, "at": 0.7 }
       ],
       "cam": { "focus": [620, 380], "zoom": 1.15 }
     },
     {
-      "say": "We climbed higher and higher, standing on everything we threw away.",
+      "note": "Grid of identical blank screens; one is circled",
+      "transition": "page",
+      "say": { "en": "We all started to look the same. Except the ones who looked away.", "ru": "Мы все стали одинаковыми. Кроме тех, кто отвёл взгляд." },
+      "ground": false,
+      "props": [{ "type": "grid", "x": 640, "y": 520, "rows": 3, "cols": 7, "cell": 125, "odd": 10, "oddFace": "joy", "oddAt": 2.4 }]
+    },
+    {
+      "note": "Mask figure on a mound of TVs holding up an endless feed",
+      "transition": "whip",
+      "say": { "en": "We climbed higher and higher, standing on everything we threw away.", "ru": "Мы забирались всё выше, стоя на всём, что выбросили." },
       "layout": "pile", "cam": "up", "particles": 1.4
     },
     {
-      "say": "And the higher we climbed, the quieter it got.",
+      "note": "Alone under a spotlight in the dark",
+      "transition": "iris",
+      "say": { "en": "And the higher we climbed, the quieter it got.", "ru": "И чем выше, тем становилось тише." },
       "cast": [{ "id": "me", "x": 640, "pose": "slump", "face": "sad" }],
       "props": [{ "type": "spotlight", "x": 640, "y": 615, "w": 170 }],
       "dark": true, "cam": "push", "particles": 0.6
     },
     {
-      "say": "[softly] Maybe the off button... was never on the screen.",
+      "note": "Screen goes off, then a calm face",
+      "say": { "en": "[softly] Maybe the off button... was never on the screen.", "ru": "[тихо] Может, кнопка выключения... никогда не была на экране." },
       "keep": true,
-      "change": [{ "id": "me", "on": "off", "face": "off" }, { "id": "me", "on": "never", "face": "blank", "pose": "idle" }],
+      "change": [{ "id": "me", "at": 0.3, "face": "off" }, { "id": "me", "at": 0.7, "face": "blank", "pose": "idle" }],
       "cam": "still", "hold": 0.6
     }
   ]

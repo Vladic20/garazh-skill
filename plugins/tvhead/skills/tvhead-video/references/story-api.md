@@ -4,15 +4,22 @@ A film is a list of **scenes**. Each scene = one narration line (`say`) + one pi
 the scene lasts as long as its voice clip plus a short pause, so you never write seconds by hand.
 Things inside a scene appear **on a spoken word** (`"on": "word"`), which keeps picture and voice in sync.
 
+**Languages.** Any text value may be `{ "en": "...", "ru": "..." }` — `say`, `text`, `note`, labels, list items and even cue words (`"on": { "en": "scroll", "ru": "ленту" }`). One story renders one video per language with the same pictures and its own voice and timing. Cue words must be in that language's line; when they are not, the item falls back to `at` (so give multilingual items an `at` as well, or use `at` only).
+
 World: 1280×720 (rendered 1920×1080). Ground line at `y = 615`. Centre `x = 640`. A character at `scale: 1` is ~395 px tall (feet on the ground, antenna tip at y ≈ 220).
 
 ## Top level
 
 | key | default | meaning |
 |---|---|---|
-| `title` | — | for you; not drawn |
-| `voice` | `TVHEAD_VOICE` from .env, else `bf322df2096a46f18c579d0baa36f41d` (Adrian, deep storyteller) | Fish Audio voice id (`fish.audio/m/<id>`) |
-| `model` | `fish-audio/drama-3` | any OpenRouter TTS model id; free: `fish-audio/s2.1-pro-free:free` |
+| `title` | — | shown in the app; not drawn |
+| `languages` | detected from `say` | `["en"]`, `["ru"]` or `["en", "ru"]` |
+| `voice` | per language: EN `bf322df2096a46f18c579d0baa36f41d` (Adrian), RU `868377a7b08f4c0d9acf8c9f059571aa` (Молодой Аналитик); .env `TVHEAD_VOICE_EN` / `TVHEAD_VOICE_RU` | Fish Audio voice id (`fish.audio/m/<id>`), or `{ "en": "<id>", "ru": "<id>" }` |
+| `model` | `fish-audio/s2.1-pro-free:free` (**free**) or .env `TVHEAD_TTS_MODEL` | any OpenRouter TTS model; paid, more acted: `fish-audio/drama-3` |
+| `theme` | `paper` | `paper` · `sepia` · `blueprint` · `chalk` · `night` · `mint`, or `{ "preset": "paper", "paper": "#…", "ink": "#…", "accent": "#…", "fill": "#…", "bezel": "#…", "screen": "#…" }` (built from a reference image) |
+| `transition` | `curve` | default seam into each new scene (see Transitions) |
+| `direction` | `left` | the film's "current" for `curve`/`whip`/`wipe`/`page` |
+| `scripts` | — | episode JS files with custom GSAP props (`references/motion.md` §6) |
 | `style` | — | delivery direction prepended to every line, e.g. `"calm, low, reflective"` (skipped for lines that start with their own `[tag]`) |
 | `mood` | `dark` | drone under the voice: `dark` · `calm` · `tense` · `hope` · `none` |
 | `music` | — | path (relative to the episode folder) to an mp3 to loop under the voice, auto-ducked |
@@ -27,14 +34,16 @@ World: 1280×720 (rendered 1920×1080). Ground line at `y = 615`. Centre `x = 64
 
 | key | meaning |
 |---|---|
-| `say` | narration. Drama-3 direction tags allowed: `[whispering]`, `[sad, barely holding it together]`, `(sighs)`, `<emphasis>word</emphasis>`. Tags are not shown in captions. 6–22 words per scene is the sweet spot. |
-| `layout` | shortcut that places characters/props: `solo`, `duo`, `lineup` (+`count` 2–6), `crowd`, `pile` (mask figure on a mound of TVs holding up an endless feed) |
+| `note` | one line describing the picture — shown on the storyboard card in the app. Always write it. |
+| `transition` | seam into this scene: `curve` · `zoom` · `pull` · `whip` · `iris` · `wipe` · `page` · `fade` · `cut` · `none`, or `{ "type": "curve", "dir": "up" }`, `{ "type": "iris", "at": [x, y], "from": [x, y] }`. `keep` scenes default to `none`. |
+| `say` | narration. Direction tags allowed: `[whispering]`, `[sad, barely holding it together]`, `(sighs)`, `<emphasis>word</emphasis>`. Tags are not shown in captions. 6–22 words per scene is the sweet spot. |
+| `layout` | shortcut that places characters/props: `solo`, `duo`, `lineup` (+`count` 2–6), `crowd`, `pile` (mask figure on a mound of TVs holding up an endless feed), `title` (big kinetic statement of the line, id `title`) |
 | `cast` | characters (below). A cast entry with the same `id` as a layout figure overrides it (`p1…pN` for lineup, `hero` for solo/crowd/pile, `a`/`b` for duo) |
 | `props` | objects (below) |
 | `keep` | `true` = continue the previous picture: same characters/props in their final state, no re-entry animation. Combine with `change`, `remove`, new `cast`/`props` |
 | `change` | timed changes for kept items: `[{ "id": "p1", "on": "word", "face": "sad", "pose": "slump" }]` |
 | `remove` | ids to drop when `keep`ing |
-| `cam` | `push` (default slow zoom-in) · `pull` · `still` · `pan-left` · `pan-right` · `up` · `down` · `{ "focus": [x, y], "zoom": 1.4 }` · `{ "from": [cx,cy,s], "to": [cx,cy,s] }` |
+| `cam` | `push` (default slow zoom-in) · `push-fast` · `pull` · `still` · `drift` · `pan-left` · `pan-right` · `up` · `down` · `{ "focus": [x, y], "zoom": 1.4 }` · `{ "from": [cx,cy,s], "to": [cx,cy,s] }` |
 | `dark` | night look: paper goes dark grey (pair with a `spotlight` prop) |
 | `ground` | `false` hides the ground line |
 | `particles` | per-scene doodle density |
@@ -93,6 +102,15 @@ Every prop takes `x`, `y`, `scale`, `rot`, `flip`, `enter`, `z`, cues and `then`
 | `crowd` | rows of small TV heads: `rows`, `cols`, `width`, `face` |
 | `spotlight` | cone of light from the top onto `x`; `w` = half-width of the pool. Use with `"dark": true` |
 | `sign` | white board with `text`, `size`, `w`, `h` |
+| `words` | kinetic type: each word rises in when it is spoken. `text` (default: the scene's `say`), `emph: ["word"]` (accent + scribble underline), `size` (76), `maxWidth` (1040), `align` |
+| `counter` | number counting up: `from`, `to`, `dur`, `prefix`, `suffix`, `decimals`, `label`, `accent`, `size` — real numbers only |
+| `bars` | bar chart: `values`, `labels`, `hi` (index to highlight), `w`, `h`, `step`, `prefix`, `suffix` |
+| `pie` | `value` 0–1, `r`, `label` |
+| `progress` | `value` 0–1, `w`, `label` |
+| `timeline` | `items`: `["2007", …]` or `[{ "label", "sub" }]`, `w`, `step`, `hi` |
+| `checklist` | `items`, `step` (s between ticks), `checked`, `size` — anchor = left edge |
+| `grid` | rows×cols of small TV heads, one breaks the pattern: `rows`, `cols`, `cell`, `face`, `odd` (index), `oddFace`, `oddAt` (s) — anchor = bottom centre |
+| `photo` | the user's image as a taped grayscale polaroid: `src: "refs/<file>"`, `w`, `h`, `caption`, `color: true` |
 
 `enter`: `pop` (default) · `fade` · `drop` · `rise` · `slide-left` · `slide-right` · `grow` · `write` (text) · `none`. `exit`: `pop` · `fade`.
 

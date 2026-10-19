@@ -1,5 +1,7 @@
 # tvhead — topic in, narrated doodle video out (Claude Code skill)
 
+> **The skill now lives in its own repo: [Vladic20/tvhead-studio](https://github.com/Vladic20/tvhead-studio)** — EN/RU narration, transitions, kinetic type, infographics and a local studio app. This fork keeps the same plugin in sync.
+
 Fork of [lubluniky/garazh-skill](https://github.com/lubluniky/garazh-skill) with a new plugin, **tvhead**. Ask Claude for a video about anything and get a finished **1920×1080 mp4 with English voice-over** in a hand-drawn black-and-white style: TV-headed stick figures on grey paper, floating pencil doodles, wobbly lines, film grain.
 
 ![One frame per scene of the demo episode «The Infinite Scroll»](docs/tvhead-preview.jpg)
@@ -11,8 +13,8 @@ Fork of [lubluniky/garazh-skill](https://github.com/lubluniky/garazh-skill) with
 ## Install
 
 ```
-/plugin marketplace add Vladic20/garazh-skill
-/plugin install tvhead@garazh-skill
+/plugin marketplace add Vladic20/tvhead-studio
+/plugin install tvhead@tvhead-studio
 ```
 
 Needs Node ≥ 18, ffmpeg and Google Chrome (or `CHROME_PATH`). On first use the skill deploys its studio to `~/tvhead-studio` (override with `TVHEAD_STUDIO`).

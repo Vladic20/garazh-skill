@@ -70,7 +70,7 @@ function armSvg(pts, coil) {
   // tiny three-finger hand
   const ang = Math.atan2(h[1] - e[1], h[0] - e[0]);
   const fingers = [-.7, 0, .7].map(o => `M${f2(h[0])} ${f2(h[1])} l${f2(Math.cos(ang + o) * 7)} ${f2(Math.sin(ang + o) * 7)}`).join(' ');
-  return `<path d="${d}" fill="none" stroke="#aab0b4" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
+  return `<path d="${d}" fill="none" stroke="${THEME.halo}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
     <path d="${d}" fill="none" stroke="${INK}" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="${fingers}" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
 }
@@ -114,12 +114,12 @@ function faceSvg(face, t, phase, look, talking) {
   return eyes(ek, blink, look) + mouth + tear;
 }
 
-function tvHeadSvg(face, t, seed, phase, look, talking) {
+function tvHeadSvg(face, t, seed, phase, look, talking, wig = 0) {
   let screen;
   if (face === 'static') screen = `<rect x="-47" y="-42" width="94" height="82" rx="10" fill="${staticFill(seed, t)}"/>`;
   else if (face === 'off') screen = `<rect x="-47" y="-42" width="94" height="82" rx="10" fill="#2a2a2a"/><path d="M-30 -30 L-10 -36 M-34 -18 L-6 -28" stroke="#777" stroke-width="3" stroke-linecap="round"/>`;
   else screen = `<rect x="-47" y="-42" width="94" height="82" rx="10" fill="${SCREEN}"/>${faceSvg(face, t, phase, look, talking)}`;
-  return `<path d="M-14 -55 Q-20 -75 -31 -93 M14 -55 Q20 -75 31 -93" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+  return `<path transform="rotate(${f2(wig)} -14 -55)" d="M-14 -55 Q-20 -75 -31 -93" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><path transform="rotate(${f2(wig * 1.15)} 14 -55)" d="M14 -55 Q20 -75 31 -93" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
     <rect x="-62" y="-55" width="124" height="110" rx="14" fill="${BEZEL}" stroke="${INK}" stroke-width="5"/>
     ${screen}<rect x="-47" y="-42" width="94" height="82" rx="10" fill="none" stroke="${INK}" stroke-width="3.6"/>`;
 }
@@ -180,9 +180,11 @@ function characterSvg(c, t) {
   const coil = c.arms === 'coil';
   const L = mixPts(armPts(Pp.L, 'L', t, Pp.anim, coil), armPts(P.L, 'L', t, anim, coil), k);
   const R = mixPts(armPts(Pp.R, 'R', t, Pp.anim, coil), armPts(P.R, 'R', t, anim, coil), k);
-  const head = c.kind === 'mask' ? maskHeadSvg(c.face, t, phase, look, c.talking) : tvHeadSvg(c.face, t, c.seed, phase, look, c.talking);
+  // follow-through: antennas keep swinging for ~0.8 s after the figure appears or changes pose (damped spring)
+  const since = t - Math.max(c.poseT ?? c.t0 ?? 0, c.t0 ?? 0), wig = since >= 0 && since < 1.2 ? 9 * Math.exp(-since * 5) * Math.sin(since * 21) : 0;
+  const head = c.kind === 'mask' ? maskHeadSvg(c.face, t, phase, look, c.talking) : tvHeadSvg(c.face, t, c.seed, phase, look, c.talking, wig);
   const heldR = c.hold ? propInHand(c.hold, R[2], t, c) : '';
-  const upper = `<g transform="translate(0 ${f2(drop + breathe * .4)})">
+  const upper = `<g transform="translate(0 ${f2(drop + breathe * .4 + (c.antic || 0) * 7)})">
       ${bodySvg(c)}
       <g transform="translate(0 ${f2(HEAD_Y + breathe * .6)}) rotate(${f2(tilt)} 0 50)">${head}</g>
       ${armSvg(L, coil)}${armSvg(R, coil)}${heldR}
@@ -204,6 +206,6 @@ function propInHand(kind, h, t, c) {
   if (kind === 'flower') return `<g transform="translate(${f2(x)} ${f2(y)})"><path d="M0 0 L2 -50" stroke="${INK}" stroke-width="2.4"/>${[0, 72, 144, 216, 288].map(a => `<ellipse cx="2" cy="-62" rx="6" ry="10" transform="rotate(${a} 2 -54)" fill="${WHITE}" stroke="${INK}" stroke-width="2"/>`).join('')}<circle cx="2" cy="-54" r="4" fill="${INK}"/></g>`;
   if (kind.startsWith('sign:')) { const txt = esc(kind.slice(5)); const w = Math.max(70, txt.length * 15 + 24);
     return `<g transform="translate(${f2(x)} ${f2(y)})"><path d="M0 0 L0 -70" stroke="${INK}" stroke-width="4"/><rect x="${-w / 2}" y="-128" width="${w}" height="58" rx="4" fill="${WHITE}" stroke="${INK}" stroke-width="3.4"/>
-      <text x="0" y="-90" text-anchor="middle" font-family="Patrick Hand" font-size="30" fill="${INK}" transform="scale(${c.flip ? -1 : 1} 1)">${txt}</text></g>`; }
+      <text x="0" y="-90" text-anchor="middle" font-family="${FONT}" font-size="30" fill="${INK}" transform="scale(${c.flip ? -1 : 1} 1)">${txt}</text></g>`; }
   return '';
 }

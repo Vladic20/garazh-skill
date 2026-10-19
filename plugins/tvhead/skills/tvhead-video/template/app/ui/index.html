@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tvhead studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M24 12 18 2M40 12l6-10' stroke='%23141414' stroke-width='4' stroke-linecap='round'/%3E%3Crect x='6' y='12' width='52' height='44' rx='8' fill='%23585858' stroke='%23141414' stroke-width='4'/%3E%3Crect x='14' y='19' width='36' height='30' rx='5' fill='%23e9ebeb' stroke='%23141414' stroke-width='3'/%3E%3Ccircle cx='25' cy='31' r='3' fill='%23141414'/%3E%3Ccircle cx='39' cy='31' r='3' fill='%23141414'/%3E%3Cpath d='M26 39q6 5 12 0' stroke='%23141414' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/ui/style.css">
+</head><body>
+<header class="top">
+  <div class="brand"><svg viewBox="0 0 64 64" width="38" height="38" aria-hidden="true"><path d="M24 12 18 2M40 12l6-10" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><rect x="6" y="12" width="52" height="44" rx="8" fill="#585858" stroke="currentColor" stroke-width="4"/><rect x="14" y="19" width="36" height="30" rx="5" fill="#e9ebeb" stroke="currentColor" stroke-width="3"/><circle cx="25" cy="31" r="3" fill="currentColor"/><circle cx="39" cy="31" r="3" fill="currentColor"/><path d="M26 39q6 5 12 0" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+    <span>tvhead <b>studio</b></span></div>
+  <div class="pills">
+    <span class="pill" id="pillClaude" title="Claude видит приложение, когда в сессии запущено ожидание (bridge wait)">Claude: …</span>
+    <span class="pill" id="pillTts">Озвучка: …</span>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="card brief" aria-labelledby="hBrief">
+    <h2 id="hBrief">Новый ролик</h2>
+    <form id="briefForm" autocomplete="off">
+      <label class="field"><span>Тема ролика</span>
+        <textarea name="topic" rows="3" required placeholder="Например: почему мы постоянно устаём, даже когда высыпаемся"></textarea></label>
+
+      <div class="field"><span>Язык озвучки</span>
+        <div class="seg" role="radiogroup" aria-label="Язык озвучки">
+          <button type="button" role="radio" data-lang="en" aria-checked="true">EN</button>
+          <button type="button" role="radio" data-lang="ru" aria-checked="false">RU</button>
+          <button type="button" role="radio" data-lang="both" aria-checked="false">EN + RU</button>
+        </div>
+        <small class="hint" id="langHint">Один ролик на английском</small></div>
+
+      <label class="field"><span>Длительность: <b id="durLabel">60 с</b></span>
+        <input type="range" name="duration" min="30" max="180" step="15" value="60"></label>
+
+      <div class="field"><span>Стиль и референс</span>
+        <div class="themes" id="themes" role="radiogroup" aria-label="Стиль"></div>
+        <div class="drop" id="drop" tabindex="0" role="button" aria-label="Добавить референсы">
+          <input type="file" id="refInput" accept="image/*" multiple hidden>
+          <span>Перетащи сюда кадры-референсы или <u>выбери файлы</u></span>
+          <small>Claude возьмёт из них палитру, композицию и ритм. Картинки можно вставить и в сам ролик.</small>
+          <div class="refs" id="refs"></div>
+        </div></div>
+
+      <details class="field more">
+        <summary>Голос, субтитры, режим</summary>
+        <div class="voices" id="voices"></div>
+        <label class="check"><input type="checkbox" name="captions"> Субтитры в кадре</label>
+        <label class="check"><input type="checkbox" name="autoRender"> Рендерить сразу, без проверки раскадровки</label>
+        <div class="field"><span>Кто пишет раскадровку</span>
+          <label class="check"><input type="radio" name="engine" value="session" checked> Claude в моей сессии (чат)</label>
+          <label class="check" id="cliOpt"><input type="radio" name="engine" value="cli"> Claude Code CLI в фоне (автономно)</label></div>
+      </details>
+
+      <label class="field"><span>Пожелания</span>
+        <textarea name="notes" rows="2" placeholder="Тон, концовка, что обязательно показать, ссылки на факты…"></textarea></label>
+
+      <button class="btn primary big" type="submit" id="sendBtn">Отправить Claude</button>
+      <p class="formmsg" id="formMsg" role="status"></p>
+    </form>
+  </section>
+
+  <section class="work">
+    <div class="jobs" id="jobs" aria-label="Задания"></div>
+    <div class="card detail" id="detail" aria-live="polite">
+      <div class="empty">
+        <h2>Как это работает</h2>
+        <ol>
+          <li>Заполни бриф слева: тема, язык, стиль или свой референс.</li>
+          <li>Claude пишет сценарий и раскадровку с переходами. Кадры появятся здесь.</li>
+          <li>Поправь текст или попроси изменения, потом нажми «Рендерить».</li>
+          <li>Готовые видео EN / RU можно смотреть и скачивать прямо тут.</li>
+        </ol>
+        <p class="hint">Чтобы Claude в чате увидел бриф, напиши ему: <b>«проверь tvhead-приложение»</b>.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog id="voiceDlg">
+  <form method="dialog" class="dlg">
+    <h3>Голоса Fish Audio · <span id="vLang"></span></h3>
+    <div class="row"><input id="vQuery" placeholder="deep calm male, женский, narration…" aria-label="Поиск голоса"><button class="btn" type="button" id="vSearch">Найти</button></div>
+    <ul id="vList" class="vlist"></ul>
+    <p class="hint">Свой голос: склонируй на fish.audio и вставь ID из ссылки fish.audio/m/&lt;id&gt;.</p>
+    <div class="row end"><button class="btn" value="close">Закрыть</button></div>
+  </form>
+</dialog>
+<script src="/ui/app.js"></script>
+</body></html>

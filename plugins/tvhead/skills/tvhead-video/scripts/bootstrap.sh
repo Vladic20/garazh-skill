@@ -7,13 +7,17 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 TPL="$HERE/../template"
 STUDIO="${1:-${TVHEAD_STUDIO:-$HOME/tvhead-studio}}"
 mkdir -p "$STUDIO/episodes"
-for f in engine lib fonts make.mjs voices.mjs package.json .gitignore .env.example; do
+for f in engine lib fonts app make.mjs voices.mjs package.json package-lock.json .gitignore .env.example start-app.cmd start-app.sh; do
+  [ -e "$TPL/$f" ] || continue
+  if [ "$f" = app ]; then mkdir -p "$STUDIO/app"; for a in "$TPL/app/"*; do n=$(basename "$a"); [ "$n" = thumbs ] && continue; rm -rf "$STUDIO/app/$n"; cp -R "$a" "$STUDIO/app/$n"; done; continue; fi
   rm -rf "$STUDIO/$f"; cp -R "$TPL/$f" "$STUDIO/$f"
 done
 [ -d "$STUDIO/episodes/demo" ] || cp -R "$TPL/episodes/demo" "$STUDIO/episodes/demo"
 command -v node >/dev/null || { echo "!! need Node.js >= 18" >&2; exit 1; }
 command -v ffmpeg >/dev/null || echo "!! need ffmpeg in PATH (Windows: winget install Gyan.FFmpeg · macOS: brew install ffmpeg · Linux: apt install ffmpeg)" >&2
-[ -d "$STUDIO/node_modules/puppeteer-core" ] || (cd "$STUDIO" && npm install --silent --no-audit --no-fund)
+(cd "$STUDIO" && npm install --silent --no-audit --no-fund)   # fast no-op when up to date; picks up new deps after updates
 if [ -f "$STUDIO/.env" ] && grep -Eq '^(OPENROUTER_API_KEY|FISH_AUDIO_API_KEY)=.+' "$STUDIO/.env"; then KEY=yes; else KEY=no; [ -f "$STUDIO/.env" ] || cp "$STUDIO/.env.example" "$STUDIO/.env"; fi
+chmod +x "$STUDIO/start-app.sh" 2>/dev/null || true
 echo "studio: $STUDIO"
+echo "app:    $STUDIO/start-app.cmd (Windows) · ./start-app.sh · npm run app  → http://localhost:4777"
 echo "tts key: $KEY$([ $KEY = no ] && echo "  → put OPENROUTER_API_KEY=... into $STUDIO/.env (https://openrouter.ai/keys)")"

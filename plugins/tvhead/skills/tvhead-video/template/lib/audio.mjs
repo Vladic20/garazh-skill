@@ -42,13 +42,20 @@ export function bedStem({ duration, mood = 'dark', cuts = [], music = null, root
     parts.push(`[1:a]lowpass=f=${M.lp},volume=${(0.06 * M.vol).toFixed(4)},afade=t=in:d=2.5,afade=t=out:st=${Math.max(0, duration - 2.5).toFixed(2)}:d=2.5,pan=stereo|c0=c0|c1=c0[drone]`);
     tags.push('[drone]');
   }
-  // paper flip on every cut: short band-passed noise burst
-  if (cuts.length) {
-    const n = inputs.filter(x => x === '-i').length;
-    inputs.push('-f', 'lavfi', '-t', '0.22', '-i', `anoisesrc=r=${SR}:color=white:amplitude=0.6:seed=3`);
-    const fl = `[${n}:a]bandpass=f=2400:w=1800,afade=t=in:d=0.015,afade=t=out:st=0.03:d=0.18,volume=0.16,pan=stereo|c0=c0|c1=c0,asplit=${cuts.length}${cuts.map((_, i) => `[f${i}]`).join('')}`;
-    parts.push(fl, ...cuts.map((c, i) => `[f${i}]adelay=${Math.round(c * 1000)}:all=1[fd${i}]`));
-    tags.push(...cuts.map((_, i) => `[fd${i}]`));
+  // transition sounds: paper flip (cut/page/wipe), soft whoosh (curve/zoom/pull/whip), low thump (iris). cuts = [{ t, type }] or [seconds]
+  const SFX = {
+    flip:  { src: 'white', dur: .22, chain: 'bandpass=f=2400:w=1800,afade=t=in:d=0.015,afade=t=out:st=0.03:d=0.18,volume=0.16' },
+    whoosh:{ src: 'pink', dur: .42, chain: 'bandpass=f=900:w=1400,afade=t=in:d=0.25:curve=exp,afade=t=out:st=0.25:d=0.17,volume=0.13' },
+    thump: { src: 'brown', dur: .3, chain: 'lowpass=f=180,afade=t=in:d=0.01,afade=t=out:st=0.02:d=0.26,volume=0.5' },
+  };
+  const kindOf = type => ['curve', 'zoom', 'pull', 'whip'].includes(type) ? 'whoosh' : type === 'iris' ? 'thump' : type === 'fade' ? null : 'flip';
+  const groups = {};
+  for (const c of cuts) { const o = typeof c === 'number' ? { t: c, type: 'cut' } : c, k = kindOf(o.type); if (k) (groups[k] ||= []).push(o.t); }
+  for (const [k, ts] of Object.entries(groups)) {
+    const n = inputs.filter(x => x === '-i').length, S = SFX[k];
+    inputs.push('-f', 'lavfi', '-t', String(S.dur), '-i', `anoisesrc=r=${SR}:color=${S.src}:amplitude=0.6:seed=3`);
+    parts.push(`[${n}:a]${S.chain},pan=stereo|c0=c0|c1=c0,asplit=${ts.length}${ts.map((_, i) => `[${k}${i}]`).join('')}`, ...ts.map((t, i) => `[${k}${i}]adelay=${Math.round(t * 1000)}:all=1[${k}d${i}]`));
+    tags.push(...ts.map((_, i) => `[${k}d${i}]`));
   }
   if (music) {
     const mp = path.isAbsolute(music) ? music : path.join(root, music);

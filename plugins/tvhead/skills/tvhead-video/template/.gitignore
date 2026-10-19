@@ -3,3 +3,9 @@ node_modules/
 out/
 episodes/*/build/
 .DS_Store
+app/thumbs/
+.app.json
+.claude-heartbeat
+episodes/*/job.json
+episodes/*/make.log
+episodes/*/claude.log

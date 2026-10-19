@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import './lib/net.mjs';
 // Search the public Fish Audio voice library (no key needed): node voices.mjs [tags or words…] [--lang en] [--n 15]
 //   node voices.mjs deep calm narration      → id | title | tags | uses
 // Put the id into story.json "voice" (or TVHEAD_VOICE in .env). Your own cloned voice: its id from fish.audio/m/<id>.

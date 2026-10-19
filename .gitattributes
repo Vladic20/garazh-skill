@@ -3,3 +3,4 @@
 *.jpg binary
 *.png binary
 *.mp3 binary
+*.cmd text eol=crlf

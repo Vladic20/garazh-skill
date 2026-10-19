@@ -48,7 +48,7 @@ const PROPS = {
     if (sc === 'static') inner = `<rect x="-52" y="-96" width="104" height="180" fill="${staticFill(p.seed, t)}"/>`;
     else if (sc === 'off') inner = `<rect x="-52" y="-96" width="104" height="180" fill="#2a2a2a"/>`;
     else if (sc === 'heart') inner = `<path transform="translate(0 -8) scale(2.6)" d="${heartPath()}" fill="${INK}"/>`;
-    else if (sc.startsWith('text:')) inner = `<text y="0" text-anchor="middle" font-family="Patrick Hand" font-size="26" fill="${INK}">${esc(sc.slice(5))}</text>`;
+    else if (sc.startsWith('text:')) inner = `<text y="0" text-anchor="middle" font-family="${FONT}" font-size="26" fill="${INK}">${esc(sc.slice(5))}</text>`;
     else { const off = (lt * 40) % 60; inner = `<clipPath id="pc${p.seed}"><rect x="-52" y="-96" width="104" height="180"/></clipPath><g clip-path="url(#pc${p.seed})">`;
       for (let y = -96 - off; y < 90; y += 60) inner += `<rect x="-42" y="${f2(y + 6)}" width="64" height="44" fill="#b9bfc2" stroke="${INK}" stroke-width="2"/><path transform="translate(34 ${f2(y + 40)}) scale(.5)" d="${heartPath()}" fill="${INK}"/>`;
       inner += '</g>'; }
@@ -61,19 +61,19 @@ const PROPS = {
   // notification bubble: heart + count
   like(p) { const txt = esc(p.count ?? '99+'); const w = 70 + String(txt).length * 16;
     return `<rect x="${-w / 2}" y="-34" width="${w}" height="56" rx="28" fill="${WHITE}" ${ST(4)}/><path d="M-10 22 l10 16 l10 -16" fill="${WHITE}" ${ST(4)}/><rect x="-14" y="16" width="28" height="8" fill="${WHITE}"/>
-      <path transform="translate(${-w / 2 + 34} -6) scale(1.3)" d="${heartPath()}" fill="${INK}"/><text x="${-w / 2 + 58}" y="6" font-family="Patrick Hand" font-size="38" fill="${INK}">${txt}</text>`; },
+      <path transform="translate(${-w / 2 + 34} -6) scale(1.3)" d="${heartPath()}" fill="${INK}"/><text x="${-w / 2 + 58}" y="6" font-family="${FONT}" font-size="38" fill="${INK}">${txt}</text>`; },
   bell(p, t, lt) { const sw = Math.sin(lt * 18) * 14 * Math.max(0, 1 - lt / 1.6);
     return `<g transform="rotate(${f2(sw)} 0 -50)"><path d="M-36 20 Q-34 -40 0 -46 Q34 -40 36 20 L44 30 L-44 30 Z" fill="${WHITE}" ${ST(4.5)}/><circle cy="40" r="9" fill="${INK}"/><path d="M0 -46 v-10" ${ST(4)}/></g>
-      ${p.count != null ? `<circle cx="34" cy="-36" r="20" fill="${INK}"/><text x="34" y="-27" text-anchor="middle" font-family="Patrick Hand" font-size="28" fill="${WHITE}">${esc(p.count)}</text>` : ''}`; },
+      ${p.count != null ? `<circle cx="34" cy="-36" r="20" fill="${INK}"/><text x="34" y="-27" text-anchor="middle" font-family="${FONT}" font-size="28" fill="${WHITE}">${esc(p.count)}</text>` : ''}`; },
   // speech / thought bubble; anchor = tail tip
   bubble(p) {
     const txt = esc(p.text || '...'), fs = p.size || 34, w = Math.max(90, txt.length * fs * .5 + 40), h = fs + 34, dir = p.dir === 'right' ? 1 : -1;
     const bx = dir * 30 - w / 2 + dir * w * .3, by = -h - 40;
     if (p.kind === 'thought') return `<circle cx="${dir * 8}" cy="-10" r="6" fill="${WHITE}" ${ST(3)}/><circle cx="${dir * 20}" cy="-28" r="10" fill="${WHITE}" ${ST(3)}/>
       <ellipse cx="${f2(bx + w / 2)}" cy="${f2(by + h / 2)}" rx="${f2(w / 2 + 12)}" ry="${f2(h / 2 + 10)}" fill="${WHITE}" ${ST(4)}/>
-      <text x="${f2(bx + w / 2)}" y="${f2(by + h / 2 + fs * .34)}" text-anchor="middle" font-family="Patrick Hand" font-size="${fs}" fill="${INK}">${txt}</text>`;
+      <text x="${f2(bx + w / 2)}" y="${f2(by + h / 2 + fs * .34)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" fill="${INK}">${txt}</text>`;
     return `<rect x="${f2(bx)}" y="${f2(by)}" width="${f2(w)}" height="${h}" rx="18" fill="${WHITE}" ${ST(4)}/><path d="M${dir * 14} ${by + h - 2} L0 0 L${dir * 40} ${by + h - 2}" fill="${WHITE}" ${ST(4)}/><path d="M${dir * 16} ${by + h - 2} L${dir * 38} ${by + h - 2}" stroke="${WHITE}" stroke-width="5"/>
-      <text x="${f2(bx + w / 2)}" y="${f2(by + h / 2 + fs * .34)}" text-anchor="middle" font-family="Patrick Hand" font-size="${fs}" fill="${INK}">${txt}</text>`;
+      <text x="${f2(bx + w / 2)}" y="${f2(by + h / 2 + fs * .34)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" fill="${INK}">${txt}</text>`;
   },
   // handwritten text; enter 'write' reveals letters one by one. anchor = baseline centre (align: middle|start|end)
   text(p, t, lt) {
@@ -81,7 +81,7 @@ const PROPS = {
     const shown = p.enter === 'write' ? txt.slice(0, Math.ceil(clamp(lt / (p.writeDur || Math.min(1.2, .06 * txt.length + .2))) * txt.length)) : txt;
     const lines = shown.split('\n'), anchor = p.align || 'middle';
     const under = p.underline ? `<path d="M${-txt.length * fs * .24} ${fs * .22} q${txt.length * fs * .24} ${fs * .1} ${txt.length * fs * .48} -2" fill="none" ${ST(Math.max(3, fs / 14))}/>` : '';
-    return lines.map((l, i) => `<text y="${f2(i * fs * 1.08)}" text-anchor="${anchor}" font-family="Patrick Hand" font-size="${fs}" fill="${p.color === 'white' ? WHITE : INK}"
+    return lines.map((l, i) => `<text y="${f2(i * fs * 1.08)}" text-anchor="${anchor}" font-family="${FONT}" font-size="${fs}" fill="${p.color === 'white' ? WHITE : INK}"
       ${p.outline ? `stroke="${PAPER}" stroke-width="${f2(fs / 9)}" paint-order="stroke"` : ''}>${esc(l)}</text>`).join('') + under;
   },
   // hand-drawn arrow; from/to in WORLD coords (x/y ignored); draws on over 0.4 s
@@ -110,15 +110,15 @@ const PROPS = {
     return `<path d="M-34 -60 h68 M-34 60 h68" ${ST(5)}/><path d="M-26 -60 C-26 -20 -4 -10 -4 0 C-4 10 -26 20 -26 60 M26 -60 C26 -20 4 -10 4 0 C4 10 26 20 26 60" fill="${WHITE}" ${ST(4)}/>
       <path d="M${f2(-20 * (1 - k))} ${f2(-48 + 40 * k)} Q0 ${f2(-48 + 48 * k)} ${f2(20 * (1 - k))} ${f2(-48 + 40 * k)} L0 -4Z" fill="${INK}"/><path d="M${f2(-22 * k)} 56 Q0 ${f2(56 - 34 * k)} ${f2(22 * k)} 56Z" fill="${INK}"/><path d="M0 0 v52" stroke="${INK}" stroke-width="1.5" opacity="${k < 1 ? 1 : 0}"/>`; },
   coin(p, t, lt) { const sq = Math.cos(lt * (p.spin === false ? 0 : 5));
-    return `<g transform="scale(${f2(Math.max(.15, Math.abs(sq)))} 1)"><circle r="40" fill="${WHITE}" ${ST(4.5)}/><circle r="30" fill="none" ${ST(2)}/><text y="15" text-anchor="middle" font-family="Patrick Hand" font-size="44" fill="${INK}">$</text></g>`; },
+    return `<g transform="scale(${f2(Math.max(.15, Math.abs(sq)))} 1)"><circle r="40" fill="${WHITE}" ${ST(4.5)}/><circle r="30" fill="none" ${ST(2)}/><text y="15" text-anchor="middle" font-family="${FONT}" font-size="44" fill="${INK}">$</text></g>`; },
   money(p) { const n = p.count || 5; let s = '';
     for (let i = 0; i < n; i++) s += `<g transform="translate(${(i % 2) * 6 - 3} ${-i * 14})"><rect x="-60" y="-12" width="120" height="24" rx="3" fill="${WHITE}" ${ST(3.5)}/><circle r="7" fill="none" ${ST(2)}/></g>`;
     return s; },
   bulb(p, t, lt) { const on = p.lit !== false;
     return `${on ? `<circle cy="-20" r="90" fill="url(#glow)"/>${[0, 45, 90, 135, 180, -45, -90, -135].map(a => `<path transform="rotate(${a} 0 -20)" d="M0 -82 v-16" ${ST(4)}/>`).join('')}` : ''}
       <path d="M-22 22 C-22 2 -44 -6 -44 -30 A44 44 0 0 1 44 -30 C44 -6 22 2 22 22 Z" fill="${on ? WHITE : '#9aa0a3'}" ${ST(4.5)}/><path d="M-20 30 h40 M-17 40 h34" ${ST(4)}/><path d="M-10 4 l10 -24 l10 24" fill="none" ${ST(2.5)}/>`; },
-  question(p) { return `<text y="40" text-anchor="middle" font-family="Patrick Hand" font-size="${p.size || 150}" fill="${INK}">?</text>`; },
-  exclaim(p) { return `<text y="40" text-anchor="middle" font-family="Patrick Hand" font-size="${p.size || 150}" fill="${INK}">!</text>`; },
+  question(p) { return `<text y="40" text-anchor="middle" font-family="${FONT}" font-size="${p.size || 150}" fill="${INK}">?</text>`; },
+  exclaim(p) { return `<text y="40" text-anchor="middle" font-family="${FONT}" font-size="${p.size || 150}" fill="${INK}">!</text>`; },
   brain(p) { return `<path d="M-6 -46 C-30 -58 -56 -40 -50 -16 C-68 -6 -62 24 -40 28 C-36 46 -12 50 -4 38 L-4 -44 M4 -46 C30 -58 56 -40 50 -16 C68 -6 62 24 40 28 C36 46 12 50 4 38 L4 -44" fill="${WHITE}" ${ST(4.5)}/>
       <path d="M-40 -10 q14 4 18 18 M-30 -34 q4 12 16 14 M40 -10 q-14 4 -18 18 M30 -34 q-4 12 -16 14 M-34 14 q10 -2 16 8 M34 14 q-10 -2 -16 8" fill="none" ${ST(3)}/>`; },
   eye(p, t, lt) { const bl = ((lt + 1.3) % 3.6) < .12, look = Math.sin(lt * .9) * 14;
@@ -163,5 +163,5 @@ const PROPS = {
   spotlight(p) { const w = p.w || 180; return `<path d="M-40 ${-p.y} L40 ${-p.y} L${w} 0 L${-w} 0 Z" fill="#fff" opacity=".28"/><ellipse cx="0" cy="0" rx="${w}" ry="22" fill="#fff" opacity=".35"/>`; },
   // simple rectangle "screen"/frame with optional text, e.g. a title card on a wall
   sign(p) { const txt = esc(p.text || ''), fs = p.size || 40, w = p.w || Math.max(140, txt.length * fs * .5 + 50), h = p.h || fs + 40;
-    return `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="6" fill="${WHITE}" ${ST(4.5)}/><text y="${f2(fs * .34)}" text-anchor="middle" font-family="Patrick Hand" font-size="${fs}" fill="${INK}">${txt}</text>`; },
+    return `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="6" fill="${WHITE}" ${ST(4.5)}/><text y="${f2(fs * .34)}" text-anchor="middle" font-family="${FONT}" font-size="${fs}" fill="${INK}">${txt}</text>`; },
 };

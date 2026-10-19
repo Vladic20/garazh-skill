@@ -1,21 +1,26 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
 <style>
-  @font-face { font-family: 'Patrick Hand'; src: url(../fonts/PatrickHand-latin.woff2) format('woff2'); font-weight: 400; font-display: block; }
+  /* one family "Hand": Patrick Hand for Latin, Neucha for Cyrillic (the browser picks per glyph by unicode-range) */
+  @font-face { font-family: 'Hand'; src: url(../fonts/PatrickHand-latin.woff2) format('woff2'); font-display: block;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Hand'; src: url(../fonts/Neucha-cyrillic.woff2) format('woff2'); font-display: block;
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+  :root { --paper: #c6ccd0; --ink: #141414; --paper-light: #d4d9dc; --muted: #7d8387; }
   html, body { margin: 0; background: #000; }
-  #stage { position: relative; width: 1280px; height: 720px; overflow: hidden; background: #c6ccd0; }
+  #stage { position: relative; width: 1280px; height: 720px; overflow: hidden; background: var(--paper); }
   #art, #paper { position: absolute; inset: 0; }
   #art svg, #paper svg { display: block; }
   #paper, #vignette { will-change: transform; }
   .grain { position: absolute; inset: 0; width: 1280px; height: 720px; opacity: .10; mix-blend-mode: overlay; display: none; pointer-events: none; }
   #vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 78% 70% at 50% 47%, transparent 55%, rgba(30,34,36,.28) 85%, rgba(20,22,24,.55) 100%); }
   #flicker { position: absolute; inset: 0; background: #fff; mix-blend-mode: soft-light; }
-  #fade { position: absolute; inset: 0; background: #c6ccd0; opacity: 0; }
+  #fade { position: absolute; inset: 0; background: var(--paper); opacity: 0; }
   #ui { position: absolute; inset: 0; }
   .cap { position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%); white-space: nowrap;
-         font: 400 50px/1 'Patrick Hand', sans-serif; color: #7d8387; letter-spacing: .5px;
-         text-shadow: 0 0 6px #d4d9dc, 0 0 3px #d4d9dc, 0 0 2px #d4d9dc; }
-  .cap .on { color: #141414; }
+         font: 400 50px/1 Hand, sans-serif; color: var(--muted); letter-spacing: .5px;
+         text-shadow: 0 0 6px var(--paper-light), 0 0 3px var(--paper-light), 0 0 2px var(--paper-light); }
+  .cap .on { color: var(--ink); }
 </style></head>
 <body>
 <div id="defs"></div>
@@ -29,12 +34,17 @@
   <div id="fade"></div>
 </div>
 <script>
-  // ?tl=<path to build/<ep>/timeline.js relative to this file>. Load order: timeline → core → character → props → scene.
-  const TLQ = new URLSearchParams(location.search).get('tl') || '../episodes/demo/build/timeline.js';
-  [TLQ, 'core.js', 'character.js', 'props.js', 'scene.js'].forEach(s => document.write(`<script src="${s}"><\/script>`));
+  // ?tl=<path to build/<lang>/timeline.js relative to this file>.
+  // Load order: timeline → gsap (for custom scenes) → core → character → props → scene → episode scripts (TL.scripts).
+  const TLQ = new URLSearchParams(location.search).get('tl') || '../episodes/demo/build/en/timeline.js';
+  [TLQ, '../node_modules/gsap/dist/gsap.min.js', 'core.js', 'character.js', 'props.js', 'mgprops.js', 'scene.js'].forEach(s => document.write(`<script src="${s}"><\/script>`));
 </script>
 <script>
-  (function () {   // film grain: 6 deterministic tiles, one per frame in rotation
+  // custom props written per episode (story.json "scripts": ["art/intro.js"]); make.mjs rewrites paths relative to this file
+  (window.TL && TL.scripts || []).forEach(s => document.write(`<script src="${s}"><\/script>`));
+</script>
+<script>
+  (function () {   // film grain: 6 deterministic tiles, one per two frames in rotation
     const host = document.getElementById('grains');
     for (let k = 0; k < 6; k++) {
       const c = document.createElement('canvas'); c.width = 640; c.height = 360; c.className = 'grain';
