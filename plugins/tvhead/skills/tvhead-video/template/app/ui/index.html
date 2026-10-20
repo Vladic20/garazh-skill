@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru"><head>
+<html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>tvhead studio</title>
 <link rel="icon" href="/ui/icon.png">
@@ -8,88 +8,92 @@
 <header class="top">
   <div class="brand"><svg viewBox="0 0 64 64" width="38" height="38" aria-hidden="true"><path d="M24 12 18 2M40 12l6-10" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><rect x="6" y="12" width="52" height="44" rx="8" fill="#585858" stroke="currentColor" stroke-width="4"/><rect x="14" y="19" width="36" height="30" rx="5" fill="#e9ebeb" stroke="currentColor" stroke-width="3"/><circle cx="25" cy="31" r="3" fill="currentColor"/><circle cx="39" cy="31" r="3" fill="currentColor"/><path d="M26 39q6 5 12 0" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
     <span>tvhead <b>studio</b></span></div>
-  <nav class="tabs" aria-label="Разделы">
-    <button type="button" data-view="studio" aria-current="page">Студия</button>
-    <button type="button" data-view="library">Персонажи и мир <span class="count" id="libCount"></span></button>
+  <nav class="tabs" data-i18n-aria="nav.aria">
+    <button type="button" data-view="studio" aria-current="page" data-i18n="tab.studio">Studio</button>
+    <button type="button" data-view="library"><span data-i18n="tab.library">Cast &amp; world</span> <span class="count" id="libCount"></span></button>
   </nav>
   <div class="pills">
-    <span class="pill" id="pillClaude" title="Claude видит приложение, когда в сессии запущено ожидание (bridge wait)">Claude: …</span>
-    <span class="pill" id="pillTts">Озвучка: …</span>
-    <button type="button" class="pill off-btn" id="quitBtn" title="Выключить приложение (сервер остановится)" aria-label="Выключить приложение"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7.5 6.5a7.5 7.5 0 1 0 9 0" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M12 3v8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+    <span class="pill" id="pillClaude" data-i18n-title="pill.claude.title">Claude: …</span>
+    <span class="pill" id="pillTts">…</span>
+    <div class="seg uilang" role="radiogroup" id="uiLang" data-i18n-aria="ui.aria">
+      <button type="button" role="radio" data-ui="ru" aria-checked="false">RU</button>
+      <button type="button" role="radio" data-ui="en" aria-checked="false">EN</button>
+    </div>
+    <button type="button" class="pill off-btn" id="quitBtn" data-i18n-title="quit.title" data-i18n-aria="quit.aria"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7.5 6.5a7.5 7.5 0 1 0 9 0" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M12 3v8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
   </div>
 </header>
 
 <main class="layout" id="studioView">
   <section class="card brief" aria-labelledby="hBrief">
-    <h2 id="hBrief">Новый ролик</h2>
+    <h2 id="hBrief" data-i18n="brief.h">New video</h2>
     <form id="briefForm" autocomplete="off">
-      <label class="field"><span>Тема ролика</span>
-        <textarea name="topic" rows="3" required placeholder="Например: почему мы постоянно устаём, даже когда высыпаемся"></textarea></label>
+      <label class="field"><span data-i18n="brief.topic">Topic</span>
+        <textarea name="topic" rows="3" required data-i18n-ph="brief.topic.ph"></textarea></label>
 
-      <div class="field"><span>Язык озвучки</span>
-        <div class="seg" role="radiogroup" aria-label="Язык озвучки">
+      <div class="field"><span data-i18n="brief.lang">Narration language</span>
+        <div class="seg" role="radiogroup" data-i18n-aria="brief.lang">
           <button type="button" role="radio" data-lang="en" aria-checked="true">EN</button>
           <button type="button" role="radio" data-lang="ru" aria-checked="false">RU</button>
           <button type="button" role="radio" data-lang="both" aria-checked="false">EN + RU</button>
         </div>
-        <small class="hint" id="langHint">Один ролик на английском</small></div>
+        <small class="hint" id="langHint"></small></div>
 
-      <div class="field"><span>Формат</span>
-        <div class="seg" role="radiogroup" aria-label="Формат кадра">
+      <div class="field"><span data-i18n="brief.format">Format</span>
+        <div class="seg" role="radiogroup" data-i18n-aria="brief.format.aria">
           <button type="button" role="radio" data-format="16:9" aria-checked="true">▭ 16:9</button>
           <button type="button" role="radio" data-format="9:16" aria-checked="false">▯ 9:16</button>
         </div>
-        <small class="hint" id="fmtHint">Горизонтальный 1920×1080 — YouTube</small></div>
+        <small class="hint" id="fmtHint"></small></div>
 
-      <label class="field"><span>Длительность: <b id="durLabel">60 с</b></span>
+      <label class="field"><span><span data-i18n="brief.duration">Length:</span> <b id="durLabel">60</b></span>
         <input type="range" name="duration" min="30" max="180" step="15" value="60"></label>
 
-      <div class="field"><span>Стиль и референс</span>
-        <div class="themes" id="themes" role="radiogroup" aria-label="Стиль"></div>
-        <div class="drop" id="drop" tabindex="0" role="button" aria-label="Добавить референсы">
+      <div class="field"><span data-i18n="brief.style">Style and reference</span>
+        <div class="themes" id="themes" role="radiogroup" data-i18n-aria="brief.style.aria"></div>
+        <div class="drop" id="drop" tabindex="0" role="button" data-i18n-aria="drop.aria">
           <input type="file" id="refInput" accept="image/*" multiple hidden>
-          <span>Перетащи сюда кадры-референсы или <u>выбери файлы</u></span>
-          <small>Claude возьмёт из них палитру, композицию и ритм. Картинки можно вставить и в сам ролик.</small>
+          <span data-i18n-html="drop.text"></span>
+          <small data-i18n="drop.small"></small>
           <div class="refs" id="refs"></div>
         </div></div>
 
-      <div class="field"><span>Персонажи и мир</span>
-        <div class="libpick" id="libPick" aria-label="Карточки из библиотеки"></div>
-        <textarea name="castIdeas" rows="2" placeholder="Кто герои: «уставший студент в худи», «босс — телевизор в цилиндре», «кот-философ»…" aria-label="Идеи персонажей"></textarea>
-        <textarea name="worldIdeas" rows="2" placeholder="Где всё происходит: «ночной город под дождём», «офис», «космос», «школа»…" aria-label="Идеи окружения" style="margin-top:8px"></textarea>
-        <label class="check"><input type="checkbox" name="invent" checked> Остальное Claude придумает сам — по смыслу темы</label>
+      <div class="field"><span data-i18n="brief.cast">Cast &amp; world</span>
+        <div class="libpick" id="libPick" data-i18n-aria="libpick.aria"></div>
+        <textarea name="castIdeas" rows="2" data-i18n-ph="cast.ph" data-i18n-aria="cast.aria"></textarea>
+        <textarea name="worldIdeas" rows="2" data-i18n-ph="world.ph" data-i18n-aria="world.aria" style="margin-top:8px"></textarea>
+        <label class="check"><input type="checkbox" name="invent" checked> <span data-i18n="invent"></span></label>
       </div>
 
       <details class="field more">
-        <summary>Голос, субтитры, режим</summary>
+        <summary data-i18n="more">Voice, captions, mode</summary>
         <div class="voices" id="voices"></div>
-        <label class="check"><input type="checkbox" name="captions"> Субтитры в кадре</label>
-        <label class="check"><input type="checkbox" name="autoRender"> Рендерить сразу, без проверки раскадровки</label>
-        <div class="field"><span>Кто пишет раскадровку</span>
-          <label class="check"><input type="radio" name="engine" value="session" checked> Claude в моей сессии (чат)</label>
-          <label class="check" id="cliOpt"><input type="radio" name="engine" value="cli"> Claude Code CLI в фоне (автономно)</label></div>
+        <label class="check"><input type="checkbox" name="captions"> <span data-i18n="captions"></span></label>
+        <label class="check"><input type="checkbox" name="autoRender"> <span data-i18n="autorender"></span></label>
+        <div class="field"><span data-i18n="engine">Who writes the storyboard</span>
+          <label class="check"><input type="radio" name="engine" value="session" checked> <span data-i18n="engine.session"></span></label>
+          <label class="check" id="cliOpt"><input type="radio" name="engine" value="cli"> <span data-i18n="engine.cli"></span></label></div>
       </details>
 
-      <label class="field"><span>Пожелания</span>
-        <textarea name="notes" rows="2" placeholder="Тон, концовка, что обязательно показать, ссылки на факты…"></textarea></label>
+      <label class="field"><span data-i18n="notes">Notes</span>
+        <textarea name="notes" rows="2" data-i18n-ph="notes.ph"></textarea></label>
 
-      <button class="btn primary big" type="submit" id="sendBtn">Отправить Claude</button>
+      <button class="btn primary big" type="submit" id="sendBtn" data-i18n="send">Send to Claude</button>
       <p class="formmsg" id="formMsg" role="status"></p>
     </form>
   </section>
 
   <section class="work">
-    <div class="jobs" id="jobs" aria-label="Задания"></div>
+    <div class="jobs" id="jobs" data-i18n-aria="jobs.aria"></div>
     <div class="card detail" id="detail" aria-live="polite">
       <div class="empty">
-        <h2>Как это работает</h2>
+        <h2 data-i18n="how.h">How it works</h2>
         <ol>
-          <li>Заполни бриф слева: тема, язык, стиль или свой референс.</li>
-          <li>Claude пишет сценарий и раскадровку с переходами. Кадры появятся здесь.</li>
-          <li>Поправь текст или попроси изменения, потом нажми «Рендерить».</li>
-          <li>Готовые видео EN / RU можно смотреть и скачивать прямо тут.</li>
+          <li data-i18n="how.1"></li>
+          <li data-i18n="how.2"></li>
+          <li data-i18n="how.3"></li>
+          <li data-i18n="how.4"></li>
         </ol>
-        <p class="hint">Чтобы Claude в чате увидел бриф, напиши ему: <b>«проверь tvhead-приложение»</b>.</p>
+        <p class="hint" data-i18n-html="how.hint"></p>
       </div>
     </div>
   </section>
@@ -97,56 +101,57 @@
 
 <main class="layout" id="libView" hidden>
   <section class="card brief" aria-labelledby="hLib">
-    <h2 id="hLib">Добавить в библиотеку</h2>
+    <h2 id="hLib" data-i18n="lib.h">Add to the library</h2>
     <form id="libForm" autocomplete="off">
-      <div class="field"><span>Что это</span>
-        <div class="seg small" role="radiogroup" aria-label="Тип карточки" id="kindSeg">
-          <button type="button" role="radio" data-kind="character" aria-checked="true">Персонаж</button>
-          <button type="button" role="radio" data-kind="world" aria-checked="false">Место</button>
-          <button type="button" role="radio" data-kind="style" aria-checked="false">Стиль</button>
-          <button type="button" role="radio" data-kind="idea" aria-checked="false">Идея</button>
+      <div class="field"><span data-i18n="lib.kind">What is it</span>
+        <div class="seg small" role="radiogroup" data-i18n-aria="lib.kind.aria" id="kindSeg">
+          <button type="button" role="radio" data-kind="character" aria-checked="true" data-i18n="kind.character">Character</button>
+          <button type="button" role="radio" data-kind="world" aria-checked="false" data-i18n="kind.world">Place</button>
+          <button type="button" role="radio" data-kind="style" aria-checked="false" data-i18n="kind.style">Style</button>
+          <button type="button" role="radio" data-kind="idea" aria-checked="false" data-i18n="kind.idea">Idea</button>
         </div></div>
-      <label class="field"><span>Название</span><input name="title" placeholder="Например: Босс, Ночной город, Мой стиль" maxlength="120"></label>
-      <label class="field"><span>Как выглядит / что важно</span>
-        <textarea name="notes" rows="4" placeholder="Голова-телевизор с помехами, строгий костюм, цилиндр. Всегда держит портфель. Говорит медленно…"></textarea></label>
-      <div class="field"><span>Картинки-референсы</span>
-        <div class="drop" id="libDrop" tabindex="0" role="button" aria-label="Добавить картинки">
+      <label class="field"><span data-i18n="lib.title">Name</span><input name="title" data-i18n-ph="lib.title.ph" maxlength="120"></label>
+      <label class="field"><span data-i18n="lib.notes">What it looks like</span>
+        <textarea name="notes" rows="4" data-i18n-ph="lib.notes.ph"></textarea></label>
+      <div class="field"><span data-i18n="lib.images">Reference images</span>
+        <div class="drop" id="libDrop" tabindex="0" role="button" data-i18n-aria="lib.drop.aria">
           <input type="file" id="libInput" accept="image/*" multiple hidden>
-          <span>Перетащи картинки или <u>выбери файлы</u></span>
-          <small>Скриншоты, наброски, фото, кадры из видео — Claude перенесёт идею в стиль ролика.</small>
+          <span data-i18n-html="lib.drop.text"></span>
+          <small data-i18n="lib.drop.small"></small>
           <div class="refs" id="libRefs"></div>
         </div></div>
-      <button class="btn primary big" type="submit" id="libSave">Сохранить карточку</button>
+      <button class="btn primary big" type="submit" id="libSave" data-i18n="lib.save">Save card</button>
       <p class="formmsg" id="libMsg" role="status"></p>
     </form>
   </section>
   <section class="work">
     <div class="libhead">
-      <div class="seg small filters" role="radiogroup" aria-label="Фильтр" id="libFilter">
-        <button type="button" role="radio" data-f="all" aria-checked="true">Все</button>
-        <button type="button" role="radio" data-f="character" aria-checked="false">Персонажи</button>
-        <button type="button" role="radio" data-f="world" aria-checked="false">Места</button>
-        <button type="button" role="radio" data-f="style" aria-checked="false">Стиль</button>
-        <button type="button" role="radio" data-f="idea" aria-checked="false">Идеи</button>
+      <div class="seg small filters" role="radiogroup" data-i18n-aria="lib.filter.aria" id="libFilter">
+        <button type="button" role="radio" data-f="all" aria-checked="true" data-i18n="f.all">All</button>
+        <button type="button" role="radio" data-f="character" aria-checked="false" data-i18n="f.character">Characters</button>
+        <button type="button" role="radio" data-f="world" aria-checked="false" data-i18n="f.world">Places</button>
+        <button type="button" role="radio" data-f="style" aria-checked="false" data-i18n="f.style">Style</button>
+        <button type="button" role="radio" data-f="idea" aria-checked="false" data-i18n="f.idea">Ideas</button>
       </div>
     </div>
     <div class="libgrid" id="libGrid"></div>
     <details class="card catalog">
-      <summary>Из чего Claude собирает персонажей и места</summary>
+      <summary data-i18n="cat.summary">What Claude builds characters and places from</summary>
       <div id="catalog"></div>
-      <p class="hint">Если в каталоге чего-то нет, Claude дорисует новую деталь или место кодом прямо в ролике.</p>
+      <p class="hint" data-i18n="cat.hint"></p>
     </details>
   </section>
 </main>
 
 <dialog id="voiceDlg">
   <form method="dialog" class="dlg">
-    <h3>Голоса Fish Audio · <span id="vLang"></span></h3>
-    <div class="row"><input id="vQuery" placeholder="deep calm male, женский, narration…" aria-label="Поиск голоса"><button class="btn" type="button" id="vSearch">Найти</button></div>
+    <h3><span data-i18n="vdlg.h">Fish Audio voices</span> · <span id="vLang"></span></h3>
+    <div class="row"><input id="vQuery" data-i18n-ph="vdlg.ph" data-i18n-aria="vdlg.aria"><button class="btn" type="button" id="vSearch" data-i18n="vdlg.find">Search</button></div>
     <ul id="vList" class="vlist"></ul>
-    <p class="hint">Свой голос: склонируй на fish.audio и вставь ID из ссылки fish.audio/m/&lt;id&gt;.</p>
-    <div class="row end"><button class="btn" value="close">Закрыть</button></div>
+    <p class="hint" data-i18n-html="vdlg.hint"></p>
+    <div class="row end"><button class="btn" value="close" data-i18n="vdlg.close">Close</button></div>
   </form>
 </dialog>
+<script src="/ui/i18n.js"></script>
 <script src="/ui/app.js"></script>
 </body></html>

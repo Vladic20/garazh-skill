@@ -182,3 +182,7 @@ dialog::backdrop { background: rgba(20,20,20,.35); }
 [hidden] { display: none !important; }
 .castboard figcaption.body { flex-direction: row; flex-wrap: wrap; align-items: flex-start; }
 .off-btn svg { display: block; }
+
+/* interface language switch */
+.seg.uilang { border-radius: 999px; }
+.seg.uilang button { font: 16px Hand, system-ui; padding: 3px 10px 4px; flex: none; }

@@ -1,7 +1,7 @@
 // ─── motion-graphics props: kinetic type + doodle infographics ───────────────────
 // Ideas adapted from open motion skills (HyperFrames' waterfall entry, Charlie's counters/charts, shotcraft's grids),
 // re-drawn in pencil style and driven only by t. Same contract as props.js: PROPS[type](p, t, lt) → svg at local origin.
-const approxW = (s, fs) => [...String(s)].reduce((a, ch) => a + (/[il.,'!:;|]/.test(ch) ? .26 : /[mwMWЖШЩЮМ]/.test(ch) ? .78 : /[A-ZА-Я]/.test(ch) ? .58 : ch === ' ' ? .28 : .47), 0) * fs;
+const approxW = (s, fs) => [...String(s)].reduce((a, ch) => a + (/[il.,'!:;|]/.test(ch) ? .26 : /[mwMWЖШЩЮМ]/.test(ch) ? .78 : /[A-ZА-Я]/.test(ch) ? .58 : /[а-яё]/.test(ch) ? .54 : ch === ' ' ? .28 : .47), 0) * fs;
 const fmtNum = (v, dec) => { const s = Math.abs(v).toFixed(dec), [a, b] = s.split('.'); return (v < 0 ? '-' : '') + a.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (b ? '.' + b : ''); };
 const normEm = w => String(w).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 

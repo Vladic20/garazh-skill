@@ -40,7 +40,7 @@ Glance at `references/images/demo_sheet.jpg` for the target look (`demo_sheet_9x
 
 Checklist for `story.json`:
 - **Cast & world first.** Use 2–4 named `characters` whose looks come from the topic's meaning (and from the user's library cards and ideas, if any), plus 2–4 `set`s that follow the story arc. Don't default to the bare grey TV-head on empty paper unless the user asked for that. Check with `node make.mjs <slug> --cast`.
-- Hook in line 1. ~150 words per minute, 6–22 words per scene. Every scene has a `note` (one line describing the picture, shown in the app).
+- Hook in line 1. ~150 words per minute, 6–22 words per scene. Every scene has a `note` (one line describing the picture, shown in the app). Write `note`, `title` and character `name`/`desc` as `{ "en": "...", "ru": "..." }` even for a one-language video: the app interface switches between English and Russian.
 - Languages: `"languages": ["en","ru"]`, and `say` (and any on-screen text) as `{ "en": "...", "ru": "..." }`. Write each language natively; don't translate word for word. Cue words differ per language, so prefer `at` for multilingual cues or give `on` per language.
 - Every scene has a visual metaphor and something happening on a key word or fraction. One recurring hero with an `id`; `keep: true` for consecutive beats on one picture.
 - Transitions: default `curve` in one direction; spend `zoom`/`pull`/`iris`/`page`/`whip` on meaning; use 2–3 types per film.

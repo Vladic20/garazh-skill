@@ -11,9 +11,9 @@ import { STUDIO, EPISODES, APP_STATE, getJob, saveJob, setStatus, listJobs, crea
 import { THEMES, localize, storyLanguages, resolveFormat } from '../lib/story.mjs';
 import { DEFAULT_VOICES, provider } from '../lib/voice.mjs';
 import { listLibrary, addLibraryItem, updateLibraryItem, deleteLibraryItem, attachToJob } from './library.mjs';
-import { PARTS } from '../lib/parts.mjs';
+import { PARTS, PARTS_EN } from '../lib/parts.mjs';
 
-const PORT = +(process.env.TVHEAD_PORT || 4777), VERSION = '2.2.0';
+const PORT = +(process.env.TVHEAD_PORT || 4777), VERSION = '2.3.0';
 // .env (same loader as make.mjs) so the key status is accurate
 const envFile = path.join(STUDIO, '.env');
 if (existsSync(envFile)) for (const line of readFileSync(envFile, 'utf8').split(/\r?\n/)) {
@@ -52,7 +52,7 @@ function body(req) {
 }
 
 // ─── storyboard view of a job: scenes with narration per language, transition, thumbnail ─────────
-function storyboard(id) {
+function storyboard(id, ui) {   // ui: interface language for notes / names (falls back to the first narration language)
   const story = readJson(path.join(jobDir(id), 'story.json'));
   if (!story) return null;
   const langs = storyLanguages(story), first = langs[0];
@@ -63,13 +63,13 @@ function storyboard(id) {
     mood: story.mood || 'dark', duration: tl?.duration ?? null,
     cast: (() => {   // model sheet written by "make.mjs <id> --cast" (characters + environments Claude designed)
       const cj = readJson(path.join(jobDir(id), 'build', 'cast', 'cast.json'));
-      const chars = Object.entries(story.characters || {}).filter(([k]) => k !== '*').map(([k, c]) => ({ id: k, name: localize(c.name, first) || k, desc: localize(c.desc, first) || '' }));
+      const chars = Object.entries(story.characters || {}).filter(([k]) => k !== '*').map(([k, c]) => ({ id: k, name: localize(c.name, ui || first) || k, desc: localize(c.desc, ui || first) || '' }));
       if (!cj && !chars.length) return null;
       const v = cj ? statSync(path.join(STUDIO, cj.sheet)).mtimeMs | 0 : 0;
       return { characters: chars, items: cj?.items || [], frames: (cj?.frames || []).map(f => `/files/${f}?v=${v}`) };
     })(),
     scenes: story.scenes.map((s, i) => ({
-      i, note: localize(s.note, first) || '', say: Object.fromEntries(langs.map(l => [l, localize(s.say, l) || ''])),
+      i, note: localize(s.note, ui || first) || '', say: Object.fromEntries(langs.map(l => [l, localize(s.say, l) || ''])),
       transition: i === 0 ? null : (typeof s.transition === 'object' ? s.transition?.type : s.transition) || (s.keep ? 'none' : story.transition || 'curve'),
       layout: s.layout || null, keep: !!s.keep, cam: typeof s.cam === 'string' ? s.cam : s.cam ? 'focus' : 'push',
       from: tl?.scenes[i]?.from ?? null, to: tl?.scenes[i]?.to ?? null,
@@ -176,7 +176,7 @@ const server = http.createServer(async (req, res) => {
       thumb: existsSync(path.join(STUDIO, 'app', 'thumbs', `${id}.png`)) ? `/files/app/thumbs/${id}.png` : null })));
     if (M === 'GET' && p === '/api/voices') return send(res, 200, await voices(url.searchParams.get('lang') || 'en', url.searchParams.get('q')));
     if (M === 'GET' && p === '/api/library') return send(res, 200, listLibrary());
-    if (M === 'GET' && p === '/api/parts') return send(res, 200, PARTS);
+    if (M === 'GET' && p === '/api/parts') return send(res, 200, url.searchParams.get('lang') === 'en' ? PARTS_EN : PARTS);
     if (M === 'POST' && p === '/api/library') return send(res, 200, addLibraryItem(await body(req)));
     const lm = p.match(/^\/api\/library\/([\w-]+)(?:\/(delete))?$/);
     if (M === 'POST' && lm) return send(res, 200, lm[2] ? { ok: deleteLibraryItem(lm[1]) } : updateLibraryItem(lm[1], await body(req)));
@@ -185,12 +185,12 @@ const server = http.createServer(async (req, res) => {
     const m = p.match(/^\/api\/jobs\/([\w-]+)(?:\/(\w+))?$/);
     if (M === 'POST' && p === '/api/jobs') {
       const b = await body(req);
-      if (!String(b.topic || '').trim()) return send(res, 400, { error: 'Нужна тема ролика' });
+      if (!String(b.topic || '').trim()) return send(res, 400, { error: 'A topic is required', code: 'topic_required' });
       const langs = (b.languages || ['en']).filter(l => ['en', 'ru'].includes(l));
       const brief = { topic: String(b.topic).trim().slice(0, 2000), languages: langs.length ? langs : ['en'], format: b.format === '9:16' ? '9:16' : '16:9', duration: Math.min(300, Math.max(15, +b.duration || 60)),
         theme: THEMES[b.theme] ? b.theme : b.theme === 'reference' ? 'reference' : 'paper', voices: b.voices || {}, notes: String(b.notes || '').slice(0, 4000),
         captions: !!b.captions, autoRender: !!b.autoRender, engine: b.engine === 'cli' ? 'cli' : 'session',
-        castIdeas: String(b.castIdeas || '').slice(0, 3000), worldIdeas: String(b.worldIdeas || '').slice(0, 3000), invent: b.invent !== false };
+        castIdeas: String(b.castIdeas || '').slice(0, 3000), worldIdeas: String(b.worldIdeas || '').slice(0, 3000), invent: b.invent !== false, uiLang: b.uiLang === 'ru' ? 'ru' : 'en' };
       const job = createJob(brief, Array.isArray(b.refs) ? b.refs.slice(0, 8) : []);
       if (Array.isArray(b.library) && b.library.length) {   // chosen library cards → copied into the job, snapshot in the brief
         const items = attachToJob(job.id, b.library.slice(0, 12)), file = path.join(jobDir(job.id), 'brief.json'), br = readJson(file);
@@ -201,12 +201,12 @@ const server = http.createServer(async (req, res) => {
     }
     if (m) {
       const [, id, action] = m, job = getJob(id);
-      if (!job) return send(res, 404, { error: 'нет такого задания' });
-      if (M === 'GET' && !action) return send(res, 200, { ...job, storyboard: storyboard(id), running: running.has(id) });
+      if (!job) return send(res, 404, { error: 'No such job', code: 'job_not_found' });
+      if (M === 'GET' && !action) return send(res, 200, { ...job, storyboard: storyboard(id, ['en', 'ru'].includes(url.searchParams.get('ui')) ? url.searchParams.get('ui') : null), running: running.has(id) });
       if (M === 'POST' && action === 'approve') return send(res, 200, startRender(id));
       if (M === 'POST' && action === 'feedback') {
         const b = await body(req), text = String(b.text || '').trim();
-        if (!text) return send(res, 400, { error: 'пустые правки' });
+        if (!text) return send(res, 400, { error: 'The notes are empty', code: 'empty_feedback' });
         job.feedback = [...(job.feedback || []), { t: new Date().toISOString(), text }]; saveJob(job);
         setStatus(id, 'revise', 'Правки отправлены Claude');
         if (job.brief?.engine === 'cli') startClaudeCli(id, text);
@@ -214,7 +214,7 @@ const server = http.createServer(async (req, res) => {
       }
       if (M === 'POST' && action === 'narration') {   // inline narration edits from the storyboard: { scenes: [{ i, say: { en, ru } }] }
         const b = await body(req), file = path.join(jobDir(id), 'story.json'), story = readJson(file);
-        if (!story) return send(res, 400, { error: 'нет story.json' });
+        if (!story) return send(res, 400, { error: 'This job has no story.json yet', code: 'no_story' });
         for (const e of b.scenes || []) if (story.scenes[e.i]) story.scenes[e.i].say = typeof story.scenes[e.i].say === 'object' || Object.keys(e.say).length > 1 ? { ...(typeof story.scenes[e.i].say === 'object' ? story.scenes[e.i].say : {}), ...e.say } : Object.values(e.say)[0];
         writeJson(file, story); setStatus(id, 'storyboarding', 'Текст обновлён, перерисовываю кадры'); restill(id);
         return send(res, 200, getJob(id));
@@ -223,7 +223,7 @@ const server = http.createServer(async (req, res) => {
       if (M === 'POST' && action === 'cancel') { const pr = running.get(id); if (pr) pr.kill(); setStatus(id, 'error', 'Остановлено пользователем', { error: 'cancelled' }); return send(res, 200, getJob(id)); }
     }
     send(res, 404, { error: 'not found' });
-  } catch (e) { send(res, 500, { error: e.message }); }
+  } catch (e) { send(res, e.code ? 400 : 500, { error: e.message, code: e.code }); }
 });
 
 server.on('error', e => { console.error(e.code === 'EADDRINUSE' ? `port ${PORT} is busy — the app is probably already running: http://localhost:${PORT}` : e.message); process.exit(1); });

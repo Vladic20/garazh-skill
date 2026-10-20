@@ -15,7 +15,7 @@ function save(items) { mkdirSync(LIB_DIR, { recursive: true }); writeJson(LIB_FI
 
 export function addLibraryItem({ kind, title, notes, images = [] }) {
   if (!KINDS.includes(kind)) throw new Error(`kind must be one of ${KINDS.join(', ')}`);
-  if (!String(title || '').trim() && !String(notes || '').trim() && !images.length) throw new Error('нужно название, описание или картинка');
+  if (!String(title || '').trim() && !String(notes || '').trim() && !images.length) throw Object.assign(new Error('Add a name, a description or an image'), { code: 'card_empty' });
   const id = `${kind}-${Date.now().toString(36)}${Math.floor(Math.random() * 1e4).toString(36)}`;
   mkdirSync(path.join(LIB_DIR, 'img'), { recursive: true });
   const files = images.slice(0, 6).map((im, i) => {

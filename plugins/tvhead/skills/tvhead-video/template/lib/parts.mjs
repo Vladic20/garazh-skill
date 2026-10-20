@@ -12,3 +12,17 @@ export const PARTS = {
   set:     { room: 'комната', bedroom: 'спальня', office: 'офис', classroom: 'класс', cafe: 'кафе', kitchen: 'кухня', city: 'город', street: 'улица', subway: 'метро', forest: 'лес', park: 'парк', sea: 'море', mountains: 'горы', desert: 'пустыня', space: 'космос', stage: 'сцена' },
   weather: { rain: 'дождь', snow: 'снег', leaves: 'листопад', wind: 'ветер' },
 };
+
+// English labels for the app catalog (same keys)
+export const PARTS_EN = {
+  head:    { tv: 'TV', crt: 'old TV', monitor: 'monitor', phone: 'phone', mask: 'mask', round: 'round head', cat: 'cat', bulb: 'light bulb', cloud: 'cloud', box: 'box', robot: 'robot' },
+  body:    { dress: 'trapezoid dress', robe: 'ragged robe', suit: 'suit', hoodie: 'hoodie', coat: 'coat', labcoat: 'lab coat', shirt: 't-shirt', apron: 'apron', stick: 'stick' },
+  hat:     { beanie: 'beanie', cap: 'cap', tophat: 'top hat', crown: 'crown', hardhat: 'hard hat', party: 'party hat', chef: 'chef hat', grad: 'graduation cap', cowboy: 'cowboy hat', headphones: 'headphones', halo: 'halo', bow: 'bow', wizard: 'wizard hat', hood: 'hood' },
+  glasses: { round: 'round', square: 'square', sun: 'sunglasses', monocle: 'monocle', vr: 'VR headset' },
+  neck:    { tie: 'tie', bowtie: 'bow tie', scarf: 'scarf', medal: 'medal', badge: 'badge' },
+  back:    { backpack: 'backpack', cape: 'cape', wings: 'wings', jetpack: 'jetpack' },
+  hair:    { short: 'short', long: 'long', bun: 'bun', spiky: 'spiky', curly: 'curly' },
+  hold:    { phone: 'phone', heart: 'heart', balloon: 'balloon', coffee: 'coffee', flower: 'flower', briefcase: 'briefcase', umbrella: 'umbrella', book: 'book', key: 'key', star: 'star', magnifier: 'magnifier', trophy: 'trophy', pencil: 'pencil', money: 'money', 'sign:…': 'sign', 'flag:…': 'flag' },
+  set:     { room: 'room', bedroom: 'bedroom', office: 'office', classroom: 'classroom', cafe: 'cafe', kitchen: 'kitchen', city: 'city', street: 'street', subway: 'subway', forest: 'forest', park: 'park', sea: 'sea', mountains: 'mountains', desert: 'desert', space: 'space', stage: 'stage' },
+  weather: { rain: 'rain', snow: 'snow', leaves: 'falling leaves', wind: 'wind' },
+};
