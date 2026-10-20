@@ -186,3 +186,12 @@ dialog::backdrop { background: rgba(20,20,20,.35); }
 /* interface language switch */
 .seg.uilang { border-radius: 999px; }
 .seg.uilang button { font: 16px Hand, system-ui; padding: 3px 10px 4px; flex: none; }
+
+/* look picker: two preview cards */
+.looks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.look { display: grid; gap: 4px; text-align: left; padding: 6px 6px 9px; border: var(--line) solid var(--ink); border-radius: 12px; background: #fff; cursor: pointer; color: var(--ink); }
+.look img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 7px; display: block; background: #ddd; }
+.look b { font: 21px Hand, system-ui; padding: 0 4px; }
+.look small { font-size: 13px; color: #6b7175; padding: 0 4px; line-height: 1.25; }
+.look[aria-checked=true] { background: var(--ink); color: #fff; }
+.look[aria-checked=true] small { color: #d9dcde; }

@@ -9,7 +9,7 @@ export const PARTS = {
   back:    { backpack: 'рюкзак', cape: 'плащ', wings: 'крылья', jetpack: 'джетпак' },
   hair:    { short: 'короткие', long: 'длинные', bun: 'пучок', spiky: 'ёжик', curly: 'кудри' },
   hold:    { phone: 'телефон', heart: 'сердце', balloon: 'шарик', coffee: 'кофе', flower: 'цветок', briefcase: 'портфель', umbrella: 'зонт', book: 'книга', key: 'ключ', star: 'звезда', magnifier: 'лупа', trophy: 'кубок', pencil: 'карандаш', money: 'деньги', 'sign:…': 'табличка', 'flag:…': 'флаг' },
-  set:     { room: 'комната', bedroom: 'спальня', office: 'офис', classroom: 'класс', cafe: 'кафе', kitchen: 'кухня', city: 'город', street: 'улица', subway: 'метро', forest: 'лес', park: 'парк', sea: 'море', mountains: 'горы', desert: 'пустыня', space: 'космос', stage: 'сцена' },
+  set:     { room: 'комната', bedroom: 'спальня', office: 'офис', classroom: 'класс', cafe: 'кафе', kitchen: 'кухня', city: 'город', street: 'улица', subway: 'метро', forest: 'лес', park: 'парк', sea: 'море', mountains: 'горы', desert: 'пустыня', space: 'космос', stage: 'сцена', garage: 'гараж (мультик)', desk: 'стол крупно', blackout: 'темнота и прожектор' },
   weather: { rain: 'дождь', snow: 'снег', leaves: 'листопад', wind: 'ветер' },
 };
 
@@ -23,6 +23,6 @@ export const PARTS_EN = {
   back:    { backpack: 'backpack', cape: 'cape', wings: 'wings', jetpack: 'jetpack' },
   hair:    { short: 'short', long: 'long', bun: 'bun', spiky: 'spiky', curly: 'curly' },
   hold:    { phone: 'phone', heart: 'heart', balloon: 'balloon', coffee: 'coffee', flower: 'flower', briefcase: 'briefcase', umbrella: 'umbrella', book: 'book', key: 'key', star: 'star', magnifier: 'magnifier', trophy: 'trophy', pencil: 'pencil', money: 'money', 'sign:…': 'sign', 'flag:…': 'flag' },
-  set:     { room: 'room', bedroom: 'bedroom', office: 'office', classroom: 'classroom', cafe: 'cafe', kitchen: 'kitchen', city: 'city', street: 'street', subway: 'subway', forest: 'forest', park: 'park', sea: 'sea', mountains: 'mountains', desert: 'desert', space: 'space', stage: 'stage' },
+  set:     { room: 'room', bedroom: 'bedroom', office: 'office', classroom: 'classroom', cafe: 'cafe', kitchen: 'kitchen', city: 'city', street: 'street', subway: 'subway', forest: 'forest', park: 'park', sea: 'sea', mountains: 'mountains', desert: 'desert', space: 'space', stage: 'stage', garage: 'garage (cartoon)', desk: 'desk close-up', blackout: 'blackout + spotlight' },
   weather: { rain: 'rain', snow: 'snow', leaves: 'falling leaves', wind: 'wind' },
 };

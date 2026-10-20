@@ -13,7 +13,7 @@ for f in engine lib fonts app make.mjs voices.mjs package.json package-lock.json
   if [ "$f" = app ]; then mkdir -p "$STUDIO/app"; for a in "$TPL/app/"*; do n=$(basename "$a"); [ "$n" = thumbs ] && continue; rm -rf "$STUDIO/app/$n"; cp -R "$a" "$STUDIO/app/$n"; done; continue; fi
   rm -rf "$STUDIO/$f"; cp -R "$TPL/$f" "$STUDIO/$f"
 done
-[ -d "$STUDIO/episodes/demo" ] || cp -R "$TPL/episodes/demo" "$STUDIO/episodes/demo"
+for ex in demo promo; do [ -d "$STUDIO/episodes/$ex" ] || cp -R "$TPL/episodes/$ex" "$STUDIO/episodes/$ex"; done
 command -v node >/dev/null || { echo "!! need Node.js >= 18" >&2; exit 1; }
 command -v ffmpeg >/dev/null || echo "!! need ffmpeg in PATH (Windows: winget install Gyan.FFmpeg · macOS: brew install ffmpeg · Linux: apt install ffmpeg)" >&2
 (cd "$STUDIO" && npm install --silent --no-audit --no-fund)   # fast no-op when up to date; picks up new deps after updates

@@ -19,6 +19,7 @@ import './lib/net.mjs';
 import { buildTimeline, toSrt, localize, storyLanguages, resolveFormat, LANGS } from './lib/story.mjs';
 import { buildVoice, defaultVoice, defaultModel, provider } from './lib/voice.mjs';
 import { voiceStem, bedStem, muxFinal } from './lib/audio.mjs';
+import { LOOKS, resolveLook } from './lib/story.mjs';
 import { renderStills, renderVideo } from './lib/frames.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
@@ -143,7 +144,11 @@ for (const lang of (STILLS ? langs.slice(0, 1) : langs)) {
   try {
     const hasVoice = voiceStem(TL.voice, TL.duration, voiceWav);
     const cuts = story.flips === false ? [] : TL.scenes.slice(1).filter(s => s.transition.type !== 'none').map(s => ({ t: Math.max(0, s.from - (s.transition.dOut || 0) * .6), type: s.transition.type }));
-    bedStem({ duration: TL.duration, mood: story.mood ?? 'dark', cuts, music: story.music, root: epDir }, bedWav);
+    // music follows the film: drums out in dark / blackout scenes, a swell + kick on zoom / iris / whip / pull transitions
+    const quiet = TL.scenes.filter(s => s.dark || (s.set && s.set.type === 'blackout')).map(s => [s.from, s.to]);
+    const hits = TL.scenes.slice(1).filter(s => ['zoom', 'iris', 'whip', 'pull'].includes(s.transition.type)).map(s => s.from);
+    const music = story.music !== undefined ? story.music : LOOKS[resolveLook(story.look)].music;
+    bedStem({ duration: TL.duration, mood: story.mood ?? 'dark', cuts, music: music || null, root: epDir, quiet, hits, sfx: resolveLook(story.look) === 'cartoon' ? 'soft' : 'paper', seed: [...ep].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7) }, bedWav);
     muxFinal({ video: silent, voiceWav, bedWav, out, hasVoice });
   } catch (e) { fail(`audio: ${e.message}`); }
   writeFileSync(out.replace(/\.mp4$/, '.srt'), toSrt(TL.subs));

@@ -14,24 +14,25 @@ Vertical videos (`"format": "9:16"`) use a 720×1280 world (rendered 1080×1920)
 | key | default | meaning |
 |---|---|---|
 | `title` | — | shown in the app; not drawn |
+| `look` | `doodle` | the look: `doodle` (pencil on paper, boiling lines) or `cartoon` (warm flat colour after the garazh cartoon reel: thick brown outlines, tube arms with hands, coloured clothes, dust in lamp light, karaoke captions on a dark plate). `cartoon` defaults to `theme: "garage"`, `captions: true`, `music: "lofi"` and soft whooshes instead of paper flips. See "Cartoon look" below |
 | `format` | `16:9` | `16:9` (1920×1080, YouTube) or `9:16` (1080×1920, Shorts / Reels / TikTok); also `landscape` / `portrait`. `node make.mjs <slug> --format 9:16` renders any story the other way without editing it |
 | `remap` | `true` | 9:16 only: `false` = plain numbers are already 720×1280 world coordinates (write this when the story is vertical-only) |
 | `languages` | detected from `say` | `["en"]`, `["ru"]` or `["en", "ru"]` |
 | `voice` | per language: EN `bf322df2096a46f18c579d0baa36f41d` (Adrian), RU `868377a7b08f4c0d9acf8c9f059571aa` (Молодой Аналитик); .env `TVHEAD_VOICE_EN` / `TVHEAD_VOICE_RU` | Fish Audio voice id (`fish.audio/m/<id>`), or `{ "en": "<id>", "ru": "<id>" }` |
 | `model` | `fish-audio/s2.1-pro-free:free` (**free**) or .env `TVHEAD_TTS_MODEL` | any OpenRouter TTS model; paid, more acted: `fish-audio/drama-3` |
-| `theme` | `paper` | `paper` · `sepia` · `blueprint` · `chalk` · `night` · `mint`, or `{ "preset": "paper", "paper": "#…", "ink": "#…", "accent": "#…", "fill": "#…", "bezel": "#…", "screen": "#…" }` (built from a reference image) |
+| `theme` | `paper` (`garage` for cartoon) | `paper` · `sepia` · `blueprint` · `chalk` · `night` · `mint` · `garage`, or `{ "preset": "paper", "paper": "#…", "ink": "#…", "accent": "#…", "fill": "#…", "bezel": "#…", "screen": "#…" }` (built from a reference image) |
 | `transition` | `curve` | default seam into each new scene (see Transitions) |
 | `direction` | `left` | the film's "current" for `curve`/`whip`/`wipe`/`page` |
 | `scripts` | — | episode JS files with custom GSAP props (`references/motion.md` §6) |
 | `style` | — | delivery direction prepended to every line, e.g. `"calm, low, reflective"` (skipped for lines that start with their own `[tag]`) |
 | `mood` | `dark` | drone under the voice: `dark` · `calm` · `tense` · `hope` · `none` |
-| `music` | — | path (relative to the episode folder) to an mp3 to loop under the voice, auto-ducked |
+| `music` | — (`lofi` for cartoon) | generated for free, no samples: `lofi` (electric piano, dusty swung drums, bass, vinyl) · `ambient` (pads + soft piano, no drums) · `upbeat` (bright chords, arpeggio, claps), or `{ "preset": "lofi", "bpm": 80, "volume": 0.5 }`; or a path (relative to the episode folder) to an mp3 to loop; `false` = none. The music follows the film: drums enter after the intro, drop out in dark / `blackout` scenes, a swell + kick lands on `zoom`/`iris`/`whip`/`pull` seams, the last bars resolve; ducked under the voice. A generated track replaces the `mood` drone |
 | `captions` | `false` | burn karaoke captions into the video (an `.srt` is always written next to the mp4) |
 | `pace` | `1` | multiplies the pause after every line (0.7 = snappier, 1.4 = slower) |
 | `pause` | `0.38` | seconds of silence after each line |
 | `outro` | `1.4` | extra hold on the last picture |
 | `particles` | `1` | floating doodle density 0–2 |
-| `flips` | `true` | soft paper-flip sound on every cut |
+| `flips` | `true` | soft paper-flip sound on every cut (a soft whoosh in cartoon style) |
 
 ## Scene
 
@@ -121,8 +122,27 @@ Every prop takes `x`, `y`, `scale`, `rot`, `flip`, `enter`, `z`, cues and `then`
 | `checklist` | `items`, `step` (s between ticks), `checked`, `size` — anchor = left edge |
 | `grid` | rows×cols of small TV heads, one breaks the pattern: `rows`, `cols`, `cell`, `face`, `odd` (index), `oddFace`, `oddAt` (s) — anchor = bottom centre |
 | `photo` | the user's image as a taped grayscale polaroid: `src: "refs/<file>"`, `w`, `h`, `caption`, `color: true` |
+| `badge` | name card (lower third): `text` (big name), `role` (coloured chip under it, e.g. "CHIEF SCEPTIC"), `color`, `size` (54), `tilt` (−4) — introduce each hero once |
+| `screen` | a device with a **live screen**: `frame` = `laptop` (default; base reaches `h/2 + 62` below the centre, rest it on the `desk` table) · `window` (app window, `title`) · `phone` · `none`; `w` (560), `h` (350); `show` = what plays on it (below). Origin = centre of the display |
+| `notes` | music notes floating up: `n` (5), `spread` (120), `color` |
+
+**`screen` contents** (`show`). Timed entries take `on` / `at` / `delay` like any cue (resolved to absolute times); later scenes add entries with `change: [{ "id": "<screen id>", "addChat" | "addSteps" | "addLines": [ … ] }]`.
+- `chat` — a Claude chat: `chat: [{ "from": "user" | "claude", "text", "delay": 1.5, "button": "Run", "click": { "delay": 4 }, "progress": { "dur": 2, "label": "Rendering", "doneLabel": "✓ done" } }]`. User lines type into the input box and jump up as a bubble at their time; Claude lines show typing dots for 0.9 s, then type out; a button appears when the text is done, a cursor flies to it and clicks at `click`; a progress bar runs after the click. `fs` (19), `labels: { "title", "ph" }`, `dw` (design width: 560, phones 340 = bigger text).
+- `app` — the tvhead studio app: `steps: [{ "view": "brief" | "board" | "render" | "done", "delay": 0 }]`, `topic` (typed in), `langs` (["EN","RU"]), `styleName`, `ui` ("EN"/"RU"), `labels` (`topic`, `voice`, `style`, `refs`, `go`, `board`, `drawing`, `drawn`, `render`, `rendering`, `done`, `files`). The button of each view is pressed (cursor + click) just before the next step.
+- `code` — a terminal: `lines: [{ "text", "kind": "cmd" | "out" | "ok" | "err", "delay" }]` — commands type out, output appears at once; `title`, `fs` (16). Add `hands: true` (+ `sleeve`, `skin`) on a laptop for typing hands.
+- `video` — a finished doodle video playing (grey paper, a TV-head figure): `word`, `len`.
+- `off` — dark screen with a reflection.
 
 `enter`: `pop` (default) · `fade` · `drop` · `rise` · `slide-left` · `slide-right` · `grow` · `write` (text) · `none`. `exit`: `pop` · `fade`.
+
+## Cartoon look (`"look": "cartoon"`)
+
+The warm look of a night-garage cartoon (look at `references/images/cartoon_sheet.jpg`). Same story API; what changes:
+- **Figures**: every character gets a thick brown outline, tube arms with skin-tone hands (`skin`), coloured clothes (`color`, or a palette colour picked from the id), trousers (`legs`), a TV casing colour (`bezel`), blush on screen faces. No line boil.
+- **Places**: use the warm sets `garage` (night garage: brick wall, window on a city at night, pegboard, shelf with an old TV, hanging lamp with a light cone, `dim`, `lamp: false`, `cone`), `desk` (close-up table edge under a dim wall, `top` = y of the table; put a `screen` on it) and `blackout` (darkness with one spotlight, `x`; `light: false` = black). The doodle sets still work, recoloured.
+- **Type**: `text` / `words` / `counter` are drawn in rounded Pangolin, cream with a thick brown outline, so they read on dark walls. Introduce heroes with `badge`.
+- **Sound**: lo-fi music by default; karaoke captions on (words appear as they are spoken, the current one in yellow).
+- **Recipe that works** (the promo episode `episodes/promo`): open on `blackout` with the hero in the spotlight and a `badge` → `iris` into the `garage` → `zoom` into a `desk` + `screen` for anything on a computer (chat, app, terminal) → back to the garage for reactions → a title card → a joke button (lamp off).
 
 ## Vertical 9:16
 

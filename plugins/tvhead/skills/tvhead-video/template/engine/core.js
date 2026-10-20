@@ -68,7 +68,7 @@ function installStatic() {
     <rect width="${W}" height="${H}" fill="url(#paperGrad)"/><rect width="${W}" height="${H}" filter="url(#paperTex)"/><rect width="${W}" height="${H}" filter="url(#fibers)"/></svg>`;
 }
 const staticFill = (seed, t) => `url(#static${(Math.abs(seed) + Math.floor(t * 12)) % 12})`;
-const boilFilter = t => `url(#boil${boilSeed(t)})`;
+function boilFilter(t) { return `url(#boil${boilSeed(t)})`; }
 
 // ─── doodle confetti: dots, rings, squares, triangles, spirals drifting forever ──
 // density 0..2 (1 = like the reference frames). Positions are a function of t only, so cuts don't reset them.

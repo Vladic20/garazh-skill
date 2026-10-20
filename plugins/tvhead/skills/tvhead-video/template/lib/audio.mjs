@@ -1,7 +1,8 @@
-// Sound: narration stem + procedural bed (projector hiss, mood drone, paper flips on cuts) + optional music, ducked under the voice.
+// Sound: narration stem + procedural bed (projector hiss, mood drone, paper flips on cuts) + music (generated preset or a file), ducked under the voice.
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { renderMusic, MUSIC_PRESETS } from './music.mjs';
 
 const SR = 48000;
 function ff(args, label) {
@@ -29,13 +30,22 @@ const MOODS = {
 };
 
 // bed: hiss + drone + paper flips at cut times; music (optional) looped under everything
-export function bedStem({ duration, mood = 'dark', cuts = [], music = null, root }, out) {
+// music: "lofi" | "ambient" | "upbeat" | { preset, bpm, volume } → generated (lib/music.mjs); any other string = audio file in the episode folder.
+// quiet: [[a, b]] windows where the drums drop out; hits: times of big transitions (swell + kick)
+export function bedStem({ duration, mood = 'dark', cuts = [], music = null, root, quiet = [], hits = [], seed = 7, sfx = 'paper' }, out) {
   const d = duration.toFixed(3), inputs = [], parts = [];
+  const spec = typeof music === 'string' && MUSIC_PRESETS[music] ? { preset: music } : music && typeof music === 'object' ? music : null;
+  let musicFile = spec ? null : music, musicVol = .35;
+  if (spec) {
+    const r = renderMusic({ ...spec, duration, quiet, hits, seed }, path.join(path.dirname(out), 'music.wav'));
+    musicFile = r.file; musicVol = spec.volume ?? r.volume;
+    mood = null;   // the drone would clash with the chords
+  }
   // projector hiss
   inputs.push('-f', 'lavfi', '-t', d, '-i', `anoisesrc=r=${SR}:color=pink:amplitude=0.5:seed=7`);
   parts.push(`[0:a]highpass=f=300,lowpass=f=5200,volume=0.012,pan=stereo|c0=c0|c1=c0[hiss]`);
   let tags = ['[hiss]'];
-  const M = MOODS[mood];
+  const M = mood && MOODS[mood];
   if (M) {
     const expr = M.f.map((f, i) => `${(1 / M.f.length).toFixed(3)}*sin(2*PI*${f}*t+${i})*(1+${M.trem}*sin(2*PI*${(0.07 + i * 0.03).toFixed(2)}*t))`).join('+');
     inputs.push('-f', 'lavfi', '-t', d, '-i', `aevalsrc='${expr}':s=${SR}`);
@@ -48,7 +58,8 @@ export function bedStem({ duration, mood = 'dark', cuts = [], music = null, root
     whoosh:{ src: 'pink', dur: .42, chain: 'bandpass=f=900:w=1400,afade=t=in:d=0.25:curve=exp,afade=t=out:st=0.25:d=0.17,volume=0.13' },
     thump: { src: 'brown', dur: .3, chain: 'lowpass=f=180,afade=t=in:d=0.01,afade=t=out:st=0.02:d=0.26,volume=0.5' },
   };
-  const kindOf = type => ['curve', 'zoom', 'pull', 'whip'].includes(type) ? 'whoosh' : type === 'iris' ? 'thump' : type === 'fade' ? null : 'flip';
+  // sfx 'soft' (cartoon style): no paper flips, every seam is a soft whoosh
+  const kindOf = type => type === 'iris' ? 'thump' : type === 'fade' ? null : sfx === 'soft' || ['curve', 'zoom', 'pull', 'whip'].includes(type) ? 'whoosh' : 'flip';
   const groups = {};
   for (const c of cuts) { const o = typeof c === 'number' ? { t: c, type: 'cut' } : c, k = kindOf(o.type); if (k) (groups[k] ||= []).push(o.t); }
   for (const [k, ts] of Object.entries(groups)) {
@@ -57,12 +68,12 @@ export function bedStem({ duration, mood = 'dark', cuts = [], music = null, root
     parts.push(`[${n}:a]${S.chain},pan=stereo|c0=c0|c1=c0,asplit=${ts.length}${ts.map((_, i) => `[${k}${i}]`).join('')}`, ...ts.map((t, i) => `[${k}${i}]adelay=${Math.round(t * 1000)}:all=1[${k}d${i}]`));
     tags.push(...ts.map((_, i) => `[${k}d${i}]`));
   }
-  if (music) {
-    const mp = path.isAbsolute(music) ? music : path.join(root, music);
-    if (!existsSync(mp)) throw new Error(`music file not found: ${mp}`);
+  if (musicFile) {
+    const mp = path.isAbsolute(musicFile) ? musicFile : path.join(root, musicFile);
+    if (!existsSync(mp)) throw new Error(`music file not found: ${mp} (or use a preset: ${Object.keys(MUSIC_PRESETS).join(', ')})`);
     const n = inputs.filter(x => x === '-i').length;
-    inputs.push('-stream_loop', '-1', '-i', mp);
-    parts.push(`[${n}:a]aresample=${SR},atrim=0:${d},volume=0.35,afade=t=in:d=1.5,afade=t=out:st=${Math.max(0, duration - 3).toFixed(2)}:d=3[mus]`);
+    inputs.push(...(spec ? [] : ['-stream_loop', '-1']), '-i', mp);
+    parts.push(`[${n}:a]aresample=${SR},atrim=0:${d},volume=${musicVol},afade=t=in:d=${spec ? .05 : 1.5},afade=t=out:st=${Math.max(0, duration - 3).toFixed(2)}:d=3[mus]`);
     tags.push('[mus]');
   }
   parts.push(`${tags.join('')}amix=inputs=${tags.length}:normalize=0:dropout_transition=0,apad=whole_dur=${d},atrim=0:${d}[out]`);
@@ -72,7 +83,7 @@ export function bedStem({ duration, mood = 'dark', cuts = [], music = null, root
 // final: bed ducked by the voice (sidechain), + voice, limiter → AAC muxed with the video
 export function muxFinal({ video, voiceWav, bedWav, out, hasVoice }) {
   const fc = hasVoice
-    ? `[2:a]asplit=2[vk][vm];[1:a][vk]sidechaincompress=threshold=0.02:ratio=8:attack=20:release=400[bd];[bd][vm]amix=inputs=2:normalize=0,alimiter=limit=0.89:level=disabled[a]`
+    ? `[2:a]asplit=2[vk][vm];[1:a][vk]sidechaincompress=threshold=0.03:ratio=5:attack=30:release=650[bd];[bd][vm]amix=inputs=2:normalize=0,alimiter=limit=0.89:level=disabled[a]`
     : `[1:a]alimiter=limit=0.89:level=disabled[a]`;
   ff(['-i', video, '-i', bedWav, ...(hasVoice ? ['-i', voiceWav] : []), '-filter_complex', fc, '-map', '0:v:0', '-map', '[a]',
     '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', out], 'mux');

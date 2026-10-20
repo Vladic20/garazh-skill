@@ -6,6 +6,13 @@
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
   @font-face { font-family: 'Hand'; src: url(../fonts/Neucha-cyrillic.woff2) format('woff2'); font-display: block;
     unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+  /* cartoon style: Pangolin (badges), Rubik (captions, screen UI), JetBrains Mono (chips, terminal) */
+  @font-face { font-family: 'Pangolin'; src: url(../fonts/Pangolin-400-latin.woff2) format('woff2'); font-weight: 400; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Pangolin'; src: url(../fonts/Pangolin-400-cyrillic.woff2) format('woff2'); font-weight: 400; font-display: block; unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+  @font-face { font-family: 'Rubik'; src: url(../fonts/Rubik-800-latin.woff2) format('woff2'); font-weight: 300 900; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Rubik'; src: url(../fonts/Rubik-800-cyrillic.woff2) format('woff2'); font-weight: 300 900; font-display: block; unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+  @font-face { font-family: 'JetBrains Mono'; src: url(../fonts/JetBrainsMono-700-latin.woff2) format('woff2'); font-weight: 400 800; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'JetBrains Mono'; src: url(../fonts/JetBrainsMono-700-cyrillic.woff2) format('woff2'); font-weight: 400 800; font-display: block; unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
   :root { --paper: #c6ccd0; --ink: #141414; --paper-light: #d4d9dc; --muted: #7d8387; }
   html, body { margin: 0; background: #000; }
   #stage { position: relative; width: 1280px; height: 720px; overflow: hidden; background: var(--paper); }
@@ -17,6 +24,20 @@
   #flicker { position: absolute; inset: 0; background: #fff; mix-blend-mode: soft-light; }
   #fade { position: absolute; inset: 0; background: var(--paper); opacity: 0; }
   #ui { position: absolute; inset: 0; }
+  /* cartoon: warm film over the frame, heavier vignette and grain, karaoke captions on a dark plate */
+  #warm, #haze { position: absolute; inset: 0; display: none; pointer-events: none; }
+  #warm { background: rgba(255,170,80,.2); mix-blend-mode: soft-light; }
+  #haze { background: radial-gradient(ellipse at 45% 30%, rgba(255,210,140,.16), transparent 60%); mix-blend-mode: screen; }
+  .cartoon #warm, .cartoon #haze { display: block; }
+  .cartoon #vignette { background: radial-gradient(ellipse 78% 68% at 50% 46%, transparent 50%, rgba(22,12,6,.5) 82%, rgba(10,5,2,.82) 100%); }
+  .cartoon.portrait #vignette { background: radial-gradient(ellipse 80% 62% at 50% 46%, transparent 50%, rgba(22,12,6,.5) 82%, rgba(10,5,2,.82) 100%); }
+  .cartoon .grain { opacity: .15; }
+  .cartoon #flicker { background: #fff3d8; mix-blend-mode: overlay; }
+  .cartoon #fade { background: #0b0604; }
+  .cartoon .cap { bottom: 58px; transform-origin: 50% 50%; background: rgba(26,20,16,.9); color: #fff; font: 800 38px/1.12 Rubik, sans-serif; letter-spacing: .2px;
+                  border-radius: 12px; padding: 9px 20px 12px; box-shadow: 0 5px 0 rgba(0,0,0,.35); text-shadow: none; }
+  .cartoon .cap .hl { color: #ffc93a; }
+  .cartoon.portrait .cap { bottom: 246px; font-size: 36px; max-width: 620px; white-space: normal; text-align: center; }
   .cap { position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%); white-space: nowrap;
          font: 400 50px/1 Hand, sans-serif; color: var(--muted); letter-spacing: .5px;
          text-shadow: 0 0 6px var(--paper-light), 0 0 3px var(--paper-light), 0 0 2px var(--paper-light); }
@@ -30,6 +51,7 @@
 <div id="stage">
   <div id="paper"></div>
   <div id="art"></div>
+  <div id="warm"></div><div id="haze"></div>
   <div id="grains"></div>
   <div id="vignette"></div>
   <div id="flicker"></div>
@@ -40,7 +62,7 @@
   // ?tl=<path to build/<lang>/timeline.js relative to this file>.
   // Load order: timeline → gsap (for custom scenes) → core → character → props → scene → episode scripts (TL.scripts).
   const TLQ = new URLSearchParams(location.search).get('tl') || '../episodes/demo/build/en/timeline.js';
-  [TLQ, '../node_modules/gsap/dist/gsap.min.js', 'core.js', 'character.js', 'looks.js', 'props.js', 'mgprops.js', 'sets.js', 'scene.js'].forEach(s => document.write(`<script src="${s}"><\/script>`));
+  [TLQ, '../node_modules/gsap/dist/gsap.min.js', 'core.js', 'character.js', 'looks.js', 'props.js', 'mgprops.js', 'sets.js', 'scene.js', 'cartoon.js'].forEach(s => document.write(`<script src="${s}"><\/script>`));
 </script>
 <script>
   // custom props written per episode (story.json "scripts": ["art/intro.js"]); make.mjs rewrites paths relative to this file
@@ -64,6 +86,7 @@
     const st = document.getElementById('stage');
     st.style.width = W + 'px'; st.style.height = H + 'px';
     if (PORTRAIT) st.classList.add('portrait');
+    if (TL.look === 'cartoon') st.classList.add('cartoon');
   })();
   installStatic();
   render(parseFloat(new URLSearchParams(location.search).get('t') || '0'));

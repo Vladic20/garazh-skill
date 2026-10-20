@@ -14,7 +14,7 @@ const STEP_OF = { brief: 0, revise: 1, storyboarding: 1, storyboard: 2, renderin
 const statusText = s => I18N.en['status.' + s] ? t('status.' + s) : s;
 
 // narration language defaults to the interface language on first use
-const state = { lang: LS.get('lang', UI), format: LS.get('format', '16:9'), theme: LS.get('theme', 'paper'), refs: [], selected: LS.get('job', null), status: null, defaults: {}, editing: false,
+const state = { lang: LS.get('lang', UI), format: LS.get('format', '16:9'), theme: LS.get('theme', 'paper'), look: LS.get('look', 'doodle'), music: LS.get('music', 'auto'), refs: [], selected: LS.get('job', null), status: null, defaults: {}, editing: false,
   library: [], picked: new Set(), libImgs: [], libKind: 'character', libFilter: 'all', parts: null };
 
 // ─── interface language ──────────────────────────────────────────
@@ -22,7 +22,7 @@ function setUI(l) {
   UI = l; LS.set('ui', l);
   document.querySelectorAll('#uiLang button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.ui === l)));
   applyI18n();
-  setLang(state.lang); setFormat(state.format); $('#durLabel').textContent = `${$('#briefForm').duration.value} ${t('sec')}`;
+  setLang(state.lang); setFormat(state.format); setLook(state.look, true); setMusic(state.music); $('#durLabel').textContent = `${$('#briefForm').duration.value} ${t('sec')}`;
   loadThemes(); buildVoices(); loadLibrary(); loadCatalog(); refreshStatus(); refreshJobs(); refreshDetail(true);
 }
 document.querySelectorAll('#uiLang button').forEach(b => b.addEventListener('click', () => setUI(b.dataset.ui)));
@@ -55,6 +55,22 @@ function setFormat(f) {
   $('#fmtHint').textContent = t('fmt.' + state.format);
 }
 document.querySelectorAll('.seg [data-format]').forEach(b => b.addEventListener('click', () => setFormat(b.dataset.format)));
+// look: doodle (pencil on paper) | cartoon (warm garage). The palette follows: cartoon ↔ "garage", doodle ↔ "paper" (a reference stays a reference)
+function setLook(l, quiet) {
+  state.look = l === 'cartoon' ? 'cartoon' : 'doodle'; LS.set('look', state.look);
+  document.querySelectorAll('#looks [data-look]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.look === state.look)));
+  if (quiet) return;
+  if (state.look === 'cartoon' && state.theme !== 'reference') state.theme = 'garage';
+  if (state.look === 'doodle' && state.theme === 'garage') state.theme = 'paper';
+  LS.set('theme', state.theme); loadThemes(); setMusic(state.music);
+}
+document.querySelectorAll('#looks [data-look]').forEach(b => b.addEventListener('click', () => setLook(b.dataset.look)));
+function setMusic(m) {
+  state.music = ['lofi', 'ambient', 'upbeat', 'none'].includes(m) ? m : 'auto'; LS.set('music', state.music);
+  document.querySelectorAll('.seg [data-music]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.music === state.music)));
+  $('#musicHint').textContent = t('music.hint.' + (state.music === 'auto' ? 'auto.' + state.look : state.music));
+}
+document.querySelectorAll('.seg [data-music]').forEach(b => b.addEventListener('click', () => setMusic(b.dataset.music)));
 const langs = () => state.lang === 'both' ? ['en', 'ru'] : [state.lang];
 
 function buildVoices() {
@@ -107,7 +123,7 @@ function msg(text, err) { const m = $('#formMsg'); m.textContent = text; m.class
 form.addEventListener('submit', async e => {
   e.preventDefault();
   const voices = {}; document.querySelectorAll('[data-vlang]').forEach(i => { if (i.value.trim()) voices[i.dataset.vlang] = i.value.trim(); });
-  const body = { topic: form.topic.value, languages: langs(), format: state.format, duration: +dur.value, theme: state.theme, voices, notes: form.notes.value,
+  const body = { topic: form.topic.value, languages: langs(), format: state.format, duration: +dur.value, theme: state.theme, look: state.look, music: state.music, voices, notes: form.notes.value,
     captions: form.captions.checked, autoRender: form.autoRender.checked, engine: form.engine.value, refs: state.refs,
     castIdeas: form.castIdeas.value, worldIdeas: form.worldIdeas.value, invent: form.invent.checked, library: [...state.picked], uiLang: UI };
   $('#sendBtn').disabled = true; msg(t('sending'));
@@ -157,7 +173,7 @@ async function refreshDetail(force) {
   lastSig = sig;
   const d = $('#detail'), step = STEP_OF[j.status];
   let html = `<div class="dhead"><div><h2>${h(j.brief?.topic || j.id)}</h2>
-      <div class="meta">${h(j.id)} · ${h((j.brief?.languages || []).join(' + ').toUpperCase())} · ${h(j.storyboard?.format || j.brief?.format || '16:9')} · ~${h(j.brief?.duration || '?')} ${h(t('sec'))} · ${h(t('meta.style'))}: ${h(I18N.en['theme.' + j.brief?.theme] ? t('theme.' + j.brief.theme) : j.brief?.theme || 'paper')}${j.brief?.refs?.length ? ` · ${h(t('meta.refs'))}: ${j.brief.refs.length}` : ''}</div></div>
+      <div class="meta">${h(j.id)} · ${h((j.brief?.languages || []).join(' + ').toUpperCase())} · ${h(j.storyboard?.format || j.brief?.format || '16:9')} · ~${h(j.brief?.duration || '?')} ${h(t('sec'))} · ${h(t('meta.look'))}: ${h(t('look.' + (j.brief?.look === 'cartoon' ? 'cartoon' : 'doodle')))} · ${h(t('meta.style'))}: ${h(I18N.en['theme.' + j.brief?.theme] ? t('theme.' + j.brief.theme) : j.brief?.theme || 'paper')}${j.brief?.refs?.length ? ` · ${h(t('meta.refs'))}: ${j.brief.refs.length}` : ''}</div></div>
       <span class="chip ${h(j.status)}">${h(statusText(j.status))}</span></div>
     <ol class="steps">${STEPS.map((k, i) => `<li class="step ${i < step || j.status === 'done' ? 'done' : i === step ? 'now' : ''}">${h(t('step.' + k))}</li>`).join('')}</ol>`;
 

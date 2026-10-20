@@ -72,6 +72,9 @@ Faces and poses are unchanged (see story-api.md). On `round`/`cat`/`bulb`/`cloud
 | `desert` | — | emptiness, burnout, drought |
 | `space` | `ground: true` to keep a floor | scale, loneliness, the future |
 | `stage` | — | performance, judgement, imposter feelings |
+| `garage` | `dim` 0–1, `lamp: false`, `cone` 0–1, `window: false`, `tires: false` | warm night workshop: makers, side projects, friends; the home of the cartoon style |
+| `desk` | `top` (y of the table edge), `mug: false`, `plant: false` | close-up on a table: put a `screen` prop (laptop with a live chat / app / terminal) on it |
+| `blackout` | `x` (spotlight), `light: false` | a dramatic cold open, a confession, the punchline in the dark |
 
 Weather: `rain` · `snow` · `leaves` · `wind`, each with `{ "type": "rain", "amount": 1.5 }`. `dark: true` on a scene still works on top of any set (night).
 

@@ -1,0 +1,145 @@
+{
+  "title": { "en": "tvhead studio — topic in, cartoon out", "ru": "tvhead studio — тема на входе, мультик на выходе" },
+  "format": "9:16", "remap": false, "look": "cartoon", "music": "lofi",
+  "languages": ["en", "ru"],
+  "characters": {
+    "max": { "name": { "en": "Max", "ru": "Макс" }, "desc": { "en": "Night-owl creator who needs a video by morning", "ru": "Ночной автор, которому к утру нужен ролик" },
+             "head": "tv", "body": "hoodie", "color": "#3f6d9e", "hat": "headphones", "legs": "#3d3c48" },
+    "gena": { "name": { "en": "Gena", "ru": "Гена" }, "desc": { "en": "Neighbour from the next garage, chief sceptic", "ru": "Сосед по гаражу, главный скептик" },
+              "head": "crt", "body": "shirt", "color": "#5c8a4a", "hat": "cap", "bezel": "#9b6b43", "legs": "#4a3b30" }
+  },
+  "scenes": [
+    {
+      "note": { "en": "Blackout, one spotlight: Max at 2 a.m., clock spinning, panic on 'zero'", "ru": "Темнота, один прожектор: Макс в два ночи, часы крутятся, паника на «ноль»" },
+      "say": { "en": "Two a.m. You need a video by morning: a script, a voice, animation… and a budget of zero.",
+               "ru": "Два часа ночи. Ролик нужен к утру: сценарий, озвучка, анимация… а бюджет — ноль." },
+      "set": { "type": "blackout", "x": 360 }, "cam": "push", "particles": 0,
+      "cast": [ { "id": "max", "x": 360, "face": "tired", "pose": "head" } ],
+      "props": [
+        { "type": "clock", "id": "clock", "x": 560, "y": 250, "scale": 0.8, "speed": 8 },
+        { "type": "badge", "id": "b-max", "text": { "en": "MAX", "ru": "МАКС" }, "role": { "en": "CREATOR · NO SLEEP", "ru": "АВТОР · НЕ СПИТ" }, "x": 230, "y": 330, "color": "#ffc93a", "delay": 0.6 }
+      ],
+      "change": [ { "id": "max", "on": { "en": "zero", "ru": "ноль" }, "face": "shock", "pose": "up" } ]
+    },
+    {
+      "note": { "en": "Iris opens on the cosy garage: the title, Max cheers", "ru": "Ирис открывает уютный гараж: название, Макс ликует" },
+      "say": { "en": "Meet TV-head studio: a skill for Claude and a tiny app that turns any topic into a finished cartoon.",
+               "ru": "Знакомься: TV-head studio — скилл для Claude и маленькое приложение, которое превращает любую тему в готовый мультик." },
+      "transition": { "type": "iris", "at": [360, 620] }, "set": "garage", "cam": "drift",
+      "cast": [ { "id": "max", "x": 360, "face": "joy", "pose": "cheer" } ],
+      "props": [ { "type": "text", "id": "title", "text": "tvhead studio", "x": 360, "y": 250, "size": 92, "delay": 0.4 } ]
+    },
+    {
+      "note": { "en": "Zoom into the app window: topic typed, EN + RU, Cartoon, references", "ru": "Наезд в окно приложения: тема, EN + RU, «Мультик», референсы" },
+      "say": { "en": "Open it with one click. Type a topic, pick English, Russian or both, choose a style, and drop in your references.",
+               "ru": "Открываешь в один клик. Пишешь тему, выбираешь английский, русский или оба, стиль — и кидаешь свои референсы." },
+      "transition": "zoom", "set": { "type": "desk", "top": 1010 }, "ground": false, "cam": "still",
+      "props": [ { "type": "screen", "id": "app", "show": "app", "frame": "window", "title": "localhost:4777", "x": 360, "y": 560, "w": 660, "h": 700,
+        "ui": { "en": "EN", "ru": "RU" }, "topic": { "en": "Why cats rule the internet", "ru": "Почему коты захватили интернет" }, "langs": ["EN", "RU"], "styleName": "Cartoon",
+        "labels": { "topic": { "en": "Topic", "ru": "Тема" }, "voice": { "en": "Voice", "ru": "Голос" }, "style": { "en": "Style", "ru": "Стиль" }, "refs": { "en": "References", "ru": "Референсы" },
+                    "go": { "en": "Storyboard →", "ru": "Раскадровка →" } },
+        "steps": [ { "view": "brief", "delay": 1.0 } ] } ]
+    },
+    {
+      "note": { "en": "Laptop close-up: Claude reads the brief and invents the cast and the world", "ru": "Ноутбук крупно: Claude читает бриф и придумывает героев и мир" },
+      "say": { "en": "Claude sees the brief instantly, invents characters and a world for your topic, and draws a storyboard with transitions.",
+               "ru": "Claude сразу видит бриф, придумывает под тему героев и мир и рисует раскадровку с переходами." },
+      "transition": "curve", "set": { "type": "desk", "top": 1010 }, "ground": false, "cam": "push",
+      "props": [ { "type": "screen", "id": "chat", "show": "chat", "frame": "laptop", "x": 360, "y": 640, "w": 620, "h": 520, "fs": 21,
+        "labels": { "ph": { "en": "Reply to Claude…", "ru": "Ответить Claude…" } },
+        "chat": [
+          { "from": "user", "text": { "en": "Check the app, there's a brief", "ru": "Глянь приложение, там бриф" }, "delay": 1.6 },
+          { "from": "claude", "text": { "en": "Got it! Cast: a cat influencer and a very confused dog. World: a neon city at night. Drawing 9 scenes…", "ru": "Принял! Герои: кот-блогер и очень растерянный пёс. Мир: ночной неоновый город. Рисую 9 сцен…" }, "delay": 3.0 }
+        ] } ]
+    },
+    {
+      "note": { "en": "Storyboard fills in, Render pressed", "ru": "Раскадровка заполняется, жмём «Рендер»" },
+      "say": { "en": "You look it over, leave a note if something is off, or just hit Render.",
+               "ru": "Смотришь, если что-то не так — пишешь замечание. Или просто жмёшь «Рендер»." },
+      "transition": "curve", "set": { "type": "desk", "top": 1010 }, "ground": false, "cam": "still",
+      "props": [ { "type": "screen", "id": "app2", "show": "app", "frame": "window", "title": "localhost:4777", "x": 360, "y": 560, "w": 660, "h": 700,
+        "ui": { "en": "EN", "ru": "RU" },
+        "labels": { "board": { "en": "Storyboard", "ru": "Раскадровка" }, "drawing": { "en": "Claude is drawing…", "ru": "Claude рисует…" }, "drawn": { "en": "scenes ready", "ru": "сцен готово" },
+                    "render": { "en": "Render ▶", "ru": "Рендер ▶" }, "rendering": { "en": "Rendering…", "ru": "Рендерю…" } },
+        "steps": [ { "view": "board", "delay": 0 }, { "view": "render", "at": 0.93 } ] } ]
+    },
+    {
+      "note": { "en": "Garage: Max and Gena with EN / RU flags, FREE pops up", "ru": "Гараж: Макс и Гена с флажками EN / RU, всплывает «БЕСПЛАТНО»" },
+      "say": { "en": "The voice is free: Fish Audio through OpenRouter. Any voice from their library, in English, in Russian, or both.",
+               "ru": "Озвучка бесплатная: Fish Audio через OpenRouter. Любой голос из библиотеки — на английском, на русском или сразу на двух." },
+      "transition": "curve", "set": "garage", "cam": "drift",
+      "cast": [ { "id": "max", "x": 210, "face": "happy", "pose": "raise", "hold": "flag:EN" },
+                { "id": "gena", "x": 520, "face": "neutral", "pose": "cross", "delay": 0.3 } ],
+      "props": [
+        { "type": "text", "id": "free", "text": { "en": "FREE", "ru": "БЕСПЛАТНО" }, "x": 360, "y": 190, "size": 100, "on": { "en": "free", "ru": "бесплатная" } },
+        { "type": "badge", "id": "b-gena", "text": { "en": "GENA", "ru": "ГЕНА" }, "role": { "en": "CHIEF SCEPTIC", "ru": "ГЛАВНЫЙ СКЕПТИК" }, "x": 520, "y": 360, "color": "#9cc6c2", "tilt": 4, "delay": 0.8 }
+      ],
+      "change": [ { "id": "gena", "on": { "en": "Russian", "ru": "русском" }, "face": "awe", "pose": "raise", "hold": "flag:RU" } ]
+    },
+    {
+      "note": { "en": "Laptop plays a pencil doodle", "ru": "В ноутбуке играет карандашный дудл" },
+      "say": { "en": "Two looks out of the box: a pencil doodle on paper…", "ru": "Два стиля из коробки: карандашный дудл на бумаге…" },
+      "transition": "zoom", "set": { "type": "desk", "top": 1010 }, "ground": false, "cam": "push",
+      "props": [ { "type": "screen", "id": "vid", "show": "video", "frame": "laptop", "x": 360, "y": 680, "w": 620, "h": 440, "word": { "en": "doodle", "ru": "дудл" } } ]
+    },
+    {
+      "note": { "en": "Whip to the warm cartoon: Max shows off", "ru": "Резкий переход в тёплый мультик: Макс красуется" },
+      "say": { "en": "…or this warm cartoon, like the one you are watching.", "ru": "…или вот такой тёплый мультик — как этот." },
+      "transition": { "type": "whip", "dir": "left" }, "set": "garage", "cam": "push-fast",
+      "cast": [ { "id": "max", "x": 360, "face": "smug", "pose": "hip" } ],
+      "props": [ { "type": "text", "id": "cartoon", "text": { "en": "cartoon!", "ru": "мультик!" }, "x": 360, "y": 230, "size": 96, "on": { "en": "cartoon", "ru": "мультик" } } ]
+    },
+    {
+      "note": { "en": "Max vibes in headphones, notes float, music styles appear", "ru": "Макс качает головой в наушниках, летят ноты, появляются стили музыки" },
+      "say": { "en": "Need music? It composes its own: lo-fi, ambient or upbeat, and tucks it under the voice.",
+               "ru": "Нужна музыка? Она пишется сама: лоу-фай, эмбиент или бодрый бит — и прячется под голос." },
+      "transition": "curve", "set": "garage", "cam": "drift",
+      "cast": [ { "id": "max", "x": 360, "face": "love", "pose": "cheer" } ],
+      "props": [
+        { "type": "notes", "id": "notes", "x": 360, "y": 430, "n": 6, "spread": 260 },
+        { "type": "words", "id": "styles", "text": { "en": "lo-fi, ambient or upbeat", "ru": "лоу-фай, эмбиент или бодрый бит" }, "x": 360, "y": 150, "size": 58, "maxWidth": 640, "emph": ["lo-fi", "лоу-фай"] }
+      ]
+    },
+    {
+      "note": { "en": "Terminal on the laptop, hands typing: render log, two mp4 files", "ru": "Терминал на ноутбуке, руки печатают: лог рендера, два mp4" },
+      "say": { "en": "Then it renders frame by frame in Chrome: Full HD, horizontal, or vertical for Shorts, Reels and TikTok.",
+               "ru": "Дальше рендер — кадр за кадром в Chrome: Full HD, горизонтально или вертикально, для Shorts, Reels и TikTok." },
+      "transition": "zoom", "set": { "type": "desk", "top": 1010 }, "ground": false, "cam": "still",
+      "props": [ { "type": "screen", "id": "term", "show": "code", "frame": "laptop", "x": 360, "y": 600, "w": 620, "h": 470, "hands": true, "sleeve": "#3f6d9e", "fs": 17,
+        "lines": [
+          { "text": "node make.mjs cats-rule-the-internet", "kind": "cmd", "delay": 0.3 },
+          { "text": "voice: 11 lines · free model", "kind": "out", "delay": 2.0 },
+          { "text": "music: lofi 84 bpm", "kind": "out", "delay": 2.6 },
+          { "text": "frames 2400/2400 · 1080×1920", "kind": "out", "delay": 3.4 },
+          { "text": "out/cats.en.mp4", "kind": "ok", "delay": 4.4 },
+          { "text": "out/cats.ru.mp4", "kind": "ok", "delay": 4.8 }
+        ] } ]
+    },
+    {
+      "note": { "en": "Max sips coffee, Gena is in shock", "ru": "Макс пьёт кофе, Гена в шоке" },
+      "say": { "en": "Topic in, finished video out. Gena is still processing.", "ru": "Тема на входе — готовый ролик на выходе. Гена всё ещё переваривает." },
+      "transition": "curve", "set": "garage", "cam": "push",
+      "cast": [ { "id": "max", "x": 210, "face": "smug", "pose": "hold", "hold": "coffee" },
+                { "id": "gena", "x": 520, "face": "shock", "pose": "head" } ],
+      "change": [ { "id": "gena", "on": { "en": "processing", "ru": "переваривает" }, "face": "hypno" } ]
+    },
+    {
+      "note": { "en": "Title card: free, open source, on GitHub", "ru": "Финальная карточка: бесплатно, открытый код, GitHub" },
+      "say": { "en": "TV-head studio. Free and open source, on GitHub.", "ru": "TV-head studio. Бесплатно, с открытым кодом, на GitHub." },
+      "transition": "pull", "set": { "type": "garage", "cone": 0.5 }, "cam": "still",
+      "cast": [ { "id": "max", "x": 210, "face": "joy", "pose": "wave" }, { "id": "gena", "x": 520, "face": "happy", "pose": "cheer" } ],
+      "props": [
+        { "type": "text", "id": "title2", "text": "tvhead studio", "x": 360, "y": 210, "size": 92 },
+        { "type": "badge", "id": "gh", "text": "GitHub", "role": "Vladic20/tvhead-studio", "x": 360, "y": 350, "color": "#ffc93a", "tilt": -3, "on": "GitHub" }
+      ]
+    },
+    {
+      "note": { "en": "Lamp off. Max falls asleep", "ru": "Лампа гаснет. Макс засыпает" },
+      "say": { "en": "Now go to bed.", "ru": "А теперь — спать." },
+      "transition": "fade", "set": { "type": "garage", "lamp": false, "dim": 0.55 }, "cam": "pull", "particles": 0.4,
+      "cast": [ { "id": "max", "x": 360, "face": "tired", "pose": "slump" } ],
+      "change": [ { "id": "max", "delay": 1.1, "face": "off" } ],
+      "hold": 1.4
+    }
+  ]
+}

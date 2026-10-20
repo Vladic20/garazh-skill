@@ -76,12 +76,24 @@ export const THEMES = {
   blueprint: { label: 'Blueprint', paper: '#1f4f8a', paperLight: '#2a62a6', paperDark: '#123461', ink: '#eaf2ff', bezel: '#3f6fae', screen: '#163c6b', fill: '#1b4479', accent: '#ffd166', dark: '#0b1d36', halo: '#2d5d99', muted: '#9fb7d8', texture: .1 },
   chalk:     { label: 'Chalkboard', paper: '#2f3b36', paperLight: '#3a4842', paperDark: '#1d2522', ink: '#eeeae0', bezel: '#55625c', screen: '#26302c', fill: '#2a3531', accent: '#f2c94c', dark: '#111614', halo: '#45534d', muted: '#9aa59f', texture: .12 },
   night:     { label: 'Night ink', paper: '#17191b', paperLight: '#232629', paperDark: '#0b0c0d', ink: '#e8e8e4', bezel: '#4a4d50', screen: '#2b2e31', fill: '#202326', accent: '#e8e8e4', dark: '#000000', halo: '#34383b', muted: '#8a8f93', texture: .1 },
+  garage:    { label: 'Warm garage (cartoon)', paper: '#5a4a3a', paperLight: '#6e5b47', paperDark: '#3a2e23', ink: '#2a1c14', bezel: '#c8693a', screen: '#f6ecd2', fill: '#fbf3e1', accent: '#ffc93a', dark: '#0d0805', halo: '#2a1c14', muted: '#d8c7a5', texture: .05 },
   mint:      { label: 'Mint notebook', paper: '#cfe3d8', paperLight: '#e0efe7', paperDark: '#9fbcad', ink: '#14231c', bezel: '#4f6a5d', screen: '#eef6f1', fill: '#f3faf6', accent: '#e4572e', dark: '#15261e', halo: '#a9c6b7', muted: '#6c8478' },
 };
-export function resolveTheme(th) {
-  if (!th) return { ...THEMES.paper };
+export function resolveTheme(th, look) {
+  if (!th) return { ...THEMES[look === 'cartoon' ? 'garage' : 'paper'] };
   if (typeof th === 'string') { if (!THEMES[th]) throw new Error(`unknown theme "${th}" (have: ${Object.keys(THEMES).join(', ')})`); return { ...THEMES[th] }; }
-  return { ...THEMES[th.preset || 'paper'], ...th };
+  return { ...THEMES[th.preset || (look === 'cartoon' ? 'garage' : 'paper')], ...th };
+}
+
+// ─── looks: "look": "doodle" (default: B&W pencil, boiling lines) | "cartoon" (warm flat colour, thick outlines, karaoke captions) ──
+export const LOOKS = {
+  doodle:  { label: 'Doodle — pencil on paper', theme: 'paper', captions: false, music: null },
+  cartoon: { label: 'Cartoon — warm garage', theme: 'garage', captions: true, music: 'lofi' },
+};
+export function resolveLook(v) {
+  const id = v || 'doodle';
+  if (!LOOKS[id]) throw new Error(`unknown look "${v}" (have: ${Object.keys(LOOKS).join(', ')})`);
+  return id;
 }
 
 // ─── languages ─────────────────────────────────────────────────────────────────
@@ -264,11 +276,23 @@ function finalState(it) {   // apply all changes → base for an inherited (keep
   delete s.then; return s;
 }
 
+// timed lists inside "screen" props (chat messages, app steps, terminal lines): each entry's on|at|delay → absolute t
+const TIMED = ['chat', 'steps', 'lines'];
+function resolveTimed(list, sc) {
+  const cued = c => c && typeof c === 'object' && (c.on != null || c.at != null || c.delay != null);
+  return list.map(m => {
+    if (!m || typeof m !== 'object') return m;
+    const o = { ...m };
+    if (cued(m)) o.t = r3(cueTime(m, sc, sc.from));
+    if (cued(m.click)) o.click = r3(cueTime(m.click, sc, sc.from));
+    return o;
+  });
+}
 const META = new Set(['on', 'at', 'delay', 'then', 'char', 'type', 'out', 'outOn', 'outAt', 'note', 'as', 'name', 'desc', 'ref', 'refs', 'role']);
 function makeItem(raw, sc, idx, ctx, g) {
   const isChar = raw.char || raw.kind || (!raw.type && raw.face !== undefined) || raw.type === 'char';
   const it = { el: isChar ? 'char' : 'prop' };
-  for (const k in raw) if (!META.has(k)) it[k] = raw[k];
+  for (const k in raw) if (!META.has(k) || (k === 'role' && !isChar)) it[k] = raw[k];   // a prop's role is drawn (badge)
   if (isChar) {
     Object.assign(it, { kind: raw.kind || 'tv', face: raw.face || 'happy', pose: raw.pose || 'idle', y: raw.y ?? g.G, scale: raw.scale ?? g.charScale });
   } else {
@@ -285,6 +309,7 @@ function makeItem(raw, sc, idx, ctx, g) {
   const firstWord = sc.words.length ? sc.words[0][1] : sc.from;
   it.t0 = r3(raw.type === 'words' && raw.on == null && raw.at == null && raw.delay == null ? Math.min(firstWord, (it.words[0] || [0, firstWord])[1]) - .05 : cueTime(raw, sc, sc.from + (raw.enter === 'none' ? 0 : .02)));
   if (raw.out != null || raw.outOn != null || raw.outAt != null) it.out = r3(cueTime({ on: raw.outOn, at: raw.outAt, delay: raw.out }, sc, sc.to));
+  for (const key of TIMED) if (Array.isArray(raw[key])) it[key] = resolveTimed(raw[key], sc);   // timed lists inside screens
   it.then = (raw.then || []).map(c => { const o = { t: r3(cueTime(c, sc, sc.from)) }; for (const k in c) if (!['on', 'at', 'delay'].includes(k)) o[k] = c[k]; return o; }).sort((a, b) => a.t - b.t);
   return it;
 }
@@ -293,7 +318,7 @@ function makeItem(raw, sc, idx, ctx, g) {
 // ctx = { lang, assetBase (episode dir relative to engine/, with trailing slash), format? (overrides story.format) }
 export function buildTimeline(story0, clips, ctx = { lang: 'en', assetBase: '' }) {
   if (!Array.isArray(story0.scenes) || !story0.scenes.length) throw new Error('story.json: "scenes" must be a non-empty array');
-  const F = resolveFormat(ctx.format || story0.format), g = geo(F, story0.remap);
+  const F = resolveFormat(ctx.format || story0.format), g = geo(F, story0.remap), look = resolveLook(story0.look);
   // scene fields other than coordinates just pick their format's value; cast/props/change/cam/transition are mapped into the world
   const SPECIAL = new Set(['cast', 'props', 'change', 'cam', 'transition']);
   const story = { ...pickFormat({ ...story0, scenes: undefined }, F), scenes: story0.scenes.map(s => {
@@ -343,6 +368,11 @@ export function buildTimeline(story0, clips, ctx = { lang: 'en', assetBase: '' }
       const it = items.find(x => x.id === ch.id);
       if (!it) { console.warn(`story: scene ${i + 1}: change for unknown id "${ch.id}"`); continue; }
       const o = { t: r3(cueTime(ch, sc, from)) }; for (const k in ch) if (!['id', 'on', 'at', 'delay'].includes(k)) o[k] = ch[k];
+      for (const key of TIMED) {   // addChat / addSteps / addLines: append entries (cued in this scene) to the item's list
+        const addKey = 'add' + key[0].toUpperCase() + key.slice(1);
+        if (Array.isArray(ch[addKey])) { const base = [...(it.then || [])].reverse().find(c => Array.isArray(c[key]))?.[key] || it[key] || []; o[key] = [...base, ...resolveTimed(ch[addKey], sc)]; delete o[addKey]; }
+        else if (Array.isArray(ch[key])) o[key] = resolveTimed(ch[key], sc);
+      }
       it.then = [...(it.then || []), o].sort((a, b) => a.t - b.t);
     }
     const speaker = raw.speaker && items.find(it => it.id === raw.speaker);
@@ -365,7 +395,7 @@ export function buildTimeline(story0, clips, ctx = { lang: 'en', assetBase: '' }
   });
   for (let k = 0; k < subs.length - 1; k++) subs[k].to = r3(Math.min(subs[k].to, subs[k + 1].from));
   const scripts = (story.scripts || []).map(s => ctx.assetBase + String(s).replace(/\\/g, '/'));
-  return { lang: ctx.lang, format: F.id, world: { w: F.w, h: F.h, ground: F.ground }, duration: r3(cursor), captions: !!story.captions, theme: resolveTheme(story.theme), scripts, scenes, subs, talk, voice };
+  return { lang: ctx.lang, format: F.id, world: { w: F.w, h: F.h, ground: F.ground }, duration: r3(cursor), look, captions: !!(story.captions ?? LOOKS[look].captions), theme: resolveTheme(story.theme, look), scripts, scenes, subs, talk, voice };
 }
 
 // SubRip file from caption phrases
