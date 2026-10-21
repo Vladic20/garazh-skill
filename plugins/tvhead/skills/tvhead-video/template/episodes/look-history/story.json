@@ -71,7 +71,18 @@
           "pose": "hold",
           "hold": "katana"
         }
-      ]
+      ],
+      "change": [
+        {
+          "id": "samurai",
+          "on": {
+            "ru": "кисть"
+          },
+          "face": "happy",
+          "pose": "think"
+        }
+      ],
+      "cam": "pan-right"
     },
     {
       "stage": "secret",
@@ -105,13 +116,13 @@
       ]
     },
     {
-      "stage": "truth",
+      "stage": "elevation",
       "note": {
         "ru": "Рим: лагерь с частоколом, легионер в походе",
         "en": "Rome: palisade camp, a legionary on the march"
       },
       "say": {
-        "ru": "А римский легионер проходил за день около тридцати километров — с полной выкладкой."
+        "ru": "А римский легионер проходил за день около тридцати километров с полной выкладкой. А ты бы выдержал?"
       },
       "set": "rome",
       "cast": [
@@ -121,6 +132,16 @@
           "face": "angry",
           "pose": "walk",
           "hold": "spear"
+        }
+      ],
+      "change": [
+        {
+          "id": "legionary",
+          "on": {
+            "ru": "выдержал"
+          },
+          "pose": "point",
+          "face": "smug"
         }
       ]
     }

@@ -124,6 +124,32 @@
           }
         }
       ]
+    },
+    {
+      "stage": "payoff",
+      "note": {
+        "ru": "Пещера: Ог уходит к соседнему вождю с копьями, вождь в шоке",
+        "en": "Cave: Og leaves for the next chief, our chief is shocked"
+      },
+      "say": {
+        "ru": "Через неделю Ог ушёл к соседнему вождю. Там за копьё давали два ореха."
+      },
+      "set": "cave",
+      "cast": [
+        {
+          "id": "og",
+          "x": 900,
+          "face": "smug",
+          "pose": "walk",
+          "hold": "spear"
+        },
+        {
+          "id": "chief",
+          "x": 380,
+          "face": "shock",
+          "pose": "head"
+        }
+      ]
     }
   ]
 }

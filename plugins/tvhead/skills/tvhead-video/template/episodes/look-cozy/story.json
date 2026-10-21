@@ -8,7 +8,7 @@
     "ru"
   ],
   "transition": "curve",
-  "arc": "heartbeat",
+  "arc": "payoff",
   "characters": {
     "me": {
       "name": {
@@ -37,7 +37,25 @@
           "pose": "phone",
           "hold": "phone"
         }
-      ]
+      ],
+      "change": [
+        {
+          "id": "me",
+          "on": {
+            "ru": "вибрирует"
+          },
+          "face": "shock"
+        },
+        {
+          "id": "me",
+          "on": {
+            "ru": "пятки"
+          },
+          "face": "worried",
+          "pose": "head"
+        }
+      ],
+      "cam": "push"
     },
     {
       "stage": "secret",
