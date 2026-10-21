@@ -1,0 +1,279 @@
+{
+  "title": {
+    "ru": "Стиль: Roblox",
+    "en": "Look: brick game"
+  },
+  "look": "blocks",
+  "languages": [
+    "ru"
+  ],
+  "transition": "curve",
+  "characters": {
+    "noob": {
+      "name": {
+        "ru": "Нуб",
+        "en": "Noob"
+      },
+      "kind": "blocky",
+      "skin": "#f5cd30",
+      "color": "#0d69ac",
+      "legs": "#a4bd47"
+    },
+    "pro": {
+      "name": {
+        "ru": "Про",
+        "en": "Pro"
+      },
+      "kind": "blocky",
+      "skin": "#e8b48a",
+      "color": "#c0392b",
+      "legs": "#2c3e50",
+      "hat": "cap",
+      "hatColor": "#111111"
+    }
+  },
+  "scenes": [
+    {
+      "note": {
+        "ru": "Бейсплейт, двое машут, чат и лидерборд",
+        "en": "Baseplate, two wave, chat and leaderboard"
+      },
+      "say": {
+        "ru": "Заходишь в игру — а тебя уже ждут друзья."
+      },
+      "set": "baseplate",
+      "cam": "push",
+      "cast": [
+        {
+          "id": "noob",
+          "x": 520,
+          "y": 600,
+          "face": "happy",
+          "pose": "wave",
+          "scale": 0.95
+        },
+        {
+          "id": "pro",
+          "x": 800,
+          "y": 600,
+          "face": "smug",
+          "pose": "hip",
+          "scale": 0.95
+        }
+      ],
+      "props": [
+        {
+          "type": "chatbox",
+          "id": "chat",
+          "x": 24,
+          "y": 24,
+          "lines": [
+            [
+              "Pro",
+              "го в обби!"
+            ],
+            [
+              "Noob",
+              "иду иду",
+              "#7CFC00"
+            ],
+            [
+              "Pro",
+              "жду на старте"
+            ]
+          ]
+        },
+        {
+          "type": "leaderboard",
+          "id": "lb",
+          "x": 1120,
+          "y": 60,
+          "title": "Игроки",
+          "col": "Очки",
+          "rows": [
+            [
+              "Pro",
+              1240
+            ],
+            [
+              "Noob",
+              12
+            ],
+            [
+              "Kate",
+              830
+            ]
+          ],
+          "hi": 1
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Обби над лавой: прыжки, монетки +1",
+        "en": "Obby over lava: jumps, +1 coins"
+      },
+      "say": {
+        "ru": "Прыжок, ещё прыжок — и монетка твоя!"
+      },
+      "set": "obby",
+      "cam": "pan-right",
+      "cast": [
+        {
+          "id": "noob",
+          "x": 540,
+          "y": 530,
+          "face": "joy",
+          "pose": "cheer",
+          "scale": 0.7
+        }
+      ],
+      "props": [
+        {
+          "type": "pickup",
+          "id": "c1",
+          "x": 810,
+          "y": 380,
+          "text": "+1",
+          "on": {
+            "ru": "монетка"
+          }
+        },
+        {
+          "type": "pickup",
+          "id": "c2",
+          "x": 1090,
+          "y": 280,
+          "text": "+1",
+          "delay": 2.4
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Таблица лидеров растёт, хотбар",
+        "en": "Leaderboard climbs, hotbar"
+      },
+      "say": {
+        "ru": "Собираешь очки и поднимаешься в таблице лидеров."
+      },
+      "set": "baseplate",
+      "cam": "drift",
+      "cast": [
+        {
+          "id": "noob",
+          "x": 560,
+          "y": 600,
+          "face": "joy",
+          "pose": "cheer",
+          "scale": 0.95
+        },
+        {
+          "id": "pro",
+          "x": 820,
+          "y": 600,
+          "face": "shock",
+          "pose": "head",
+          "scale": 0.95
+        }
+      ],
+      "props": [
+        {
+          "type": "leaderboard",
+          "id": "lb2",
+          "x": 1120,
+          "y": 60,
+          "title": "Игроки",
+          "col": "Очки",
+          "rows": [
+            [
+              "Noob",
+              1500
+            ],
+            [
+              "Pro",
+              1240
+            ],
+            [
+              "Kate",
+              830
+            ]
+          ],
+          "hi": 0
+        },
+        {
+          "type": "hotbar",
+          "id": "hb",
+          "x": 640,
+          "y": 670,
+          "slots": [
+            "⚔",
+            "🪙",
+            "🍕",
+            "🔨",
+            "🎈"
+          ],
+          "active": 1
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Финиш: оба празднуют, +100",
+        "en": "Finish: both celebrate, +100"
+      },
+      "say": {
+        "ru": "Финиш! Нуб и Про празднуют вместе. Го ещё раунд?"
+      },
+      "set": "baseplate",
+      "cam": "push-fast",
+      "cast": [
+        {
+          "id": "noob",
+          "x": 520,
+          "y": 600,
+          "face": "joy",
+          "pose": "cheer",
+          "scale": 0.95
+        },
+        {
+          "id": "pro",
+          "x": 800,
+          "y": 600,
+          "face": "joy",
+          "pose": "cheer",
+          "scale": 0.95
+        }
+      ],
+      "props": [
+        {
+          "type": "pickup",
+          "id": "c3",
+          "x": 660,
+          "y": 260,
+          "text": "+100",
+          "on": {
+            "ru": "Финиш"
+          }
+        },
+        {
+          "type": "chatbox",
+          "id": "chat2",
+          "x": 24,
+          "y": 24,
+          "lines": [
+            [
+              "Pro",
+              "gg!"
+            ],
+            [
+              "Noob",
+              "ещё раунд?",
+              "#7CFC00"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

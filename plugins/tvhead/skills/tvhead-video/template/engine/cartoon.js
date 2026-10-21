@@ -3,12 +3,26 @@
 // thick brown outlines around every figure, tube arms with skin-tone hands, coloured clothes, blush on screen faces,
 // floating dust instead of pencil confetti, no line boil, warm film overlay and karaoke captions.
 // The sets (garage, desk, blackout) and props (badge, screen) below work in both styles.
-const CARTOON = typeof TL === 'object' && TL.look === 'cartoon';
+// Every colour-figure look (cartoon and the looks in engine/styles.js) shares these overrides; TOON_LOOKS tunes them per look:
+// thick = stroke multiplier, outline = silhouette outline radius (0 = none), blush, dust = colour of floating motes (null = none),
+// type* = how kinetic type is drawn (font stack, fill, weight, size factor, outline colour).
+const TOON_LOOKS = {
+  cartoon: { thick: 1.4, outline: 2.6, blush: true, dust: '#ffe3a6', typeFont: 'Pangolin, Hand', typeFill: '#fbf3e1', typeScale: .92 },
+  noir:    { thick: 1.15, outline: 1.8, blush: false, dust: '#ffc2e4', typeFont: 'Inter, Rubik, sans-serif', typeWeight: 800, typeFill: '#ffffff', typeScale: .8, skin: '#f4f1ea' },
+  dota:    { thick: 1.3, outline: 2.2, blush: false, dust: '#ffb347', typeFont: "Cinzel, 'Cormorant SC', serif", typeWeight: 700, typeFill: '#f3dfae', typeScale: .8 },
+  blocks:  { thick: 1.1, outline: 2, blush: false, dust: null, typeFont: "'Russo One', Rubik, sans-serif", typeFill: '#ffffff', typeScale: .8 },
+  pixel:   { thick: 1.6, outline: 3, blush: false, dust: null, typeFont: "'Press Start 2P', monospace", typeFill: '#ffffff', typeScale: .48 },
+  comic:   { thick: 1.8, outline: 3.2, blush: false, dust: null, typeFont: "Bangers, 'Russo One', sans-serif", typeFill: '#ffe94a', typeScale: .95 },
+  desk3d:  { thick: 1.1, outline: 0, blush: false, dust: null, typeFont: 'Inter, Rubik, sans-serif', typeWeight: 800, typeFill: '#ffffff', typeScale: .78 },
+};
+const LOOK = (typeof TL === 'object' && TL.look) || 'doodle';
+const TOONC = TOON_LOOKS[LOOK] || null;
+const CARTOON = !!TOONC;
 let TOON_ON = CARTOON;              // switched off while a doodle is drawn inside a screen (SCREENS.video)
 const SKIN = '#f1c08a';
 const TOON_BODY = ['#5c8a4a', '#3f6d9e', '#c0503a', '#d9a441', '#7a5ea8', '#2f7f7a'];
 const UI_FONT = `Rubik, 'Segoe UI', Arial, sans-serif`, MONO = `'JetBrains Mono', Consolas, monospace`, BADGE_FONT = `Pangolin, Hand, sans-serif`;
-const THICK = 1.4;                  // stroke multiplier for figures and doodle props in cartoon style
+const THICK = TOONC ? TOONC.thick : 1.4;   // stroke multiplier for figures and doodle props
 const toonBody = c => TOON_BODY[hashStr(c.id || c.seed || 'x') % TOON_BODY.length];
 const thicken = s => s.replace(/stroke-width="([\d.]+)"/g, (m, w) => `stroke-width="${f2(w * THICK)}"`);
 const uiW = (s, fs) => approxW(s, fs) * 1.1;   // Rubik/Segoe run ~10% wider than the hand font approxW was tuned for
@@ -32,7 +46,7 @@ installStatic = function () {
   host.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute"><defs>
     <filter id="toon" x="-12%" y="-12%" width="124%" height="124%">
       <feComponentTransfer in="SourceAlpha" result="a"><feFuncA type="discrete" tableValues="0 0 0 0 0 0 0 0 1 1"/></feComponentTransfer>
-      <feMorphology in="a" operator="dilate" radius="2.6" result="d"/>
+      <feMorphology in="a" operator="dilate" radius="${TOONC ? TOONC.outline || .01 : 2.6}" result="d"/>
       <feFlood flood-color="${INK}"/><feComposite in2="d" operator="in" result="o"/>
       <feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <filter id="soft6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
@@ -52,7 +66,7 @@ const _characterSvg = characterSvg, _armSvg = armSvg, _legsSvg = legsSvg, _faceS
 characterSvg = function (c, t) {
   if (!TOON_ON) return _characterSvg(c, t);
   const save = BEZEL;
-  CURC = { ...c, color: c.color || toonBody(c) };
+  CURC = { ...c, color: c.color || toonBody(c), skin: c.skin || TOONC.skin };
   if (c.bezel) BEZEL = c.bezel;
   try { return thicken(_characterSvg(CURC, t)); } finally { BEZEL = save; }
 };
@@ -80,19 +94,20 @@ legsSvg = function (t, anim, phase) {
 };
 faceSvg = function (face, t, phase, look, talking) {
   const f = _faceSvg(face, t, phase, look, talking);
-  if (!TOON_ON || !f || face === 'off') return f;
+  if (!TOON_ON || !f || face === 'off' || !TOONC.blush) return f;
   return f + `<ellipse cx="-30" cy="9" rx="7" ry="4" fill="#ef8a6b" opacity=".55"/><ellipse cx="30" cy="9" rx="7" ry="4" fill="#ef8a6b" opacity=".55"/>`;
 };
 // thick outline around every figure and doodle prop (not around type, charts, screens or badges)
 const NO_TOON = new Set(['notes', 'words', 'text', 'counter', 'bars', 'pie', 'progress', 'timeline', 'checklist', 'grid', 'photo', 'badge', 'screen', 'arrow', 'scribble', 'spotlight', 'feed', 'crowd']);
 // kinetic type in cartoon: rounded Pangolin, cream fill with a thick brown outline (reads on dark walls)
 const TYPE_PROPS = new Set(['words', 'text', 'counter']);
-const toonType = s => s.replace(/<text([^>]*?)font-family="Hand"([^>]*?)font-size="([\d.]+)"([^>]*?)fill="([^"]+)"/g, (m, a, b, fs, d, fill) =>
-  `<text${a}font-family="Pangolin, Hand"${b}font-size="${f2(fs * .92)}"${d}fill="${fill === INK ? '#fbf3e1' : fill}" stroke="${INK}" stroke-width="${f2(fs / 7)}" stroke-linejoin="round" paint-order="stroke"`);
+let toonType = s => s.replace(/<text([^>]*?)font-family="Hand"([^>]*?)font-size="([\d.]+)"([^>]*?)fill="([^"]+)"/g, (m, a, b, fs, d, fill) =>
+  `<text${a}font-family="${TOONC.typeFont}" font-weight="${TOONC.typeWeight || 400}"${b}font-size="${f2(fs * TOONC.typeScale)}"${d}fill="${fill === INK ? TOONC.typeFill : fill}" stroke="${TOONC.typeStroke || INK}" stroke-width="${f2(fs / 7)}" stroke-linejoin="round" paint-order="stroke"`);
 itemSvg = function (it, t) {
   let s = _itemSvg(it, t);
   if (TOON_ON && s && TYPE_PROPS.has(it.type)) s = toonType(s);
   if (!TOON_ON || !s || (it.el !== 'char' && NO_TOON.has(it.type))) return s;
+  if (!TOONC.outline) return it.el === 'char' ? s : thicken(s);
   const body = it.el === 'char' ? s : thicken(s);
   return body.replace(/^<g transform="([^"]*)" opacity="([^"]*)">/, '<g transform="$1" opacity="$2"><g filter="url(#toon)">') + '</g>';
 };
@@ -101,12 +116,12 @@ if (CARTOON) {
   boilFilter = () => 'none';
   // warm dust drifting through the light instead of pencil confetti
   particles = function (t, density = 1) {
-    if (!(density > 0)) return '';
+    if (!(density > 0) || !TOONC.dust) return '';
     return PARTICLES.slice(0, Math.round(clamp(density, 0, 2) * 26)).map(p => {
       const x = ((p.x + p.vx * .4 * t + Math.sin(t * .35 + p.ph) * 22) % (W + 200) + W + 200) % (W + 200) - 100;
       const y = ((p.y + p.vy * .35 * t + Math.cos(t * .3 + p.ph) * 14) % (H + 120) + H + 120) % (H + 120) - 60;
       const op = .16 + .26 * (.5 + .5 * Math.sin(t * .9 + p.ph * 3));
-      return `<circle cx="${f2(x)}" cy="${f2(y)}" r="${f2(1.2 + p.s * 1.7)}" fill="#ffe3a6" opacity="${f2(op)}"/>`;
+      return `<circle cx="${f2(x)}" cy="${f2(y)}" r="${f2(1.2 + p.s * 1.7)}" fill="${TOONC.dust}" opacity="${f2(op)}"/>`;
     }).join('');
   };
   groundSvg = () => `<rect x="-300" y="${GROUND}" width="${W + 600}" height="${H - GROUND + 400}" fill="${THEME.paperDark}"/><path d="M-300 ${GROUND} H${W + 300}" stroke="${INK}" stroke-width="6"/>`;

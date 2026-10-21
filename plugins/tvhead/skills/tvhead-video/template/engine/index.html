@@ -1,5 +1,6 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../fonts/styles.css">
 <style>
   /* one family "Hand": Patrick Hand for Latin, Neucha for Cyrillic (the browser picks per glyph by unicode-range) */
   @font-face { font-family: 'Hand'; src: url(../fonts/PatrickHand-latin.woff2) format('woff2'); font-display: block;
@@ -62,7 +63,7 @@
   // ?tl=<path to build/<lang>/timeline.js relative to this file>.
   // Load order: timeline → gsap (for custom scenes) → core → character → props → scene → episode scripts (TL.scripts).
   const TLQ = new URLSearchParams(location.search).get('tl') || '../episodes/demo/build/en/timeline.js';
-  [TLQ, '../node_modules/gsap/dist/gsap.min.js', 'core.js', 'character.js', 'looks.js', 'props.js', 'mgprops.js', 'sets.js', 'scene.js', 'cartoon.js'].forEach(s => document.write(`<script src="${s}"><\/script>`));
+  [TLQ, '../node_modules/gsap/dist/gsap.min.js', 'core.js', 'character.js', 'looks.js', 'props.js', 'mgprops.js', 'sets.js', 'scene.js', 'cartoon.js', 'styles.js', 'styles/desk3d.js', 'styles/noir.js', 'styles/dota.js', 'styles/blocks.js', 'styles/pixel.js', 'styles/comic.js'].forEach(s => document.write(`<script src="${s}"><\/script>`));
 </script>
 <script>
   // custom props written per episode (story.json "scripts": ["art/intro.js"]); make.mjs rewrites paths relative to this file
@@ -86,6 +87,7 @@
     const st = document.getElementById('stage');
     st.style.width = W + 'px'; st.style.height = H + 'px';
     if (PORTRAIT) st.classList.add('portrait');
+    st.classList.add('look-' + (TL.look || 'doodle'));
     if (TL.look === 'cartoon') st.classList.add('cartoon');
   })();
   installStatic();

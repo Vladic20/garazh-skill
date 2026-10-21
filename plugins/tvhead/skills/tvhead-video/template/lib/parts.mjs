@@ -9,7 +9,7 @@ export const PARTS = {
   back:    { backpack: 'рюкзак', cape: 'плащ', wings: 'крылья', jetpack: 'джетпак' },
   hair:    { short: 'короткие', long: 'длинные', bun: 'пучок', spiky: 'ёжик', curly: 'кудри' },
   hold:    { phone: 'телефон', heart: 'сердце', balloon: 'шарик', coffee: 'кофе', flower: 'цветок', briefcase: 'портфель', umbrella: 'зонт', book: 'книга', key: 'ключ', star: 'звезда', magnifier: 'лупа', trophy: 'кубок', pencil: 'карандаш', money: 'деньги', 'sign:…': 'табличка', 'flag:…': 'флаг' },
-  set:     { room: 'комната', bedroom: 'спальня', office: 'офис', classroom: 'класс', cafe: 'кафе', kitchen: 'кухня', city: 'город', street: 'улица', subway: 'метро', forest: 'лес', park: 'парк', sea: 'море', mountains: 'горы', desert: 'пустыня', space: 'космос', stage: 'сцена', garage: 'гараж (мультик)', desk: 'стол крупно', blackout: 'темнота и прожектор' },
+  set:     { room: 'комната', bedroom: 'спальня', office: 'офис', classroom: 'класс', cafe: 'кафе', kitchen: 'кухня', city: 'город', street: 'улица', subway: 'метро', forest: 'лес', park: 'парк', sea: 'море', mountains: 'горы', desert: 'пустыня', space: 'космос', stage: 'сцена', garage: 'гараж (мультик)', desk: 'стол крупно', blackout: 'темнота и прожектор', motel: 'мотель (нуар)', bank: 'банк (нуар)', strip: 'ночная улица (нуар)', card: 'карточка (нуар)', lane: 'лесная линия (dota)', ancient: 'древний (dota)', arena: 'арена (dota)', baseplate: 'бейсплейт (roblox)', obby: 'обби (roblox)', pixelworld: '8-бит мир', dungeon: '8-бит подземелье', burst: 'лучи (комикс)', skyline: 'город (комикс)' },
   weather: { rain: 'дождь', snow: 'снег', leaves: 'листопад', wind: 'ветер' },
 };
 
@@ -23,6 +23,6 @@ export const PARTS_EN = {
   back:    { backpack: 'backpack', cape: 'cape', wings: 'wings', jetpack: 'jetpack' },
   hair:    { short: 'short', long: 'long', bun: 'bun', spiky: 'spiky', curly: 'curly' },
   hold:    { phone: 'phone', heart: 'heart', balloon: 'balloon', coffee: 'coffee', flower: 'flower', briefcase: 'briefcase', umbrella: 'umbrella', book: 'book', key: 'key', star: 'star', magnifier: 'magnifier', trophy: 'trophy', pencil: 'pencil', money: 'money', 'sign:…': 'sign', 'flag:…': 'flag' },
-  set:     { room: 'room', bedroom: 'bedroom', office: 'office', classroom: 'classroom', cafe: 'cafe', kitchen: 'kitchen', city: 'city', street: 'street', subway: 'subway', forest: 'forest', park: 'park', sea: 'sea', mountains: 'mountains', desert: 'desert', space: 'space', stage: 'stage', garage: 'garage (cartoon)', desk: 'desk close-up', blackout: 'blackout + spotlight' },
+  set:     { room: 'room', bedroom: 'bedroom', office: 'office', classroom: 'classroom', cafe: 'cafe', kitchen: 'kitchen', city: 'city', street: 'street', subway: 'subway', forest: 'forest', park: 'park', sea: 'sea', mountains: 'mountains', desert: 'desert', space: 'space', stage: 'stage', garage: 'garage (cartoon)', desk: 'desk close-up', blackout: 'blackout + spotlight', motel: 'motel (noir)', bank: 'bank (noir)', strip: 'night strip (noir)', card: 'card (noir)', lane: 'forest lane (dota)', ancient: 'ancient (dota)', arena: 'arena (dota)', baseplate: 'baseplate (roblox)', obby: 'obby (roblox)', pixelworld: '8-bit world', dungeon: '8-bit dungeon', burst: 'rays (comic)', skyline: 'city (comic)' },
   weather: { rain: 'rain', snow: 'snow', leaves: 'falling leaves', wind: 'wind' },
 };

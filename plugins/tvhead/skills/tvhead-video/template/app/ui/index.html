@@ -50,18 +50,10 @@
 
       <div class="field"><span data-i18n="brief.look">Look</span>
         <div class="looks" id="looks" role="radiogroup" data-i18n-aria="brief.look.aria">
-          <button type="button" class="look" role="radio" data-look="doodle" aria-checked="true"><img src="/ui/look-doodle.jpg" alt=""><b data-i18n="look.doodle">Doodle</b><small data-i18n="look.doodle.d"></small></button>
-          <button type="button" class="look" role="radio" data-look="cartoon" aria-checked="false"><img src="/ui/look-cartoon.jpg" alt=""><b data-i18n="look.cartoon">Cartoon</b><small data-i18n="look.cartoon.d"></small></button>
         </div></div>
 
       <div class="field"><span data-i18n="brief.music">Music</span>
-        <div class="seg small" role="radiogroup" data-i18n-aria="brief.music.aria">
-          <button type="button" role="radio" data-music="auto" aria-checked="true" data-i18n="music.auto">Auto</button>
-          <button type="button" role="radio" data-music="lofi" aria-checked="false">Lo-fi</button>
-          <button type="button" role="radio" data-music="ambient" aria-checked="false" data-i18n="music.ambient">Ambient</button>
-          <button type="button" role="radio" data-music="upbeat" aria-checked="false" data-i18n="music.upbeat">Upbeat</button>
-          <button type="button" role="radio" data-music="none" aria-checked="false" data-i18n="music.none">None</button>
-        </div>
+        <select id="musicSel" class="sel" data-i18n-aria="brief.music.aria"></select>
         <small class="hint" id="musicHint"></small></div>
 
       <div class="field"><span data-i18n="brief.style">Style and reference</span>

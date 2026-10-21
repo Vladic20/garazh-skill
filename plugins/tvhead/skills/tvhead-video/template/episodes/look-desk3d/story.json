@@ -1,0 +1,171 @@
+{
+  "title": {
+    "ru": "Стиль: 3D-стол",
+    "en": "Look: 3D desk"
+  },
+  "look": "desk3d",
+  "languages": [
+    "ru"
+  ],
+  "transition": "cut",
+  "characters": {
+    "cube": {
+      "name": {
+        "ru": "Кубик",
+        "en": "Cubey"
+      },
+      "kind": "cube",
+      "color": "#e07b54",
+      "hat": "candle"
+    }
+  },
+  "scenes": [
+    {
+      "note": {
+        "ru": "Промпт печатается, кубик со свечкой бежит к нему",
+        "en": "Prompt typing, the candle cube runs to it"
+      },
+      "say": {
+        "ru": "Пишешь одну строчку — и кубик уже бежит работать."
+      },
+      "cam3d": "tilt",
+      "props": [
+        {
+          "type": "screen",
+          "id": "p",
+          "show": "prompt",
+          "frame": "none",
+          "x": 640,
+          "y": 330,
+          "w": 1100,
+          "h": 380,
+          "text": "сделай пост для X про наш релиз",
+          "hint": "↵ Enter — отправить"
+        }
+      ],
+      "cast": [
+        {
+          "id": "cube",
+          "x": 1040,
+          "y": 540,
+          "pose": "walk",
+          "face": "happy",
+          "scale": 0.9
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Пост в X, маркер подсвечивает главное",
+        "en": "X post, highlighter marks the point"
+      },
+      "say": {
+        "ru": "Он сам находит главное в тексте и подсвечивает его маркером."
+      },
+      "cam3d": "close",
+      "props": [
+        {
+          "type": "screen",
+          "id": "tw",
+          "show": "tweet",
+          "frame": "none",
+          "x": 640,
+          "y": 360,
+          "w": 980,
+          "h": 600,
+          "name": "Fable",
+          "handle": "@fable",
+          "text": "Попросил сделать картинку для поста. Он выделил главное и подогнал формат без лишних слов. Он понимает намерение и вкус.",
+          "highlight": [
+            "выделил главное",
+            "понимает намерение и вкус"
+          ],
+          "hlAt": 1,
+          "stats": [
+            48,
+            212,
+            "1.9K",
+            "86.4K"
+          ]
+        }
+      ],
+      "cast": [
+        {
+          "id": "cube",
+          "x": 150,
+          "y": 600,
+          "pose": "point",
+          "face": "happy",
+          "scale": 0.55
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Таймлайн монтажки, титр светится",
+        "en": "Editor timeline, glowing title"
+      },
+      "say": {
+        "ru": "Монтирует ролик в таймлайне — со свечением и титрами."
+      },
+      "cam3d": "left",
+      "props": [
+        {
+          "type": "screen",
+          "id": "tl",
+          "show": "timeline",
+          "frame": "none",
+          "x": 640,
+          "y": 360,
+          "w": 1180,
+          "h": 660,
+          "title": "MADE WITH CLAUDE",
+          "sub": "OPUS 5.5"
+        }
+      ],
+      "cast": [
+        {
+          "id": "cube",
+          "x": 520,
+          "y": 470,
+          "pose": "cheer",
+          "face": "joy",
+          "scale": 0.7
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Битмейкер: секвенсор мигает, кубик пляшет",
+        "en": "Beat maker, the cube dances"
+      },
+      "say": {
+        "ru": "И даже собирает бит. Всё это — из одного промпта."
+      },
+      "cam3d": "right",
+      "props": [
+        {
+          "type": "screen",
+          "id": "daw",
+          "show": "daw",
+          "frame": "none",
+          "x": 640,
+          "y": 360,
+          "w": 1180,
+          "h": 660,
+          "bpm": 128
+        }
+      ],
+      "cast": [
+        {
+          "id": "cube",
+          "x": 760,
+          "y": 240,
+          "pose": "cheer",
+          "face": "love",
+          "scale": 0.6
+        }
+      ]
+    }
+  ]
+}

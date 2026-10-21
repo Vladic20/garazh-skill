@@ -14,19 +14,19 @@ Vertical videos (`"format": "9:16"`) use a 720×1280 world (rendered 1080×1920)
 | key | default | meaning |
 |---|---|---|
 | `title` | — | shown in the app; not drawn |
-| `look` | `doodle` | the look: `doodle` (pencil on paper, boiling lines) or `cartoon` (warm flat colour after the garazh cartoon reel: thick brown outlines, tube arms with hands, coloured clothes, dust in lamp light, karaoke captions on a dark plate). `cartoon` defaults to `theme: "garage"`, `captions: true`, `music: "lofi"` and soft whooshes instead of paper flips. See "Cartoon look" below |
+| `look` | `doodle` | the look: `doodle`, `cartoon`, `desk3d`, `noir`, `dota`, `blocks`, `pixel` or `comic` (see "Looks" below). `doodle` = pencil on paper, boiling lines; `cartoon` (warm flat colour after the garazh cartoon reel: thick brown outlines, tube arms with hands, coloured clothes, dust in lamp light, karaoke captions on a dark plate). `cartoon` defaults to `theme: "garage"`, `captions: true`, `music: "lofi"` and soft whooshes instead of paper flips. See "Cartoon look" below |
 | `format` | `16:9` | `16:9` (1920×1080, YouTube) or `9:16` (1080×1920, Shorts / Reels / TikTok); also `landscape` / `portrait`. `node make.mjs <slug> --format 9:16` renders any story the other way without editing it |
 | `remap` | `true` | 9:16 only: `false` = plain numbers are already 720×1280 world coordinates (write this when the story is vertical-only) |
 | `languages` | detected from `say` | `["en"]`, `["ru"]` or `["en", "ru"]` |
 | `voice` | per language: EN `bf322df2096a46f18c579d0baa36f41d` (Adrian), RU `868377a7b08f4c0d9acf8c9f059571aa` (Молодой Аналитик); .env `TVHEAD_VOICE_EN` / `TVHEAD_VOICE_RU` | Fish Audio voice id (`fish.audio/m/<id>`), or `{ "en": "<id>", "ru": "<id>" }` |
 | `model` | `fish-audio/s2.1-pro-free:free` (**free**) or .env `TVHEAD_TTS_MODEL` | any OpenRouter TTS model; paid, more acted: `fish-audio/drama-3` |
-| `theme` | `paper` (`garage` for cartoon) | `paper` · `sepia` · `blueprint` · `chalk` · `night` · `mint` · `garage`, or `{ "preset": "paper", "paper": "#…", "ink": "#…", "accent": "#…", "fill": "#…", "bezel": "#…", "screen": "#…" }` (built from a reference image) |
+| `theme` | the look's palette | `paper` · `sepia` · `blueprint` · `chalk` · `night` · `mint` · `garage` · `desk` · `noir` · `dota` · `blocks` · `pixel` · `comic`, or `{ "preset": "paper", "paper": "#…", "ink": "#…", "accent": "#…", "fill": "#…", "bezel": "#…", "screen": "#…" }` (built from a reference image) |
 | `transition` | `curve` | default seam into each new scene (see Transitions) |
 | `direction` | `left` | the film's "current" for `curve`/`whip`/`wipe`/`page` |
 | `scripts` | — | episode JS files with custom GSAP props (`references/motion.md` §6) |
 | `style` | — | delivery direction prepended to every line, e.g. `"calm, low, reflective"` (skipped for lines that start with their own `[tag]`) |
 | `mood` | `dark` | drone under the voice: `dark` · `calm` · `tense` · `hope` · `none` |
-| `music` | — (`lofi` for cartoon) | generated for free, no samples: `lofi` (electric piano, dusty swung drums, bass, vinyl) · `ambient` (pads + soft piano, no drums) · `upbeat` (bright chords, arpeggio, claps), or `{ "preset": "lofi", "bpm": 80, "volume": 0.5 }`; or a path (relative to the episode folder) to an mp3 to loop; `false` = none. The music follows the film: drums enter after the intro, drop out in dark / `blackout` scenes, a swell + kick lands on `zoom`/`iris`/`whip`/`pull` seams, the last bars resolve; ducked under the voice. A generated track replaces the `mood` drone |
+| `music` | the look's default | generated for free, no samples: `lofi` (electric piano, dusty swung drums, bass, vinyl) · `ambient` (pads + soft piano, no drums) · `upbeat` (bright chords, arpeggio, claps) · `chiptune` (square lead, noise drums) · `synthwave` (saw pads, pulsing bass, gated snare) · `epic` (brass, strings, taiko), or `{ "preset": "lofi", "bpm": 80, "volume": 0.5 }`; or a path (relative to the episode folder) to an mp3 to loop; `false` = none. The music follows the film: drums enter after the intro, drop out in dark / `blackout` scenes, a swell + kick lands on `zoom`/`iris`/`whip`/`pull` seams, the last bars resolve; ducked under the voice. A generated track replaces the `mood` drone |
 | `captions` | `false` | burn karaoke captions into the video (an `.srt` is always written next to the mp4) |
 | `pace` | `1` | multiplies the pause after every line (0.7 = snappier, 1.4 = slower) |
 | `pause` | `0.38` | seconds of silence after each line |
@@ -134,6 +134,31 @@ Every prop takes `x`, `y`, `scale`, `rot`, `flip`, `enter`, `z`, cues and `then`
 - `off` — dark screen with a reflection.
 
 `enter`: `pop` (default) · `fade` · `drop` · `rise` · `slide-left` · `slide-right` · `grow` · `write` (text) · `none`. `exit`: `pop` · `fade`.
+
+## Looks
+
+| look | what it is | sets | characters | best props | default music |
+|---|---|---|---|---|---|
+| `doodle` | pencil on grey paper, boiling lines, B&W | all doodle sets | TV heads and parts | words, infographics | drone |
+| `cartoon` | warm night-garage cartoon (below) | garage, desk, blackout | outlined, coloured | badge, screen, notes | lofi |
+| `desk3d` | a dark UI slab lying on a wooden desk, filmed by a moving 3D camera with depth of field; characters stand upright on it | — (the slab is the world) | `"kind": "cube"` clay mascot (`hat: "candle"`) | `screen` with `frame: "none"` filling the slab: `tweet`, `timeline`, `daw`, `prompt`, `chat`, `app`, `code`; big `text` titles | upbeat |
+| `noir` | illustrated neon-noir explainer: painted scenes alternating with clean cards | motel, bank, strip, card (`tone: light/dark`) | `head: round, hat: cap, body: hoodie, back: backpack` | headline, hud, billgrid, stamp, marker, counter | synthwave |
+| `dota` | dark-fantasy MOBA: Radiant green vs Dire red, gold serif type, embers | lane, ancient (`team`), arena | `hat: helm/horns/hood2`, `body: armor/robe`, `hold: sword/staff/shield` | unitbar, abilities, gold, banner, minimap | epic |
+| `blocks` | brick-built game (Roblox-like) | baseplate, obby | `"kind": "blocky"` (skin = head + arms, color = torso, legs; hat cap/crown/headphones) | leaderboard, chatbox, pickup, hotbar | upbeat |
+| `pixel` | 8-bit game: the whole frame is pixelated (`"pixel": 8` = block size), scanlines, RPG dialog-box captions | pixelworld, dungeon (any set works) | any (TV heads read well) | pickup, text | chiptune |
+| `comic` | comic-book page: heavy ink, halftone, panel border, yellow caption boxes | burst (`colors`), skyline (any set works) | any outlined figure (`back: cape`) | pow, speedlines, text | upbeat |
+
+Per-scene `"cam3d"` (desk3d only): `tilt` · `left` · `right` · `close` · `wide` · `top` · `low` or `{ "rx": 40, "rz": -15, "s": 1.2, "x": 0, "y": 30 }`; without it the camera cycles through presets and glides between scenes. Use `"transition": "cut"` in desk3d: the camera glide is the transition.
+
+**Props of the new looks** (all work in any look):
+- `headline` — eyebrow (mono caps) + bold headline + sub, words in `accent` coloured: `{ eyebrow, title, sub, accent: ["word"], size, tone: "light" (white text), maxWidth }`.
+- `hud` — row of dark chips counting up: `{ items: [{ label, from, to, prefix, suffix, accent }], cellW, dur }`.
+- `billgrid` — banknotes popping in a grid: `{ rows, cols, bill: [w, h], step }`. `stamp` — accent label: `{ text, sub, color, tilt }`. `marker` — ring drawing itself: `{ r, color }`.
+- `pow` — comic starburst: `{ text, fill, color, r, spikes, tilt }`. `speedlines` — radial action lines: `{ r0, r1, n, color }`.
+- `leaderboard` `{ title, col, rows: [[name, value]], hi }` · `chatbox` `{ lines: [[name, text, colour]], step }` · `pickup` (`+1` coin) `{ text, color }` · `hotbar` `{ slots: [...], active }`.
+- `unitbar` `{ name, level, hp: [from, to], mp: [from, to], team: "radiant"|"dire" }` · `abilities` `{ keys: "QWER", icons, cast (index), castAt (s), cooldown }` · `gold` `{ amount }` · `banner` `{ text, sub, color }` · `minimap` `{ size }`.
+
+**More `screen` contents**: `tweet` `{ name, handle, text, highlight: ["phrase"], hlAt, stats: [replies, reposts, likes, views], time }` (phrases get a yellow marker one after another) · `timeline` `{ title, sub, layers }` (motion-editor: glowing title, layer bars, moving playhead) · `daw` `{ bpm, tracks }` (step sequencer lighting on the beat, piano roll, mixer meters) · `prompt` `{ text, hint }` (typed into an input box).
 
 ## Cartoon look (`"look": "cartoon"`)
 

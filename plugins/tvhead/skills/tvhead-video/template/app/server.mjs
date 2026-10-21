@@ -8,12 +8,13 @@ import { spawn, spawnSync } from 'node:child_process';
 import { createReadStream, existsSync, statSync, readFileSync, writeFileSync, mkdirSync, rmSync, unlinkSync, copyFileSync, createWriteStream } from 'node:fs';
 import path from 'node:path';
 import { STUDIO, EPISODES, APP_STATE, getJob, saveJob, setStatus, listJobs, createJob, claudeWatching, jobDir, readJson, writeJson } from './jobs.mjs';
-import { THEMES, localize, storyLanguages, resolveFormat } from '../lib/story.mjs';
+import { THEMES, LOOKS, localize, storyLanguages, resolveFormat } from '../lib/story.mjs';
+import { MUSIC_PRESETS } from '../lib/music.mjs';
 import { DEFAULT_VOICES, provider } from '../lib/voice.mjs';
 import { listLibrary, addLibraryItem, updateLibraryItem, deleteLibraryItem, attachToJob } from './library.mjs';
 import { PARTS, PARTS_EN } from '../lib/parts.mjs';
 
-const PORT = +(process.env.TVHEAD_PORT || 4777), VERSION = '2.4.0';
+const PORT = +(process.env.TVHEAD_PORT || 4777), VERSION = '2.5.0';
 // .env (same loader as make.mjs) so the key status is accurate
 const envFile = path.join(STUDIO, '.env');
 if (existsSync(envFile)) for (const line of readFileSync(envFile, 'utf8').split(/\r?\n/)) {
@@ -59,7 +60,7 @@ function storyboard(id, ui) {   // ui: interface language for notes / names (fal
   const stillsDir = `episodes/${id}/build/${first}/stills`;
   const tl = (() => { try { const s = readFileSync(path.join(jobDir(id), 'build', first, 'timeline.js'), 'utf8'); return JSON.parse(s.split('window.TL = ')[1].replace(/;\s*$/, '')); } catch { return null; } })();
   return {
-    title: localize(story.title, first) || id, languages: langs, format: (() => { try { return resolveFormat(story.format).id; } catch { return '16:9'; } })(), theme: typeof story.theme === 'object' ? story.theme.preset || 'custom' : story.theme || (story.look === 'cartoon' ? 'garage' : 'paper'), look: story.look || 'doodle',
+    title: localize(story.title, first) || id, languages: langs, format: (() => { try { return resolveFormat(story.format).id; } catch { return '16:9'; } })(), theme: typeof story.theme === 'object' ? story.theme.preset || 'custom' : story.theme || LOOKS[story.look]?.theme || 'paper', look: story.look || 'doodle',
     mood: story.mood || 'dark', duration: tl?.duration ?? null,
     cast: (() => {   // model sheet written by "make.mjs <id> --cast" (characters + environments Claude designed)
       const cj = readJson(path.join(jobDir(id), 'build', 'cast', 'cast.json'));
@@ -139,7 +140,7 @@ async function ensureThumbs() {
   for (const name of Object.keys(THEMES)) {
     const out = path.join(dir, `${name}.png`); if (existsSync(out)) continue;
     const ep = `_theme_${name}`, epd = path.join(EPISODES, ep); mkdirSync(epd, { recursive: true });
-    writeJson(path.join(epd, 'story.json'), { theme: name, transition: 'cut', ...(name === 'garage' ? { look: 'cartoon', set: 'garage' } : {}), scenes: [{ say: 'Hello there, this is a style preview.', layout: 'lineup', count: 3,
+    writeJson(path.join(epd, 'story.json'), { theme: name, transition: 'cut', ...(name === 'garage' ? { look: 'cartoon', set: 'garage' } : {}), ...({ desk: { look: 'desk3d' }, noir: { look: 'noir', set: 'motel' }, dota: { look: 'dota', set: 'lane' }, blocks: { look: 'blocks', set: 'baseplate' }, pixel: { look: 'pixel', set: 'pixelworld' }, comic: { look: 'comic', set: 'skyline' } }[name] || {}), scenes: [{ say: 'Hello there, this is a style preview.', layout: 'lineup', count: 3,
       props: [{ type: 'heart', x: 1060, y: 190, scale: .8 }, { type: 'text', text: name, x: 300, y: 150, size: 64, enter: 'none' }] }] });
     await new Promise(r => spawn(process.execPath, [path.join(STUDIO, 'make.mjs'), ep, '--stills', '2.4', '--offline', '--lang', 'en'], { cwd: STUDIO, stdio: 'ignore' }).on('exit', r));
     const still = path.join(epd, 'build', 'en', 'stills', 's_000.png');
@@ -172,6 +173,7 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, { ok: true, version: VERSION, studio: STUDIO, tts: provider() || null, claude: { watching: claudeWatching(), cli: HAS_CLAUDE_CLI },
         defaults: { voices: DEFAULT_VOICES }, counts: Object.fromEntries(['brief', 'storyboarding', 'storyboard', 'revise', 'rendering', 'done', 'error'].map(s => [s, jobs.filter(j => j.status === s).length])) });
     }
+    if (M === 'GET' && p === '/api/looks') return send(res, 200, { looks: Object.entries(LOOKS).map(([id, l]) => ({ id, label: l.label, theme: l.theme, music: l.music })), music: Object.keys(MUSIC_PRESETS) });
     if (M === 'GET' && p === '/api/themes') return send(res, 200, Object.entries(THEMES).map(([id, t]) => ({ id, label: t.label, paper: t.paper, ink: t.ink, accent: t.accent,
       thumb: existsSync(path.join(STUDIO, 'app', 'thumbs', `${id}.png`)) ? `/files/app/thumbs/${id}.png` : null })));
     if (M === 'GET' && p === '/api/voices') return send(res, 200, await voices(url.searchParams.get('lang') || 'en', url.searchParams.get('q')));
@@ -189,7 +191,7 @@ const server = http.createServer(async (req, res) => {
       const langs = (b.languages || ['en']).filter(l => ['en', 'ru'].includes(l));
       const brief = { topic: String(b.topic).trim().slice(0, 2000), languages: langs.length ? langs : ['en'], format: b.format === '9:16' ? '9:16' : '16:9', duration: Math.min(300, Math.max(15, +b.duration || 60)),
         theme: THEMES[b.theme] ? b.theme : b.theme === 'reference' ? 'reference' : 'paper', voices: b.voices || {}, notes: String(b.notes || '').slice(0, 4000),
-        look: b.look === 'cartoon' ? 'cartoon' : 'doodle', music: ['lofi', 'ambient', 'upbeat', 'none'].includes(b.music) ? b.music : 'auto',
+        look: LOOKS[b.look] ? b.look : 'doodle', music: MUSIC_PRESETS[b.music] || b.music === 'none' ? b.music : 'auto',
         captions: !!b.captions, autoRender: !!b.autoRender, engine: b.engine === 'cli' ? 'cli' : 'session',
         castIdeas: String(b.castIdeas || '').slice(0, 3000), worldIdeas: String(b.worldIdeas || '').slice(0, 3000), invent: b.invent !== false, uiLang: b.uiLang === 'ru' ? 'ru' : 'en' };
       const job = createJob(brief, Array.isArray(b.refs) ? b.refs.slice(0, 8) : []);

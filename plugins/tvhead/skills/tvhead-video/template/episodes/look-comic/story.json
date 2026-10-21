@@ -1,0 +1,173 @@
+{
+  "title": {
+    "ru": "Стиль: комикс",
+    "en": "Look: comic"
+  },
+  "look": "comic",
+  "languages": [
+    "ru"
+  ],
+  "transition": "page",
+  "characters": {
+    "hero": {
+      "name": {
+        "ru": "Капитан",
+        "en": "Captain"
+      },
+      "head": "tv",
+      "body": "suit",
+      "color": "#2f6fd6",
+      "back": "cape",
+      "neck": "medal",
+      "bezel": "#e8202a"
+    }
+  },
+  "scenes": [
+    {
+      "note": {
+        "ru": "Город в стиле комикса, герой в плаще",
+        "en": "Comic skyline, caped hero"
+      },
+      "say": {
+        "ru": "В этом городе тихо. Слишком тихо."
+      },
+      "set": "skyline",
+      "cam": "push",
+      "cast": [
+        {
+          "id": "hero",
+          "x": 640,
+          "face": "smug",
+          "pose": "hip",
+          "scale": 0.95
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Лучи за спиной, БАХ!, линии скорости",
+        "en": "Rays, POW, speed lines"
+      },
+      "say": {
+        "ru": "И тут — БАХ!"
+      },
+      "set": "burst",
+      "cam": "push-fast",
+      "transition": "zoom",
+      "cast": [
+        {
+          "id": "hero",
+          "x": 420,
+          "face": "angry",
+          "pose": "point",
+          "scale": 0.95
+        }
+      ],
+      "props": [
+        {
+          "type": "speedlines",
+          "id": "sl",
+          "x": 640,
+          "y": 360,
+          "enter": "none"
+        },
+        {
+          "type": "pow",
+          "id": "pow",
+          "x": 880,
+          "y": 260,
+          "text": "БАХ!",
+          "on": {
+            "ru": "БАХ"
+          }
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Красные лучи, БУМ!",
+        "en": "Red rays, BOOM!"
+      },
+      "say": {
+        "ru": "Один удар — и злодей повержен. БУМ!"
+      },
+      "set": {
+        "type": "burst",
+        "colors": [
+          "#ff8a1a",
+          "#e8202a"
+        ]
+      },
+      "cam": "push-fast",
+      "transition": "zoom",
+      "cast": [
+        {
+          "id": "hero",
+          "x": 820,
+          "face": "angry",
+          "pose": "reach",
+          "scale": 0.95,
+          "flip": true
+        }
+      ],
+      "props": [
+        {
+          "type": "speedlines",
+          "id": "sl2",
+          "x": 640,
+          "y": 360,
+          "enter": "none",
+          "color": "#fff3c0"
+        },
+        {
+          "type": "pow",
+          "id": "boom",
+          "x": 400,
+          "y": 280,
+          "text": "БУМ!",
+          "fill": "#ffffff",
+          "color": "#2f6fd6",
+          "on": {
+            "ru": "БУМ"
+          }
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Город спасён, герой ликует",
+        "en": "City saved, the hero cheers"
+      },
+      "say": {
+        "ru": "Город снова в безопасности. До следующего выпуска!"
+      },
+      "set": "skyline",
+      "cam": "pull",
+      "cast": [
+        {
+          "id": "hero",
+          "x": 640,
+          "face": "joy",
+          "pose": "cheer",
+          "scale": 0.95
+        }
+      ],
+      "props": [
+        {
+          "type": "text",
+          "id": "saved",
+          "text": {
+            "ru": "СПАСЁН!",
+            "en": "SAVED!"
+          },
+          "x": 640,
+          "y": 170,
+          "size": 110,
+          "on": {
+            "ru": "безопасности"
+          }
+        }
+      ]
+    }
+  ]
+}

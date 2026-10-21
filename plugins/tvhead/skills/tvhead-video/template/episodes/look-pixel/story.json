@@ -1,0 +1,160 @@
+{
+  "title": {
+    "ru": "Стиль: 8-бит",
+    "en": "Look: 8-bit"
+  },
+  "look": "pixel",
+  "languages": [
+    "ru"
+  ],
+  "transition": "wipe",
+  "characters": {
+    "hero": {
+      "name": {
+        "ru": "Герой",
+        "en": "Hero"
+      },
+      "head": "tv",
+      "body": "shirt",
+      "color": "#f83800",
+      "hat": "cap",
+      "legs": "#0000bc",
+      "bezel": "#ac7c00"
+    }
+  },
+  "scenes": [
+    {
+      "note": {
+        "ru": "Восьмибитный мир: холмы, ?-блоки, труба",
+        "en": "8-bit world: hills, ? blocks, pipe"
+      },
+      "say": {
+        "ru": "Один пиксель, второй — и ты уже герой восьмибитной игры."
+      },
+      "set": "pixelworld",
+      "cam": "pan-right",
+      "cast": [
+        {
+          "id": "hero",
+          "x": 380,
+          "face": "happy",
+          "pose": "walk",
+          "scale": 0.75
+        }
+      ],
+      "props": [
+        {
+          "type": "pickup",
+          "id": "c",
+          "x": 640,
+          "y": 250,
+          "text": "+100",
+          "color": "#fcfcfc",
+          "delay": 2
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Подземелье, факелы, надпись BOSS",
+        "en": "Dungeon, torches, BOSS"
+      },
+      "say": {
+        "ru": "Но в подземелье тебя ждёт босс."
+      },
+      "set": "dungeon",
+      "cam": "push-fast",
+      "cast": [
+        {
+          "id": "hero",
+          "x": 400,
+          "face": "shock",
+          "pose": "head",
+          "scale": 0.75
+        }
+      ],
+      "props": [
+        {
+          "type": "text",
+          "id": "boss",
+          "text": "BOSS",
+          "x": 860,
+          "y": 260,
+          "size": 110,
+          "color": "white",
+          "on": {
+            "ru": "босс"
+          }
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Победа: LEVEL UP",
+        "en": "Victory: LEVEL UP"
+      },
+      "say": {
+        "ru": "Победа! Новый уровень — и музыка играет громче."
+      },
+      "set": "pixelworld",
+      "cam": "push",
+      "cast": [
+        {
+          "id": "hero",
+          "x": 640,
+          "face": "joy",
+          "pose": "cheer",
+          "scale": 0.8
+        }
+      ],
+      "props": [
+        {
+          "type": "text",
+          "id": "lv",
+          "text": "LEVEL UP!",
+          "x": 640,
+          "y": 170,
+          "size": 96,
+          "color": "white",
+          "on": {
+            "ru": "уровень"
+          }
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "WORLD 2: впереди новый мир",
+        "en": "WORLD 2 ahead"
+      },
+      "say": {
+        "ru": "Сохраняйся почаще: впереди — мир номер два."
+      },
+      "set": "pixelworld",
+      "cam": "pan-right",
+      "cast": [
+        {
+          "id": "hero",
+          "x": 520,
+          "face": "happy",
+          "pose": "walk",
+          "scale": 0.75
+        }
+      ],
+      "props": [
+        {
+          "type": "text",
+          "id": "w2",
+          "text": "WORLD 2",
+          "x": 640,
+          "y": 170,
+          "size": 90,
+          "color": "white",
+          "on": {
+            "ru": "мир"
+          }
+        }
+      ]
+    }
+  ]
+}

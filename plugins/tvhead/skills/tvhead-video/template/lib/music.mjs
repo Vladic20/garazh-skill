@@ -3,6 +3,9 @@
 // lofi    — warm electric-piano ii–V–I–vi, dusty swung drums, round bass, vinyl crackle (default for the cartoon style)
 // ambient — slow evolving pads and a soft piano, no drums (essays, calm or sad topics)
 // upbeat  — brighter chords, plucked arpeggio, claps, four-on-the-floor-ish groove (launches, product demos)
+// chiptune — square-wave lead and arpeggio, crunchy noise drums (8-bit / pixel look)
+// synthwave — saw pads, pulsing saw bass, gated snare, sparse saw lead (neon noir)
+// epic    — brass/string swells, taiko drums, big reverb (fantasy / game trailers)
 // The arrangement follows the film: drums enter after the intro, drop out in `quiet` windows (dark / blackout scenes),
 // a soft swell + kick lands on each `hits` time (big transitions), and the last bars resolve on a held chord.
 import { writeFileSync } from 'node:fs';
@@ -19,6 +22,15 @@ export const MUSIC_PRESETS = {
     chords: [[36, 55, 59, 62, 64], [33, 52, 55, 59, 62], [29, 53, 57, 60, 66], [31, 55, 59, 62, 64]] },
   upbeat: { label: 'Upbeat', bpm: 108, swing: .52, barsPerChord: 1, drums: 'upbeat', ep: .7, pad: .3, pluck: 1, crackle: 0, lp: 11000, volume: .5,
     chords: [[36, 60, 64, 67, 74], [43, 59, 62, 67, 69], [45, 60, 64, 69, 71], [41, 60, 65, 69, 72]] },
+  chiptune: { label: 'Chiptune', bpm: 140, swing: .5, barsPerChord: 1, drums: 'chip', ep: 0, pad: 0, pluck: 0, crackle: 0, lp: 12000, volume: .42,
+    lead: .55, leadWave: 'square', leadPattern: [1, 0, 1, 1, 0, 1, 1, 1], arp: .35, arpWave: 'pulse', bassWave: 'triangle', reverb: .12,
+    chords: [[36, 60, 64, 67, 72], [43, 59, 62, 67, 71], [45, 60, 64, 69, 72], [41, 60, 65, 69, 72]] },
+  synthwave: { label: 'Synthwave', bpm: 96, swing: .5, barsPerChord: 1, drums: 'synth', ep: 0, pad: 0, pluck: 0, crackle: 0, lp: 8000, volume: .5,
+    synthPad: .5, lead: .32, leadWave: 'saw', leadPattern: [1, 0, 0, 1, 0, 0, 1, 0], bassWave: 'saw', bassPulse: true, reverb: .4,
+    chords: [[33, 57, 60, 64, 69], [29, 57, 60, 65, 69], [36, 55, 60, 64, 67], [31, 55, 59, 62, 67]] },
+  epic: { label: 'Epic', bpm: 80, swing: .5, barsPerChord: 1, drums: 'epic', ep: 0, pad: .25, pluck: 0, crackle: 0, lp: 7000, volume: .55,
+    synthPad: .55, brass: true, lead: .3, leadWave: 'brass', leadPattern: [1, 0, 0, 0, 1, 0, 1, 0], bassWave: 'saw', reverb: .55,
+    chords: [[38, 57, 62, 65, 69], [34, 58, 62, 65, 70], [41, 57, 60, 65, 69], [36, 55, 60, 64, 67]] },
 };
 
 // ─── tiny DSP kit ────────────────────────────────────────────────────────────────
@@ -100,6 +112,25 @@ function pluckNote(L, R, sendL, sendR, n, t0, vel, pan) {
     L[j] += y * gl; R[j] += y * gr; sendL[j] += y * gl * .5; sendR[j] += y * gr * .5;
   }
 }
+// oscillator voice: square | pulse | triangle | saw | brass (saw with a slow swell through a low-pass)
+function synthNote(L, R, sL, sR, n, t0, dur, vel, pan, wave, att = .005, rel = .08, send = .4) {
+  const f = mtof(n), N = Math.round((dur + rel * 4 + .02) * SR), i0 = Math.round(t0 * SR), amp = vel * (wave === 'square' || wave === 'pulse' ? .05 : .09);
+  const gl = Math.cos((pan + 1) * Math.PI / 4) * 1.414, gr = Math.sin((pan + 1) * Math.PI / 4) * 1.414;
+  const lp = wave === 'brass' ? biquad('lp', Math.min(4000, f * 6)) : wave === 'saw' ? biquad('lp', Math.min(6000, f * 10)) : null;
+  if (wave === 'brass') att = Math.max(att, .09);
+  for (let i = 0; i < N; i++) {
+    const j = i0 + i; if (j >= L.length) break; if (j < 0) continue;
+    const tt = i / SR; let env = Math.min(1, tt / att); if (tt > dur) env *= Math.exp(-(tt - dur) / rel); if (env < 1e-4 && tt > dur) break;
+    const ph = (f * tt) % 1; let y;
+    if (wave === 'square') y = ph < .5 ? 1 : -1;
+    else if (wave === 'pulse') y = ph < .25 ? 1 : -1;
+    else if (wave === 'triangle') y = 1 - 4 * Math.abs(ph - .5);
+    else { y = 0; for (let k = 1; k <= 6; k++) y += Math.sin(2 * Math.PI * k * f * tt * (1 + (k === 1 ? 0 : .0012))) / k; y *= .6; }
+    if (lp) y = lp(y);
+    y *= env * amp;
+    L[j] += y * gl; R[j] += y * gr; sL[j] += y * gl * send; sR[j] += y * gr * send;
+  }
+}
 function drumKit(seed) {
   const r = rng(seed);
   let ph = 0;
@@ -111,7 +142,12 @@ function drumKit(seed) {
   const hats = [0, 1, 2].map(v => { const hp = biquad('hp', 7200 + v * 600); return makeHit(.09, tt => hp(r() * 2 - 1) * Math.exp(-tt / (.018 + v * .006)) * .5); });
   const hpO = biquad('hp', 6000);
   const swell = makeHit(1.1, tt => hpO(r() * 2 - 1) * Math.pow(tt / 1.1, 3) * .35);   // reversed cymbal → lands at the end
-  return { kick, snare, clap, hats, swell };
+  let cp = 0; const chipKick = makeHit(.16, tt => { cp += (200 * Math.exp(-tt / .03) + 45) / SR; return ((cp % 1) < .5 ? .5 : -.5) * Math.exp(-tt / .07); });
+  const chipSnare = makeHit(.14, tt => (r() * 2 - 1) * .45 * Math.exp(-tt / .06)), hpC = biquad('hp', 9000), chipHat = makeHit(.04, tt => hpC(r() * 2 - 1) * .4 * Math.exp(-tt / .012));
+  let tp = 0; const lpT = biquad('lp', 900);
+  const taiko = makeHit(.9, tt => { tp += (58 + 40 * Math.exp(-tt / .05)) / SR; return (Math.sin(2 * Math.PI * tp) * Math.exp(-tt / .45) + lpT(r() * 2 - 1) * .5 * Math.exp(-tt / .04)) * .95; });
+  let tq = 0; const tom = makeHit(.5, tt => { tq += (110 + 60 * Math.exp(-tt / .04)) / SR; return Math.sin(2 * Math.PI * tq) * Math.exp(-tt / .22) * .7; });
+  return { kick, snare, clap, hats, swell, chipKick, chipSnare, chipHat, taiko, tom };
 }
 
 // ─── arrangement ────────────────────────────────────────────────────────────────
@@ -139,10 +175,18 @@ export function renderMusic(opts, outFile) {
       if (!last && P.barsPerChord === 1 && P.drums) ch.slice(2).forEach((n, k) => epNote(L, R, sL, sR, n, t0 + beat * 2.5 + swing(1) + k * .015, beat * 1.2, P.ep * .42, (k - 1) * .3, wow, bright));
     }
     if (P.pad && first) ch.slice(1, 4).forEach(n => padNote(L, R, sL, sR, n - 12 * (n > 64), t0, (last ? duration - t0 : bar * P.barsPerChord) + .1, P.pad));
+    if (P.synthPad && first) ch.slice(1).forEach((n, k) => synthNote(L, R, sL, sR, n - (P.brass ? 0 : 12), t0 + k * .01, (last ? duration - t0 - .5 : bar * P.barsPerChord - .05), P.synthPad * (bright < 1 ? .6 : 1), (k - 2) * .3, P.brass ? 'brass' : 'saw', P.brass ? .35 : .25, .6, .6));
+    if (P.lead && b >= introBars && !ending && !q) { const rr = rng(b * 131 + 17), notes = ch.slice(1);
+      for (let e = 0; e < 8; e++) if (P.leadPattern[(e + b * 3) % P.leadPattern.length]) synthNote(L, R, sL, sR, notes[Math.floor(rr() * notes.length)] + 12, t0 + e * beat / 2, beat * (P.leadWave === 'brass' ? 1.4 : .42), P.lead, .1, P.leadWave, .005, P.leadWave === 'brass' ? .3 : .06, .35); }
+    if (P.arp && b >= introBars && !ending && !q) for (let e = 0; e < 16; e++) { const notes = ch.slice(1); synthNote(L, R, sL, sR, notes[[0, 1, 2, 3, 4, 3, 2, 1][e % 8] % notes.length] + 12, t0 + e * beat / 4, beat * .2, P.arp * (e % 4 ? .7 : 1), e % 2 ? .4 : -.4, P.arpWave, .002, .03, .2); }
     // bass
     if (b >= introBars || !P.drums) {
       const root = ch[0];
-      if (last) bassNote(L, R, root, t0, Math.max(.3, duration - t0 - .4), .9);
+      if (P.bassWave) {
+        if (last) synthNote(L, R, sL, sR, root, t0, Math.max(.3, duration - t0 - .5), 1, 0, P.bassWave, .01, .3, .05);
+        else if (P.bassPulse || P.drums === 'chip') for (let e = 0; e < 8; e++) synthNote(L, R, sL, sR, root + (P.drums === 'chip' && e % 2 ? 12 : 0), t0 + e * beat / 2, beat * .38, 1, 0, P.bassWave, .004, .04, .05);
+        else synthNote(L, R, sL, sR, root, t0, bar - .1, 1, 0, P.bassWave, .05, .2, .1);
+      } else if (last) bassNote(L, R, root, t0, Math.max(.3, duration - t0 - .4), .9);
       else if (P.drums === 'upbeat') for (let e = 0; e < 8; e++) bassNote(L, R, root + (e % 4 === 3 ? 12 : 0), t0 + e * beat / 2, beat * .4, .7);
       else if (P.drums) { bassNote(L, R, root, t0, beat * 1.4, .9); bassNote(L, R, root, t0 + beat * 2.5 + swing(1), beat * .8, .7); if (b % 2) bassNote(L, R, root + 7, t0 + beat * 3.5 + swing(1), beat * .4, .5); }
       else if (first) bassNote(L, R, root, t0, bar * P.barsPerChord - .1, .55);
@@ -153,6 +197,23 @@ export function renderMusic(opts, outFile) {
     if (kit && b >= introBars && !ending) {
       for (let e = 0; e < 8; e++) {
         const tt = t0 + e * beat / 2 + swing(e); if (inQuiet(tt)) continue;
+        if (P.drums === 'chip') {
+          if (e === 0 || e === 4 || e === 5) place(L, kit.chipKick, tt, .8, 0, L, R);
+          if (e === 2 || e === 6) place(L, kit.chipSnare, tt, .7, 0, L, R);
+          place(L, kit.chipHat, tt, .35, .2, L, R); place(L, kit.chipHat, tt + beat / 4, .2, -.2, L, R);
+          continue;
+        }
+        if (P.drums === 'epic') {
+          if (e === 0 || e === 3 || (e === 6 && b % 2)) { place(L, kit.taiko, tt, e === 0 ? 1 : .75, 0, L, R); place(sL, kit.taiko, tt, .6, 0, sL, sR); }
+          if (e === 7 || (b % 4 === 3 && e >= 4)) place(L, kit.tom, tt, .55, e % 2 ? .3 : -.3, L, R);
+          continue;
+        }
+        if (P.drums === 'synth') {
+          if (e === 0 || e === 4) place(L, kit.kick, tt, .9, 0, L, R);
+          if (e === 2 || e === 6) { place(L, kit.snare, tt, .7, 0, L, R); place(sL, kit.snare, tt, 1, 0, sL, sR); }
+          place(L, kit.hats[1], tt, e % 2 ? .3 : .16, .3, L, R);
+          continue;
+        }
         if (P.drums === 'lofi') {
           if (e === 0 || e === 5 || (e === 3 && b % 4 === 3)) place(L, kit.kick, tt, e === 0 ? .9 : .7, 0, L, R);
           if (e === 2 || e === 6) place(L, kit.snare, tt + .012, .6 + r() * .08, .05, L, R), place(sL, kit.snare, tt + .012, .5, 0, sL, sR);
@@ -175,7 +236,7 @@ export function renderMusic(opts, outFile) {
   if (P.crackle) { const hp = biquad('hp', 1800), lp = biquad('lp', 3500);
     for (let i = 0; i < N; i++) { let x = lp(r() * 2 - 1) * .006 * P.crackle; if (r() < 7 * P.crackle / SR) x += (r() - .5) * .5; const y = hp(x); L[i] += y; R[i] += y * .9; } }
   // reverb send, tone, tape saturation, fades
-  const [rvL, rvR] = reverb(sL, sR, P.drums ? .28 : .42, P.drums ? 1 : 1.3);
+  const [rvL, rvR] = reverb(sL, sR, P.reverb ?? (P.drums ? .28 : .42), P.reverb > .45 || !P.drums ? 1.3 : 1);
   const lpL = biquad('lp', P.lp), lpR = biquad('lp', P.lp);
   let rms = 0;
   for (let i = 0; i < N; i++) {

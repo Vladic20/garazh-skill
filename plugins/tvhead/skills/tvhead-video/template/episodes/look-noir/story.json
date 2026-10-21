@@ -1,0 +1,27 @@
+{
+  "title": { "ru": "Стиль: неоновый нуар", "en": "Look: neon noir" },
+  "look": "noir", "format": "9:16", "remap": false, "languages": ["ru"], "transition": "cut",
+  "characters": { "kid": { "name": { "ru": "Парень", "en": "Kid" }, "head": "round", "hat": "cap", "body": "hoodie", "color": "#3a3a3e", "back": "backpack", "legs": "#1d1d20" } },
+  "scenes": [
+    { "note": { "ru": "Мотель с розовым неоном, парень на фоне кровати, HUD", "en": "Pink neon motel, the kid, HUD" },
+      "say": { "ru": "Конец месяца. Зарплата пришла пять дней назад — а на карте уже пусто." },
+      "set": "motel", "cam": "push",
+      "cast": [ { "id": "kid", "x": 200, "y": 1010, "face": "worried", "pose": "idle", "flip": true } ],
+      "props": [ { "type": "hud", "id": "hud", "x": 360, "y": 120, "cellW": 210, "items": [ { "label": "Зарплата", "from": 80000, "to": 80000 }, { "label": "Осталось", "from": 80000, "to": 3200 }, { "label": "Паника", "from": 0, "to": 87, "suffix": "%", "accent": true } ], "dur": 3 } ] },
+    { "note": { "ru": "Кремовая карточка: 300 ₽ в день, сетка купюр", "en": "Cream card: 300 a day, grid of bills" },
+      "say": { "ru": "Кофе за триста рублей каждый день — это девять тысяч в месяц." },
+      "set": { "type": "card", "tone": "light" }, "particles": 0,
+      "props": [ { "type": "headline", "id": "h1", "x": 360, "y": 330, "eyebrow": "Проблема 1 · Мелочи", "title": "300 ₽ в день = 9 000 в месяц", "accent": ["9", "000"], "size": 58, "maxWidth": 620 },
+                 { "type": "billgrid", "id": "bg", "x": 360, "y": 640, "rows": 9, "cols": 10, "bill": [48, 22], "delay": 1 } ] },
+    { "note": { "ru": "Ночная улица с прачечной и банкоматом, штамп «подписки»", "en": "Night strip, stamp: subscriptions" },
+      "say": { "ru": "А ещё шесть подписок, о которых ты давно забыл." },
+      "set": "strip", "cam": "drift",
+      "cast": [ { "id": "kid", "x": 300, "y": 1040, "face": "shock", "pose": "walk" } ],
+      "props": [ { "type": "stamp", "id": "st", "x": 450, "y": 330, "text": "ПОДПИСКИ: 6", "sub": "списываются каждый месяц", "on": "подписок" },
+                 { "type": "marker", "id": "mk", "x": 520, "y": 560, "r": 90, "on": "забыл" } ] },
+    { "note": { "ru": "Тёмная карточка: Правило 1", "en": "Dark card: Rule 1" },
+      "say": { "ru": "Правило первое: сначала отложи — потом трать." },
+      "set": { "type": "card", "tone": "dark" }, "particles": 0,
+      "props": [ { "type": "headline", "id": "h2", "x": 360, "y": 600, "tone": "light", "eyebrow": "Правило 1", "eyebrowColor": "#ff3d9a", "title": "Сначала отложи. Потом трать.", "accent": ["отложи."], "size": 62, "maxWidth": 620 } ] }
+  ]
+}

@@ -75,6 +75,21 @@ Faces and poses are unchanged (see story-api.md). On `round`/`cat`/`bulb`/`cloud
 | `garage` | `dim` 0–1, `lamp: false`, `cone` 0–1, `window: false`, `tires: false` | warm night workshop: makers, side projects, friends; the home of the cartoon style |
 | `desk` | `top` (y of the table edge), `mug: false`, `plant: false` | close-up on a table: put a `screen` prop (laptop with a live chat / app / terminal) on it |
 | `blackout` | `x` (spotlight), `light: false` | a dramatic cold open, a confession, the punchline in the dark |
+| `motel` | `neon` colour, `lamp: false` | noir: a dark room, pink neon through blinds, cash bags on a floral bed |
+| `bank` | — | noir: stone columns, steps, a flag, by day |
+| `strip` | — | noir: night storefronts (laundromat, ATM), wet parking lot |
+| `card` | `tone: "light"` (cream) / `"dark"` | noir: a plain card for headlines and infographics |
+| `lane` | `team`, `seed` | dota: forest lane at dusk, river, team towers |
+| `ancient` | `team: "radiant"`/`"dire"`, `x` | dota: glowing core on a stepped stone base |
+| `arena` | — | dota: rune circle, torches on pillars |
+| `baseplate` | `trees: false` | blocks: studded green plate, blocky clouds and trees |
+| `obby` | — | blocks: floating bricks over lava, a checkpoint flag |
+| `pixelworld` | — | pixel: sky, hills, ? blocks, a pipe, brick ground |
+| `dungeon` | — | pixel: stone bricks, torches |
+| `burst` | `colors: [a, b]` | comic: radial rays behind an action beat |
+| `skyline` | `seed` | comic: flat-colour city under a dotted sky |
+
+Character kinds besides the TV head: `"kind": "cube"` (clay box mascot that hops; `color`, `hat: "candle"`) and `"kind": "blocky"` (brick figure; `skin`, `color`, `legs`, `hat: cap/crown/headphones`). Fantasy parts: hats `helm`, `horns`, `hood2`; body `armor`; held `sword`, `staff` (`staff:#ff6a3a` = orb colour), `shield`.
 
 Weather: `rain` · `snow` · `leaves` · `wind`, each with `{ "type": "rain", "amount": 1.5 }`. `dark: true` on a scene still works on top of any set (night).
 

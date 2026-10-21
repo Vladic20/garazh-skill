@@ -22,7 +22,7 @@ function setUI(l) {
   UI = l; LS.set('ui', l);
   document.querySelectorAll('#uiLang button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.ui === l)));
   applyI18n();
-  setLang(state.lang); setFormat(state.format); setLook(state.look, true); setMusic(state.music); $('#durLabel').textContent = `${$('#briefForm').duration.value} ${t('sec')}`;
+  setLang(state.lang); setFormat(state.format); loadLooks(); $('#durLabel').textContent = `${$('#briefForm').duration.value} ${t('sec')}`;
   loadThemes(); buildVoices(); loadLibrary(); loadCatalog(); refreshStatus(); refreshJobs(); refreshDetail(true);
 }
 document.querySelectorAll('#uiLang button').forEach(b => b.addEventListener('click', () => setUI(b.dataset.ui)));
@@ -55,22 +55,31 @@ function setFormat(f) {
   $('#fmtHint').textContent = t('fmt.' + state.format);
 }
 document.querySelectorAll('.seg [data-format]').forEach(b => b.addEventListener('click', () => setFormat(b.dataset.format)));
-// look: doodle (pencil on paper) | cartoon (warm garage). The palette follows: cartoon ↔ "garage", doodle ↔ "paper" (a reference stays a reference)
+// looks come from the server (lib/story.mjs LOOKS): each has its own palette and default music; a reference palette stays a reference
+let LOOKS = [], MUSICS = [];
+const lookOf = id => LOOKS.find(l => l.id === id) || LOOKS[0] || { id: 'doodle', theme: 'paper', music: null };
+async function loadLooks() {
+  if (!LOOKS.length) { const d = await api('/api/looks').catch(() => ({ looks: [], music: [] })); LOOKS = d.looks; MUSICS = d.music; }
+  $('#looks').innerHTML = LOOKS.map(l => `<button type="button" class="look" role="radio" data-look="${h(l.id)}" aria-checked="${l.id === state.look}"><img src="/ui/look-${h(l.id)}.jpg" alt="" loading="lazy">
+    <b>${h(I18N.en['look.' + l.id] ? t('look.' + l.id) : l.label)}</b><small>${h(I18N.en['look.' + l.id + '.d'] ? t('look.' + l.id + '.d') : '')}</small></button>`).join('');
+  $('#looks').querySelectorAll('[data-look]').forEach(b => b.addEventListener('click', () => setLook(b.dataset.look)));
+  $('#musicSel').innerHTML = ['auto', ...MUSICS, 'none'].map(m => `<option value="${h(m)}">${h(t('music.' + m))}</option>`).join('');
+  setLook(state.look, true); setMusic(state.music);
+}
 function setLook(l, quiet) {
-  state.look = l === 'cartoon' ? 'cartoon' : 'doodle'; LS.set('look', state.look);
+  state.look = LOOKS.some(x => x.id === l) ? l : 'doodle'; LS.set('look', state.look);
   document.querySelectorAll('#looks [data-look]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.look === state.look)));
   if (quiet) return;
-  if (state.look === 'cartoon' && state.theme !== 'reference') state.theme = 'garage';
-  if (state.look === 'doodle' && state.theme === 'garage') state.theme = 'paper';
+  if (state.theme !== 'reference') state.theme = lookOf(state.look).theme || 'paper';
   LS.set('theme', state.theme); loadThemes(); setMusic(state.music);
 }
-document.querySelectorAll('#looks [data-look]').forEach(b => b.addEventListener('click', () => setLook(b.dataset.look)));
 function setMusic(m) {
-  state.music = ['lofi', 'ambient', 'upbeat', 'none'].includes(m) ? m : 'auto'; LS.set('music', state.music);
-  document.querySelectorAll('.seg [data-music]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.music === state.music)));
-  $('#musicHint').textContent = t('music.hint.' + (state.music === 'auto' ? 'auto.' + state.look : state.music));
+  state.music = MUSICS.includes(m) || m === 'none' ? m : 'auto'; LS.set('music', state.music);
+  $('#musicSel').value = state.music;
+  const def = lookOf(state.look).music;
+  $('#musicHint').textContent = state.music === 'auto' ? t('music.hint.auto', { m: def ? t('music.' + def) : t('music.drone') }) : t('music.hint.' + state.music);
 }
-document.querySelectorAll('.seg [data-music]').forEach(b => b.addEventListener('click', () => setMusic(b.dataset.music)));
+$('#musicSel').addEventListener('change', e => setMusic(e.target.value));
 const langs = () => state.lang === 'both' ? ['en', 'ru'] : [state.lang];
 
 function buildVoices() {
@@ -173,7 +182,7 @@ async function refreshDetail(force) {
   lastSig = sig;
   const d = $('#detail'), step = STEP_OF[j.status];
   let html = `<div class="dhead"><div><h2>${h(j.brief?.topic || j.id)}</h2>
-      <div class="meta">${h(j.id)} · ${h((j.brief?.languages || []).join(' + ').toUpperCase())} · ${h(j.storyboard?.format || j.brief?.format || '16:9')} · ~${h(j.brief?.duration || '?')} ${h(t('sec'))} · ${h(t('meta.look'))}: ${h(t('look.' + (j.brief?.look === 'cartoon' ? 'cartoon' : 'doodle')))} · ${h(t('meta.style'))}: ${h(I18N.en['theme.' + j.brief?.theme] ? t('theme.' + j.brief.theme) : j.brief?.theme || 'paper')}${j.brief?.refs?.length ? ` · ${h(t('meta.refs'))}: ${j.brief.refs.length}` : ''}</div></div>
+      <div class="meta">${h(j.id)} · ${h((j.brief?.languages || []).join(' + ').toUpperCase())} · ${h(j.storyboard?.format || j.brief?.format || '16:9')} · ~${h(j.brief?.duration || '?')} ${h(t('sec'))} · ${h(t('meta.look'))}: ${h(I18N.en['look.' + (j.brief?.look || 'doodle')] ? t('look.' + (j.brief?.look || 'doodle')) : j.brief?.look)} · ${h(t('meta.style'))}: ${h(I18N.en['theme.' + j.brief?.theme] ? t('theme.' + j.brief.theme) : j.brief?.theme || 'paper')}${j.brief?.refs?.length ? ` · ${h(t('meta.refs'))}: ${j.brief.refs.length}` : ''}</div></div>
       <span class="chip ${h(j.status)}">${h(statusText(j.status))}</span></div>
     <ol class="steps">${STEPS.map((k, i) => `<li class="step ${i < step || j.status === 'done' ? 'done' : i === step ? 'now' : ''}">${h(t('step.' + k))}</li>`).join('')}</ol>`;
 

@@ -1,0 +1,243 @@
+{
+  "title": {
+    "ru": "Стиль: Dota 2",
+    "en": "Look: Dota-like"
+  },
+  "look": "dota",
+  "languages": [
+    "ru"
+  ],
+  "transition": "zoom",
+  "characters": {
+    "knight": {
+      "name": {
+        "ru": "Рыцарь",
+        "en": "Knight"
+      },
+      "head": "round",
+      "skin": "#e8c39a",
+      "hat": "helm",
+      "body": "armor",
+      "color": "#6d7680",
+      "hold": "sword",
+      "legs": "#3a3632"
+    },
+    "mage": {
+      "name": {
+        "ru": "Маг",
+        "en": "Mage"
+      },
+      "head": "round",
+      "skin": "#c9b8d8",
+      "hat": "hood2",
+      "hatColor": "#4a1c22",
+      "body": "robe",
+      "color": "#5a1c22",
+      "hold": "staff:#ff6a3a"
+    }
+  },
+  "scenes": [
+    {
+      "note": {
+        "ru": "Лес, линия, две башни: рыцарь против мага",
+        "en": "Forest lane: knight vs mage"
+      },
+      "say": {
+        "ru": "Линия. Два героя. Одна ошибка — и всё решено."
+      },
+      "set": "lane",
+      "cam": "push",
+      "cast": [
+        {
+          "id": "knight",
+          "x": 420,
+          "y": 640,
+          "face": "angry",
+          "pose": "hip",
+          "scale": 0.85
+        },
+        {
+          "id": "mage",
+          "x": 880,
+          "y": 610,
+          "face": "smug",
+          "pose": "raise",
+          "flip": true,
+          "scale": 0.8
+        }
+      ],
+      "props": [
+        {
+          "type": "unitbar",
+          "id": "hk",
+          "x": 420,
+          "y": 250,
+          "name": {
+            "ru": "Рыцарь",
+            "en": "Knight"
+          },
+          "level": 6,
+          "hp": [
+            0.9,
+            0.9
+          ],
+          "mp": [
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "type": "unitbar",
+          "id": "hm",
+          "x": 880,
+          "y": 230,
+          "team": "dire",
+          "name": {
+            "ru": "Маг",
+            "en": "Mage"
+          },
+          "level": 5,
+          "hp": [
+            0.8,
+            0.55
+          ],
+          "mp": [
+            0.9,
+            0.4
+          ],
+          "delay": 1.5
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Арена с рунами, панель способностей, ульта на R",
+        "en": "Rune arena, ability bar, ult on R"
+      },
+      "say": {
+        "ru": "Ультимейт готов. Нажимаешь R —"
+      },
+      "set": "arena",
+      "cam": "push-fast",
+      "cast": [
+        {
+          "id": "knight",
+          "x": 640,
+          "y": 610,
+          "face": "angry",
+          "pose": "point",
+          "scale": 0.75
+        }
+      ],
+      "props": [
+        {
+          "type": "abilities",
+          "id": "ab",
+          "x": 640,
+          "y": 110,
+          "scale": 0.85,
+          "icons": [
+            "⚔",
+            "🛡",
+            "🔥",
+            "☄"
+          ],
+          "cast": 3,
+          "castAt": 1.4,
+          "cooldown": 9
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Первая кровь, +150 золота",
+        "en": "First blood, +150 gold"
+      },
+      "say": {
+        "ru": "— первая кровь! Плюс сто пятьдесят золота."
+      },
+      "set": "lane",
+      "transition": "whip",
+      "cam": "pull",
+      "cast": [
+        {
+          "id": "knight",
+          "x": 460,
+          "y": 640,
+          "face": "joy",
+          "pose": "cheer",
+          "scale": 0.85
+        },
+        {
+          "id": "mage",
+          "x": 860,
+          "y": 630,
+          "face": "dead",
+          "pose": "slump",
+          "flip": true,
+          "scale": 0.8
+        }
+      ],
+      "props": [
+        {
+          "type": "banner",
+          "id": "fb",
+          "x": 640,
+          "y": 150,
+          "text": {
+            "ru": "ПЕРВАЯ КРОВЬ",
+            "en": "FIRST BLOOD"
+          },
+          "sub": {
+            "ru": "Рыцарь сразил Мага",
+            "en": "Knight slew Mage"
+          }
+        },
+        {
+          "type": "gold",
+          "id": "g",
+          "x": 470,
+          "y": 300,
+          "amount": 150,
+          "on": {
+            "ru": "золота"
+          }
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Древний сияет зелёным, мини-карта",
+        "en": "Radiant ancient glows, minimap"
+      },
+      "say": {
+        "ru": "А теперь — вперёд, к вражескому древнему."
+      },
+      "set": {
+        "type": "ancient",
+        "team": "dire",
+        "x": 760
+      },
+      "cam": "drift",
+      "cast": [
+        {
+          "id": "knight",
+          "x": 300,
+          "y": 640,
+          "face": "happy",
+          "pose": "walk",
+          "scale": 0.8
+        }
+      ],
+      "props": [
+        {
+          "type": "minimap",
+          "id": "mm",
+          "x": 1130,
+          "y": 570,
+          "size": 190
+        }
+      ]
+    }
+  ]
+}

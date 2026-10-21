@@ -77,18 +77,30 @@ export const THEMES = {
   chalk:     { label: 'Chalkboard', paper: '#2f3b36', paperLight: '#3a4842', paperDark: '#1d2522', ink: '#eeeae0', bezel: '#55625c', screen: '#26302c', fill: '#2a3531', accent: '#f2c94c', dark: '#111614', halo: '#45534d', muted: '#9aa59f', texture: .12 },
   night:     { label: 'Night ink', paper: '#17191b', paperLight: '#232629', paperDark: '#0b0c0d', ink: '#e8e8e4', bezel: '#4a4d50', screen: '#2b2e31', fill: '#202326', accent: '#e8e8e4', dark: '#000000', halo: '#34383b', muted: '#8a8f93', texture: .1 },
   garage:    { label: 'Warm garage (cartoon)', paper: '#5a4a3a', paperLight: '#6e5b47', paperDark: '#3a2e23', ink: '#2a1c14', bezel: '#c8693a', screen: '#f6ecd2', fill: '#fbf3e1', accent: '#ffc93a', dark: '#0d0805', halo: '#2a1c14', muted: '#d8c7a5', texture: .05 },
+  desk:      { label: '3D desk (dark UI)', paper: '#14161a', paperLight: '#1c1f24', paperDark: '#0c0d10', ink: '#e8ecf2', bezel: '#2a2d33', screen: '#f0e8dc', fill: '#1b1e23', accent: '#ffcc33', dark: '#000000', halo: '#14161a', muted: '#7d8794', texture: 0 },
+  noir:      { label: 'Neon noir', paper: '#efe9dc', paperLight: '#f6f1e6', paperDark: '#d9d1c2', ink: '#1d1816', bezel: '#3a3a3a', screen: '#f4f1ea', fill: '#ffffff', accent: '#ff3d9a', dark: '#0c0809', halo: '#1d1816', muted: '#8b8378', texture: .05 },
+  dota:      { label: 'Dark fantasy', paper: '#1c2026', paperLight: '#2a3039', paperDark: '#0e1014', ink: '#0b0b0d', bezel: '#6b5a3a', screen: '#e9dcbc', fill: '#d8c9a3', accent: '#c8a24a', dark: '#000000', halo: '#0b0b0d', muted: '#a89a7a', texture: .04 },
+  blocks:    { label: 'Brick game', paper: '#8fd3ff', paperLight: '#cdeeff', paperDark: '#4caf50', ink: '#1b1b1b', bezel: '#f5cd30', screen: '#fff6c8', fill: '#ffffff', accent: '#00a2ff', dark: '#0a1a2a', halo: '#1b1b1b', muted: '#5a6a7a', texture: 0 },
+  pixel:     { label: '8-bit', paper: '#5c94fc', paperLight: '#7cacfc', paperDark: '#c84c0c', ink: '#000000', bezel: '#ac7c00', screen: '#fcbcb0', fill: '#fcfcfc', accent: '#f83800', dark: '#000000', halo: '#000000', muted: '#7c7c7c', texture: 0 },
+  comic:     { label: 'Comic book', paper: '#fdf6e3', paperLight: '#fffaf0', paperDark: '#f2c94c', ink: '#111111', bezel: '#2f6fd6', screen: '#fff9e8', fill: '#ffffff', accent: '#e8202a', dark: '#111111', halo: '#111111', muted: '#7a7060', texture: .03 },
   mint:      { label: 'Mint notebook', paper: '#cfe3d8', paperLight: '#e0efe7', paperDark: '#9fbcad', ink: '#14231c', bezel: '#4f6a5d', screen: '#eef6f1', fill: '#f3faf6', accent: '#e4572e', dark: '#15261e', halo: '#a9c6b7', muted: '#6c8478' },
 };
 export function resolveTheme(th, look) {
-  if (!th) return { ...THEMES[look === 'cartoon' ? 'garage' : 'paper'] };
+  if (!th) return { ...THEMES[LOOKS[look]?.theme || 'paper'] };
   if (typeof th === 'string') { if (!THEMES[th]) throw new Error(`unknown theme "${th}" (have: ${Object.keys(THEMES).join(', ')})`); return { ...THEMES[th] }; }
-  return { ...THEMES[th.preset || (look === 'cartoon' ? 'garage' : 'paper')], ...th };
+  return { ...THEMES[th.preset || LOOKS[look]?.theme || 'paper'], ...th };
 }
 
 // ─── looks: "look": "doodle" (default: B&W pencil, boiling lines) | "cartoon" (warm flat colour, thick outlines, karaoke captions) ──
 export const LOOKS = {
   doodle:  { label: 'Doodle — pencil on paper', theme: 'paper', captions: false, music: null },
   cartoon: { label: 'Cartoon — warm garage', theme: 'garage', captions: true, music: 'lofi' },
+  desk3d:  { label: '3D desk — UI on a desk, clay mascot', theme: 'desk', captions: true, music: 'upbeat' },
+  noir:    { label: 'Neon noir explainer', theme: 'noir', captions: true, music: 'synthwave' },
+  dota:    { label: 'Dark fantasy MOBA (Dota-like)', theme: 'dota', captions: true, music: 'epic' },
+  blocks:  { label: 'Brick game (Roblox-like)', theme: 'blocks', captions: true, music: 'upbeat' },
+  pixel:   { label: '8-bit pixel game', theme: 'pixel', captions: true, music: 'chiptune' },
+  comic:   { label: 'Comic book', theme: 'comic', captions: true, music: 'upbeat' },
 };
 export function resolveLook(v) {
   const id = v || 'doodle';
@@ -281,7 +293,7 @@ const TIMED = ['chat', 'steps', 'lines'];
 function resolveTimed(list, sc) {
   const cued = c => c && typeof c === 'object' && (c.on != null || c.at != null || c.delay != null);
   return list.map(m => {
-    if (!m || typeof m !== 'object') return m;
+    if (!m || typeof m !== 'object' || Array.isArray(m)) return m;
     const o = { ...m };
     if (cued(m)) o.t = r3(cueTime(m, sc, sc.from));
     if (cued(m.click)) o.click = r3(cueTime(m.click, sc, sc.from));
@@ -379,7 +391,7 @@ export function buildTimeline(story0, clips, ctx = { lang: 'en', assetBase: '' }
     if (speaker && clip) for (const [a, b] of clip.speech) talk.push([r3(vStart + a), r3(vStart + b), speaker.id]);
 
     const prevSc = keep ? scenes[scenes.length - 1] : null;
-    scenes.push({ from, to, cam: resolveCam(raw.cam, g), transition, ground: raw.ground ?? prevSc?.ground ?? (raw.layout === 'pile' || raw.layout === 'title' ? false : true),
+    scenes.push({ from, to, cam: resolveCam(raw.cam, g), cam3d: raw.cam3d ?? null, transition, ground: raw.ground ?? prevSc?.ground ?? (raw.layout === 'pile' || raw.layout === 'title' ? false : true),
       particles: raw.particles ?? prevSc?.particles ?? story.particles ?? 1, dark: raw.dark ?? prevSc?.dark ?? false,
       set: normSet(raw.set !== undefined ? raw.set : prevSc ? prevSc.set : story.set), weather: normSet(raw.weather !== undefined ? raw.weather : prevSc ? prevSc.weather : story.weather), items });
     // captions: phrases of ≤ 6 words / ≤ 38 chars (9:16: ≤ 5 / ≤ 28), broken after punctuation
@@ -395,7 +407,7 @@ export function buildTimeline(story0, clips, ctx = { lang: 'en', assetBase: '' }
   });
   for (let k = 0; k < subs.length - 1; k++) subs[k].to = r3(Math.min(subs[k].to, subs[k + 1].from));
   const scripts = (story.scripts || []).map(s => ctx.assetBase + String(s).replace(/\\/g, '/'));
-  return { lang: ctx.lang, format: F.id, world: { w: F.w, h: F.h, ground: F.ground }, duration: r3(cursor), look, captions: !!(story.captions ?? LOOKS[look].captions), theme: resolveTheme(story.theme, look), scripts, scenes, subs, talk, voice };
+  return { lang: ctx.lang, format: F.id, world: { w: F.w, h: F.h, ground: F.ground }, duration: r3(cursor), look, pixel: story.pixel || 8, captions: !!(story.captions ?? LOOKS[look].captions), theme: resolveTheme(story.theme, look), scripts, scenes, subs, talk, voice };
 }
 
 // SubRip file from caption phrases
