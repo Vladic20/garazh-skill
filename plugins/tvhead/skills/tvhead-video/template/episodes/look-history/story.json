@@ -1,0 +1,128 @@
+{
+  "title": {
+    "ru": "Стиль: исторический мультик",
+    "en": "Look: historical cartoon"
+  },
+  "look": "history",
+  "languages": [
+    "ru"
+  ],
+  "transition": "fade",
+  "arc": "heartbeat",
+  "characters": {
+    "samurai": {
+      "name": {
+        "ru": "Самурай",
+        "en": "Samurai"
+      },
+      "desc": {
+        "ru": "Кимоно индиго, золотой пояс, причёска с пучком, катана",
+        "en": "Indigo kimono, gold obi, topknot, katana"
+      },
+      "kind": "stick",
+      "body": "kimono",
+      "hat": "topknot",
+      "color": "#2f4f7a"
+    },
+    "scribe": {
+      "name": {
+        "ru": "Писарь",
+        "en": "Scribe"
+      },
+      "desc": {
+        "ru": "Белая юбка-схенти, широкое ожерелье, полосатый немес",
+        "en": "White shendyt kilt, broad collar, striped nemes"
+      },
+      "kind": "stick",
+      "body": "shendyt",
+      "hat": "nemes",
+      "skin": "#ffffff"
+    },
+    "legionary": {
+      "name": {
+        "ru": "Легионер",
+        "en": "Legionary"
+      },
+      "desc": {
+        "ru": "Бронзовый шлем с чёрным гребнем, кольчуга, красная туника, копьё",
+        "en": "Bronze helmet with black crest, chainmail, red tunic, spear"
+      },
+      "kind": "stick",
+      "body": "legionary",
+      "hat": "romanhelm"
+    }
+  },
+  "scenes": [
+    {
+      "stage": "hook",
+      "note": {
+        "ru": "Эдо: улица с фонарями, Фудзи, самурай с катаной",
+        "en": "Edo: lantern street, Fuji, a samurai with a katana"
+      },
+      "say": {
+        "ru": "В эпоху Эдо самурай носил два меча, но чаще держал в руках кисть."
+      },
+      "set": "edo",
+      "cast": [
+        {
+          "id": "samurai",
+          "x": 560,
+          "face": "neutral",
+          "pose": "hold",
+          "hold": "katana"
+        }
+      ]
+    },
+    {
+      "stage": "secret",
+      "note": {
+        "ru": "Египет: храм с колоннами, писарь и чёрная кошка",
+        "en": "Egypt: temple columns, a scribe and a black cat"
+      },
+      "say": {
+        "ru": "В Древнем Египте кошек почитали и изображали рядом с богами."
+      },
+      "set": "egypt",
+      "cast": [
+        {
+          "id": "scribe",
+          "x": 420,
+          "face": "happy",
+          "pose": "point"
+        }
+      ],
+      "props": [
+        {
+          "type": "cat",
+          "id": "cat",
+          "x": 760,
+          "y": 615,
+          "scale": 1.2,
+          "on": {
+            "ru": "кошек"
+          }
+        }
+      ]
+    },
+    {
+      "stage": "truth",
+      "note": {
+        "ru": "Рим: лагерь с частоколом, легионер в походе",
+        "en": "Rome: palisade camp, a legionary on the march"
+      },
+      "say": {
+        "ru": "А римский легионер проходил за день около тридцати километров — с полной выкладкой."
+      },
+      "set": "rome",
+      "cast": [
+        {
+          "id": "legionary",
+          "x": 640,
+          "face": "angry",
+          "pose": "walk",
+          "hold": "spear"
+        }
+      ]
+    }
+  ]
+}

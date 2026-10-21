@@ -83,6 +83,12 @@ export const THEMES = {
   blocks:    { label: 'Brick game', paper: '#8fd3ff', paperLight: '#cdeeff', paperDark: '#4caf50', ink: '#1b1b1b', bezel: '#f5cd30', screen: '#fff6c8', fill: '#ffffff', accent: '#00a2ff', dark: '#0a1a2a', halo: '#1b1b1b', muted: '#5a6a7a', texture: 0 },
   pixel:     { label: '8-bit', paper: '#5c94fc', paperLight: '#7cacfc', paperDark: '#c84c0c', ink: '#000000', bezel: '#ac7c00', screen: '#fcbcb0', fill: '#fcfcfc', accent: '#f83800', dark: '#000000', halo: '#000000', muted: '#7c7c7c', texture: 0 },
   comic:     { label: 'Comic book', paper: '#fdf6e3', paperLight: '#fffaf0', paperDark: '#f2c94c', ink: '#111111', bezel: '#2f6fd6', screen: '#fff9e8', fill: '#ffffff', accent: '#e8202a', dark: '#111111', halo: '#111111', muted: '#7a7060', texture: .03 },
+  'stick-light': { label: 'Stickman — black on white', paper: '#ffffff', paperLight: '#ffffff', paperDark: '#ffffff', ink: '#111111', bezel: '#111111', screen: '#ffffff', fill: '#ffffff', accent: '#e8202a', accent2: '#2f6fd6', accent3: '#f2b705', dark: '#000000', halo: '#ffffff', muted: '#9a9a9a', texture: 0 },
+  'stick-dark': { label: 'Stickman — white on black', paper: '#000000', paperLight: '#000000', paperDark: '#000000', ink: '#ffffff', bezel: '#ffffff', screen: '#000000', fill: '#000000', accent: '#ff3b3b', accent2: '#3da9ff', accent3: '#ffd23f', dark: '#000000', halo: '#000000', muted: '#6a6a6a', texture: 0 },
+  zeke:      { label: 'Zeke studio', paper: '#f7f9fb', paperLight: '#ffffff', paperDark: '#e6ebf0', ink: '#16181d', bezel: '#16181d', screen: '#ffffff', fill: '#ffffff', accent: '#19b8e6', accent2: '#2f6fd6', dark: '#0a1620', halo: '#f7f9fb', muted: '#8a96a2', texture: 0 },
+  prehistoric: { label: 'Prehistoric ochre', paper: '#e7d3a8', paperLight: '#f1e2bf', paperDark: '#b88f5a', ink: '#2b1a0e', bezel: '#6a4a2e', screen: '#f6efe0', fill: '#f6efe0', accent: '#e8742a', dark: '#1a0f06', halo: '#2b1a0e', muted: '#8a6a4a', texture: .14 },
+  cozy:      { label: 'Cozy colour', paper: '#f3e6cf', paperLight: '#fbf3e3', paperDark: '#c8b08a', ink: '#1f1a17', bezel: '#3f6d9e', screen: '#ffffff', fill: '#ffffff', accent: '#f2a03d', dark: '#120e0c', halo: '#1f1a17', muted: '#8a7a6a', texture: 0 },
+  history:   { label: 'Historical painterly', paper: '#efe1c0', paperLight: '#f8eed6', paperDark: '#c9a873', ink: '#141414', bezel: '#7a4a24', screen: '#fbf3e1', fill: '#ffffff', accent: '#b8322a', accent2: '#d4a33a', dark: '#100c08', halo: '#141414', muted: '#8a7a5a', texture: .03 },
   mint:      { label: 'Mint notebook', paper: '#cfe3d8', paperLight: '#e0efe7', paperDark: '#9fbcad', ink: '#14231c', bezel: '#4f6a5d', screen: '#eef6f1', fill: '#f3faf6', accent: '#e4572e', dark: '#15261e', halo: '#a9c6b7', muted: '#6c8478' },
 };
 export function resolveTheme(th, look) {
@@ -101,6 +107,11 @@ export const LOOKS = {
   blocks:  { label: 'Brick game (Roblox-like)', theme: 'blocks', captions: true, music: 'upbeat' },
   pixel:   { label: '8-bit pixel game', theme: 'pixel', captions: true, music: 'chiptune' },
   comic:   { label: 'Comic book', theme: 'comic', captions: true, music: 'upbeat' },
+  stick:   { label: 'Stickman — classic minimalist (black on white / white on black)', theme: 'stick-light', captions: true, music: 'ambient' },
+  beanie:  { label: 'Stickman Zeke — red beanie (studio tech / cinematic)', theme: 'zeke', captions: true, music: 'ambient' },
+  prehistoric: { label: 'Stickman — prehistoric dark comedy', theme: 'prehistoric', captions: true, music: 'tribal' },
+  cozy:    { label: 'Stickman — cozy storytelling', theme: 'cozy', captions: true, music: 'lofi' },
+  history: { label: 'Stickman — historical cartoon (Edo, Egypt, Rome)', theme: 'history', captions: true, music: 'koto' },
 };
 export function resolveLook(v) {
   const id = v || 'doodle';

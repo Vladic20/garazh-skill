@@ -6,6 +6,8 @@
 // chiptune — square-wave lead and arpeggio, crunchy noise drums (8-bit / pixel look)
 // synthwave — saw pads, pulsing saw bass, gated snare, sparse saw lead (neon noir)
 // epic    — brass/string swells, taiko drums, big reverb (fantasy / game trailers)
+// tribal  — hand drums, wooden clicks, a low drone and a sparse bone-flute line (prehistoric stories)
+// koto    — pentatonic plucked strings over soft taiko and a pad (historical / East-Asian scenes)
 // The arrangement follows the film: drums enter after the intro, drop out in `quiet` windows (dark / blackout scenes),
 // a soft swell + kick lands on each `hits` time (big transitions), and the last bars resolve on a held chord.
 import { writeFileSync } from 'node:fs';
@@ -28,6 +30,11 @@ export const MUSIC_PRESETS = {
   synthwave: { label: 'Synthwave', bpm: 96, swing: .5, barsPerChord: 1, drums: 'synth', ep: 0, pad: 0, pluck: 0, crackle: 0, lp: 8000, volume: .5,
     synthPad: .5, lead: .32, leadWave: 'saw', leadPattern: [1, 0, 0, 1, 0, 0, 1, 0], bassWave: 'saw', bassPulse: true, reverb: .4,
     chords: [[33, 57, 60, 64, 69], [29, 57, 60, 65, 69], [36, 55, 60, 64, 67], [31, 55, 59, 62, 67]] },
+  tribal: { label: 'Tribal', bpm: 92, swing: .54, barsPerChord: 2, drums: 'tribal', ep: 0, pad: .35, pluck: 0, crackle: 0, lp: 6000, volume: .55,
+    lead: .3, leadWave: 'triangle', leadPattern: [1, 0, 0, 1, 0, 0, 0, 0], bassWave: 'triangle', reverb: .35,
+    chords: [[38, 50, 57, 62, 64], [36, 48, 55, 60, 62], [41, 53, 60, 65, 67], [38, 50, 57, 62, 64]] },
+  koto: { label: 'Koto', bpm: 76, swing: .5, barsPerChord: 1, drums: 'koto', ep: 0, pad: .3, pluck: .9, crackle: 0, lp: 9000, volume: .5, reverb: .4,
+    chords: [[38, 62, 64, 67, 69, 74], [45, 64, 67, 69, 72, 76], [43, 62, 67, 69, 74, 76], [38, 57, 62, 64, 69, 72]] },
   epic: { label: 'Epic', bpm: 80, swing: .5, barsPerChord: 1, drums: 'epic', ep: 0, pad: .25, pluck: 0, crackle: 0, lp: 7000, volume: .55,
     synthPad: .55, brass: true, lead: .3, leadWave: 'brass', leadPattern: [1, 0, 0, 0, 1, 0, 1, 0], bassWave: 'saw', reverb: .55,
     chords: [[38, 57, 62, 65, 69], [34, 58, 62, 65, 70], [41, 57, 60, 65, 69], [36, 55, 60, 64, 67]] },
@@ -201,6 +208,17 @@ export function renderMusic(opts, outFile) {
           if (e === 0 || e === 4 || e === 5) place(L, kit.chipKick, tt, .8, 0, L, R);
           if (e === 2 || e === 6) place(L, kit.chipSnare, tt, .7, 0, L, R);
           place(L, kit.chipHat, tt, .35, .2, L, R); place(L, kit.chipHat, tt + beat / 4, .2, -.2, L, R);
+          continue;
+        }
+        if (P.drums === 'tribal') {
+          if (e === 0 || e === 3 || e === 4 || (e === 6 && b % 2)) { place(L, kit.taiko, tt, e === 0 ? .9 : .6, e % 2 ? .25 : -.25, L, R); place(sL, kit.taiko, tt, .3, 0, sL, sR); }
+          if (e === 2 || e === 5 || e === 7) place(L, kit.tom, tt, .5, e === 5 ? .4 : -.4, L, R);
+          place(L, kit.chipHat, tt + (e % 2 ? 0 : .01), .18, .15, L, R);
+          continue;
+        }
+        if (P.drums === 'koto') {
+          if (e === 0) { place(L, kit.taiko, tt, .55, 0, L, R); place(sL, kit.taiko, tt, .4, 0, sL, sR); }
+          if (e === 6 && b % 2) place(L, kit.tom, tt, .35, .3, L, R);
           continue;
         }
         if (P.drums === 'epic') {

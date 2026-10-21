@@ -1,0 +1,129 @@
+{
+  "title": {
+    "ru": "Стиль: доисторическая чёрная комедия",
+    "en": "Look: prehistoric dark comedy"
+  },
+  "look": "prehistoric",
+  "languages": [
+    "ru"
+  ],
+  "transition": "cut",
+  "arc": "payoff",
+  "characters": {
+    "chief": {
+      "name": {
+        "ru": "Вождь Грр",
+        "en": "Chief Grr"
+      },
+      "desc": {
+        "ru": "Пожилой вождь: косматые волосы, повязка с пером, шкура",
+        "en": "Elder chief: shaggy hair, feather band, hide"
+      },
+      "kind": "stick",
+      "hat": "band",
+      "body": "hide",
+      "color": "#8a6a3a"
+    },
+    "og": {
+      "name": {
+        "ru": "Ог",
+        "en": "Og"
+      },
+      "desc": {
+        "ru": "Молодой охотник: ёжик волос, светлая шкура, копьё",
+        "en": "Young hunter: spiky hair, light hide, spear"
+      },
+      "kind": "stick",
+      "hat": "hair",
+      "body": "hide",
+      "color": "#c49a62"
+    }
+  },
+  "scenes": [
+    {
+      "stage": "setup",
+      "note": {
+        "ru": "Пещера: вождь обещает Огу орех за копьё",
+        "en": "Cave: the chief promises Og a nut per spear"
+      },
+      "say": {
+        "ru": "Однажды вождь пообещал: за каждое копьё — один орех."
+      },
+      "set": "cave",
+      "cast": [
+        {
+          "id": "chief",
+          "x": 430,
+          "face": "smug",
+          "pose": "point"
+        },
+        {
+          "id": "og",
+          "x": 840,
+          "face": "happy",
+          "pose": "idle",
+          "flip": true,
+          "hold": "spear"
+        }
+      ]
+    },
+    {
+      "stage": "escalation",
+      "note": {
+        "ru": "Лагерь у костра: Ог гордо несёт копья",
+        "en": "Camp by the fire: Og proudly carries spears"
+      },
+      "say": {
+        "ru": "Ог принёс десять копий и получил десять орехов."
+      },
+      "set": "camp",
+      "cast": [
+        {
+          "id": "og",
+          "x": 420,
+          "face": "joy",
+          "pose": "cheer",
+          "hold": "spear"
+        }
+      ]
+    },
+    {
+      "stage": "payoff",
+      "note": {
+        "ru": "Равнина: вождь показывает «отчёт о копьях», Ог в шоке",
+        "en": "Plains: the chief unveils a spear report, Og is shocked"
+      },
+      "say": {
+        "ru": "А назавтра вождь придумал отчёт о копьях."
+      },
+      "set": "plains",
+      "cast": [
+        {
+          "id": "chief",
+          "x": 420,
+          "face": "smug",
+          "pose": "hip"
+        },
+        {
+          "id": "og",
+          "x": 840,
+          "face": "shock",
+          "pose": "head",
+          "flip": true
+        }
+      ],
+      "props": [
+        {
+          "type": "sign",
+          "id": "s",
+          "x": 420,
+          "y": 230,
+          "text": "|||| ||||",
+          "on": {
+            "ru": "отчёт"
+          }
+        }
+      ]
+    }
+  ]
+}

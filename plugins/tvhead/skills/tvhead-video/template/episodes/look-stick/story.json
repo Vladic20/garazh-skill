@@ -1,0 +1,159 @@
+{
+  "title": {
+    "ru": "Стиль: классический стикмен",
+    "en": "Look: classic stickman"
+  },
+  "look": "stick",
+  "languages": [
+    "ru"
+  ],
+  "transition": "cut",
+  "arc": "heartbeat",
+  "characters": {
+    "me": {
+      "name": {
+        "ru": "Герой",
+        "en": "Hero"
+      },
+      "kind": "stick"
+    }
+  },
+  "scenes": [
+    {
+      "stage": "hook",
+      "note": {
+        "ru": "Стикмен держит идеальный самолётик, вопрос красным",
+        "en": "Holding the perfect plane, red question mark"
+      },
+      "say": {
+        "ru": "Почему самый идеальный бумажный самолётик так и не взлетает?"
+      },
+      "cast": [
+        {
+          "id": "me",
+          "x": 520,
+          "face": "neutral",
+          "pose": "think"
+        }
+      ],
+      "props": [
+        {
+          "type": "question",
+          "id": "q",
+          "x": 820,
+          "y": 260,
+          "size": 140,
+          "on": {
+            "ru": "взлетает"
+          }
+        }
+      ]
+    },
+    {
+      "stage": "assumption",
+      "note": {
+        "ru": "Счётчик версий растёт до 40",
+        "en": "Version counter climbs to 40"
+      },
+      "say": {
+        "ru": "Потому что хозяин всё ещё его складывает. Уже сороковую версию."
+      },
+      "cast": [
+        {
+          "id": "me",
+          "x": 420,
+          "face": "tired",
+          "pose": "hold"
+        }
+      ],
+      "props": [
+        {
+          "type": "counter",
+          "id": "c",
+          "x": 860,
+          "y": 300,
+          "from": 1,
+          "to": 40,
+          "size": 150,
+          "accent": true,
+          "dur": 2.5
+        }
+      ]
+    },
+    {
+      "stage": "truth",
+      "note": {
+        "ru": "Кривой самолётик улетает по синей дуге, галочка",
+        "en": "A crooked plane flies along a blue arc, check"
+      },
+      "say": {
+        "ru": "А кривой, но запущенный, улетает дальше любого идеального."
+      },
+      "cast": [
+        {
+          "id": "me",
+          "x": 300,
+          "face": "joy",
+          "pose": "cheer"
+        }
+      ],
+      "props": [
+        {
+          "type": "arrow",
+          "id": "a",
+          "from": [
+            380,
+            300
+          ],
+          "to": [
+            1080,
+            220
+          ],
+          "curve": 0.35,
+          "on": {
+            "ru": "улетает"
+          }
+        },
+        {
+          "type": "check",
+          "id": "ck",
+          "x": 1080,
+          "y": 380,
+          "scale": 0.8,
+          "on": {
+            "ru": "дальше"
+          }
+        }
+      ]
+    },
+    {
+      "stage": "elevation",
+      "note": {
+        "ru": "Стикмен указывает на зрителя",
+        "en": "Pointing at the viewer"
+      },
+      "say": {
+        "ru": "А что ты держишь в руках слишком долго?"
+      },
+      "cast": [
+        {
+          "id": "me",
+          "x": 640,
+          "face": "happy",
+          "pose": "point"
+        }
+      ],
+      "props": [
+        {
+          "type": "bulb",
+          "id": "b",
+          "x": 900,
+          "y": 240,
+          "on": {
+            "ru": "долго"
+          }
+        }
+      ]
+    }
+  ]
+}

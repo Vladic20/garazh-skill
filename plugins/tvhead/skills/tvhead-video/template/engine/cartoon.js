@@ -13,6 +13,11 @@ const TOON_LOOKS = {
   blocks:  { thick: 1.1, outline: 2, blush: false, dust: null, typeFont: "'Russo One', Rubik, sans-serif", typeFill: '#ffffff', typeScale: .8 },
   pixel:   { thick: 1.6, outline: 3, blush: false, dust: null, typeFont: "'Press Start 2P', monospace", typeFill: '#ffffff', typeScale: .48 },
   comic:   { thick: 1.8, outline: 3.2, blush: false, dust: null, typeFont: "Bangers, 'Russo One', sans-serif", typeFill: '#ffe94a', typeScale: .95 },
+  stick:   { thick: 1, outline: 0, blush: false, dust: null, typeFont: 'Inter, Rubik, sans-serif', typeWeight: 800, typeFill: 'ink', typeStroke: 'none', typeScale: .8 },
+  beanie:  { thick: 1, outline: 0, blush: false, dust: null, typeFont: 'Inter, Rubik, sans-serif', typeWeight: 800, typeFill: 'ink', typeStroke: 'none', typeScale: .8 },
+  prehistoric: { thick: 1.3, outline: 2.2, blush: false, dust: '#ffd08a', typeFont: 'Pangolin, Hand', typeFill: '#f6efe0', typeScale: .92 },
+  cozy:    { thick: 1.1, outline: 0, blush: true, dust: null, typeFont: 'Rubik, sans-serif', typeWeight: 800, typeFill: '#ffffff', typeScale: .8 },
+  history: { thick: 1.2, outline: 0, blush: false, dust: null, typeFont: "Cinzel, 'Cormorant SC', serif", typeWeight: 700, typeFill: '#fbf3e1', typeScale: .8 },
   desk3d:  { thick: 1.1, outline: 0, blush: false, dust: null, typeFont: 'Inter, Rubik, sans-serif', typeWeight: 800, typeFill: '#ffffff', typeScale: .78 },
 };
 const LOOK = (typeof TL === 'object' && TL.look) || 'doodle';
@@ -102,7 +107,7 @@ const NO_TOON = new Set(['notes', 'words', 'text', 'counter', 'bars', 'pie', 'pr
 // kinetic type in cartoon: rounded Pangolin, cream fill with a thick brown outline (reads on dark walls)
 const TYPE_PROPS = new Set(['words', 'text', 'counter']);
 let toonType = s => s.replace(/<text([^>]*?)font-family="Hand"([^>]*?)font-size="([\d.]+)"([^>]*?)fill="([^"]+)"/g, (m, a, b, fs, d, fill) =>
-  `<text${a}font-family="${TOONC.typeFont}" font-weight="${TOONC.typeWeight || 400}"${b}font-size="${f2(fs * TOONC.typeScale)}"${d}fill="${fill === INK ? TOONC.typeFill : fill}" stroke="${TOONC.typeStroke || INK}" stroke-width="${f2(fs / 7)}" stroke-linejoin="round" paint-order="stroke"`);
+  `<text${a}font-family="${TOONC.typeFont}" font-weight="${TOONC.typeWeight || 400}"${b}font-size="${f2(fs * TOONC.typeScale)}"${d}fill="${fill === INK && TOONC.typeFill !== 'ink' ? TOONC.typeFill : fill}" stroke="${TOONC.typeStroke === 'none' ? 'none' : TOONC.typeStroke || INK}" stroke-width="${TOONC.typeStroke === 'none' ? 0 : f2(fs / 7)}" stroke-linejoin="round" paint-order="stroke"`);
 itemSvg = function (it, t) {
   let s = _itemSvg(it, t);
   if (TOON_ON && s && TYPE_PROPS.has(it.type)) s = toonType(s);

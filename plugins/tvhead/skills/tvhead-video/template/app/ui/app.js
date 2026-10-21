@@ -132,7 +132,7 @@ function msg(text, err) { const m = $('#formMsg'); m.textContent = text; m.class
 form.addEventListener('submit', async e => {
   e.preventDefault();
   const voices = {}; document.querySelectorAll('[data-vlang]').forEach(i => { if (i.value.trim()) voices[i.dataset.vlang] = i.value.trim(); });
-  const body = { topic: form.topic.value, languages: langs(), format: state.format, duration: +dur.value, theme: state.theme, look: state.look, music: state.music, voices, notes: form.notes.value,
+  const body = { topic: form.topic.value, languages: langs(), format: state.format, duration: +dur.value, theme: state.theme, look: state.look, music: state.music, arc: form.arc.value, voices, notes: form.notes.value,
     captions: form.captions.checked, autoRender: form.autoRender.checked, engine: form.engine.value, refs: state.refs,
     castIdeas: form.castIdeas.value, worldIdeas: form.worldIdeas.value, invent: form.invent.checked, library: [...state.picked], uiLang: UI };
   $('#sendBtn').disabled = true; msg(t('sending'));
@@ -219,7 +219,8 @@ async function refreshDetail(force) {
 const fmt = s => s == null ? '' : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 function boardHtml(j) {
   const sb = j.storyboard, editable = j.status === 'storyboard';
-  return `<h3>${h(t('board.h', { n: sb.scenes.length }))}${sb.duration ? ` · ${fmt(sb.duration)}` : ''}</h3><div class="board${sb.format === '9:16' ? ' tall' : ''}">${sb.scenes.map(s => `
+  const dl = sb.director ? `<p class="director">🎬 <a href="${h(sb.director.proposal)}" target="_blank">${h(t('dir.proposal'))}</a> · <a href="${h(sb.director.prompts)}" target="_blank">${h(t('dir.prompts'))}</a>${sb.director.checks ? ` · <span title="${h(sb.director.checkText)}">⚠ ${sb.director.checks}</span>` : ''}</p>` : '';
+  return `<h3>${h(t('board.h', { n: sb.scenes.length }))}${sb.duration ? ` · ${fmt(sb.duration)}` : ''}</h3>${dl}<div class="board${sb.format === '9:16' ? ' tall' : ''}">${sb.scenes.map(s => `
     <article class="scene">
       <div class="img">${s.thumb ? `<img src="${s.thumb}" alt="${h(t('scene.alt', { n: s.i + 1 }))}" loading="lazy">` : ''}<span class="num">#${s.i + 1} ${fmt(s.from)}</span>
         ${s.transition ? `<span class="chip tr" title="${h(t('tr.title'))}">${h(I18N.en['tr.' + s.transition] ? t('tr.' + s.transition) : s.transition)}</span>` : ''}</div>

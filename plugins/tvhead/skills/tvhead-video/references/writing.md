@@ -13,6 +13,13 @@ TV-headed stick people on grey paper, floating pencil confetti. Think "why you f
 - Ellipses `...` and em-dashes make the voice pause; `[softly]`, `[whispering]`, `[warm]`, `(sighs)` steer delivery. Don't overuse tags — set the overall `style` once.
 - Last scene: short, lands on an image, `"hold": 0.6`.
 
+## Arcs and density (from the stickman director)
+
+- **Heartbeat** (`"arc": "heartbeat"`, explainers): 1 golden hook (a counter-intuitive question or visual paradox in the first 2–5 s) → 2 disrupting assumptions (state the common belief, break it in one sentence) → 3 insider secret (the hidden mechanism or friction) → 4 truth revelation (the "aha") → 5 elevation: a memorable punchline plus an open question for the comments. For 60 s: hook 1 block, assumptions 1, secret 1, truth 2, elevation 1.
+- **Short story** (`"arc": "payoff"`, comedy / prehistoric / history shorts): setup → escalation → ironic payoff; a held reaction (0.5–2 s) can be the joke; no forced question.
+- Plan in ~10-second blocks: ~20–25 English words (a little fewer in Russian) per block, three beats per block (0–3 s set up or inherit, 3–7 s escalate, 7–10 s pay off and hand over), a visible change every 2–3 s, and a named connection into the next block (pose, prop, direction or a deliberate location cut — cozy stories change location every block).
+- Keep facts factual: dramatise with fictional people, never invent statistics, quotations or history.
+
 ## Pictures
 
 - Every scene needs a **visual metaphor**, not an illustration of the words: loneliness → one figure under a spotlight in the dark; addiction → standing on a pile of TVs holding up an endless feed; burnout → a battery draining; overthinking → a scribble over the head; time → a fast clock; comparison → a lineup where one face is static.

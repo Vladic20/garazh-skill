@@ -14,7 +14,7 @@ import { DEFAULT_VOICES, provider } from '../lib/voice.mjs';
 import { listLibrary, addLibraryItem, updateLibraryItem, deleteLibraryItem, attachToJob } from './library.mjs';
 import { PARTS, PARTS_EN } from '../lib/parts.mjs';
 
-const PORT = +(process.env.TVHEAD_PORT || 4777), VERSION = '2.7.0';
+const PORT = +(process.env.TVHEAD_PORT || 4777), VERSION = '2.8.0';
 // .env (same loader as make.mjs) so the key status is accurate
 const envFile = path.join(STUDIO, '.env');
 if (existsSync(envFile)) for (const line of readFileSync(envFile, 'utf8').split(/\r?\n/)) {
@@ -23,7 +23,7 @@ if (existsSync(envFile)) for (const line of readFileSync(envFile, 'utf8').split(
 const HAS_CLAUDE_CLI = !spawnSync(process.platform === 'win32' ? 'where' : 'which', ['claude']).status;
 const running = new Map();   // id → child process (render / claude)
 
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json',
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.md': 'text/plain; charset=utf-8',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.mp4': 'video/mp4', '.srt': 'text/plain; charset=utf-8', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg', '.log': 'text/plain; charset=utf-8' };
 const SERVE_ROOTS = ['episodes', 'out', 'app/ui', 'app/thumbs', 'fonts', 'library'].map(d => path.join(STUDIO, d) + path.sep);
 
@@ -62,6 +62,11 @@ function storyboard(id, ui) {   // ui: interface language for notes / names (fal
   return {
     title: localize(story.title, first) || id, languages: langs, format: (() => { try { return resolveFormat(story.format).id; } catch { return '16:9'; } })(), theme: typeof story.theme === 'object' ? story.theme.preset || 'custom' : story.theme || LOOKS[story.look]?.theme || 'paper', look: story.look || 'doodle',
     mood: story.mood || 'dark', duration: tl?.duration ?? null,
+    director: (() => {   // Phase A proposal + AI-video prompts written by make.mjs (lib/director.mjs)
+      const p = path.join(jobDir(id), 'build', 'proposal.md'); if (!existsSync(p)) return null;
+      const checks = (readFileSync(p, 'utf8').match(/^- ⚠ .*$/gm) || []).map(l => l.slice(4)), v = statSync(p).mtimeMs | 0;
+      return { proposal: `/files/episodes/${id}/build/proposal.md?v=${v}`, prompts: `/files/episodes/${id}/build/${first}/prompts.md?v=${v}`, checks: checks.length, checkText: checks.join(' · ') };
+    })(),
     cast: (() => {   // model sheet written by "make.mjs <id> --cast" (characters + environments Claude designed)
       const cj = readJson(path.join(jobDir(id), 'build', 'cast', 'cast.json'));
       const chars = Object.entries(story.characters || {}).filter(([k]) => k !== '*').map(([k, c]) => ({ id: k, name: localize(c.name, ui || first) || k, desc: localize(c.desc, ui || first) || '' }));
@@ -122,7 +127,7 @@ function startClaudeCli(id, feedback) {
   if (!HAS_CLAUDE_CLI || running.has(id)) return false;
   const prompt = `Use the tvhead-video skill. You are processing a job from the tvhead studio app in ${STUDIO}.
 Job id: ${id}. ${feedback ? `The user sent storyboard feedback: "${feedback}". Revise episodes/${id}/story.json accordingly.` : `Read episodes/${id}/brief.json (and any images in episodes/${id}/refs/) and write episodes/${id}/story.json.`}
-Follow SKILL.md section "App jobs": claim with \`node app/bridge.mjs claim ${id}\`, design the cast and world (story "characters" + scene "set", see references/cast-and-world.md; use the brief's castIdeas / worldIdeas / libraryItems images, invent the rest by meaning), write the story (every scene gets a "note"; say as {"en","ru"} for each language in the brief; copy the brief's "format" and "look" into story.json, and "music" unless it is "auto" ("none" → "music": false)), then run \`node app/bridge.mjs storyboard ${id}\` and look at the sheet it prints; fix obvious problems once. Do not render the final video — the app does that after the user approves.`;
+Follow SKILL.md section "App jobs": claim with \`node app/bridge.mjs claim ${id}\`, design the cast and world (story "characters" + scene "set", see references/cast-and-world.md; use the brief's castIdeas / worldIdeas / libraryItems images, invent the rest by meaning), write the story (every scene gets a "note"; say as {"en","ru"} for each language in the brief; copy the brief's "format", "look" and "arc" (unless "auto") into story.json, and "music" unless it is "auto" ("none" → "music": false)), then run \`node app/bridge.mjs storyboard ${id}\` and look at the sheet it prints; fix obvious problems once. Do not render the final video — the app does that after the user approves.`;
   const log = createWriteStream(path.join(jobDir(id), 'claude.log'), { flags: 'a' });
   const p = spawn('claude', ['-p', '--permission-mode', 'acceptEdits', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Bash(node:*)'],
     { cwd: STUDIO, shell: process.platform === 'win32', env: { ...process.env } });
@@ -191,7 +196,7 @@ const server = http.createServer(async (req, res) => {
       const langs = (b.languages || ['en']).filter(l => ['en', 'ru'].includes(l));
       const brief = { topic: String(b.topic).trim().slice(0, 2000), languages: langs.length ? langs : ['en'], format: b.format === '9:16' ? '9:16' : '16:9', duration: Math.min(300, Math.max(15, +b.duration || 60)),
         theme: THEMES[b.theme] ? b.theme : b.theme === 'reference' ? 'reference' : 'paper', voices: b.voices || {}, notes: String(b.notes || '').slice(0, 4000),
-        look: LOOKS[b.look] ? b.look : 'doodle', music: MUSIC_PRESETS[b.music] || b.music === 'none' ? b.music : 'auto',
+        arc: ['heartbeat', 'payoff'].includes(b.arc) ? b.arc : 'auto', look: LOOKS[b.look] ? b.look : 'doodle', music: MUSIC_PRESETS[b.music] || b.music === 'none' ? b.music : 'auto',
         captions: !!b.captions, autoRender: !!b.autoRender, engine: b.engine === 'cli' ? 'cli' : 'session',
         castIdeas: String(b.castIdeas || '').slice(0, 3000), worldIdeas: String(b.worldIdeas || '').slice(0, 3000), invent: b.invent !== false, uiLang: b.uiLang === 'ru' ? 'ru' : 'en' };
       const job = createJob(brief, Array.isArray(b.refs) ? b.refs.slice(0, 8) : []);

@@ -1,0 +1,162 @@
+{
+  "title": {
+    "ru": "Стиль: Зик в красной шапке",
+    "en": "Look: Zeke"
+  },
+  "look": "beanie",
+  "languages": [
+    "ru"
+  ],
+  "transition": "curve",
+  "arc": "heartbeat",
+  "characters": {
+    "zeke": {
+      "name": {
+        "ru": "Зик",
+        "en": "Zeke"
+      },
+      "kind": "stick"
+    }
+  },
+  "scenes": [
+    {
+      "stage": "hook",
+      "note": {
+        "ru": "2A: студия, стеклянные панели вокруг Зика",
+        "en": "2A: studio, glass panels around Zeke"
+      },
+      "say": {
+        "ru": "Ты три часа выбираешь идеальный инструмент вместо того, чтобы начать."
+      },
+      "set": "studio",
+      "cast": [
+        {
+          "id": "zeke",
+          "x": 640,
+          "face": "tired",
+          "pose": "shrug"
+        }
+      ],
+      "props": [
+        {
+          "type": "glasspanel",
+          "id": "g1",
+          "x": 330,
+          "y": 250,
+          "icon": "lock"
+        },
+        {
+          "type": "glasspanel",
+          "id": "g2",
+          "x": 950,
+          "y": 230,
+          "icon": "chart",
+          "delay": 0.6
+        },
+        {
+          "type": "glasspanel",
+          "id": "g3",
+          "x": 640,
+          "y": 120,
+          "w": 180,
+          "h": 120,
+          "icon": "star",
+          "delay": 1.2
+        }
+      ]
+    },
+    {
+      "stage": "secret",
+      "note": {
+        "ru": "2A: Зик рисует световой мост, круги на полу",
+        "en": "2A: Zeke draws a light bridge, floor ripples"
+      },
+      "say": {
+        "ru": "Секрет в том, что первый шаг решает больше, чем самый идеальный план."
+      },
+      "set": "studio",
+      "cast": [
+        {
+          "id": "zeke",
+          "x": 360,
+          "face": "happy",
+          "pose": "reach"
+        }
+      ],
+      "props": [
+        {
+          "type": "ripple",
+          "id": "r",
+          "x": 360,
+          "y": 620
+        },
+        {
+          "type": "lightbridge",
+          "id": "lb",
+          "x": 0,
+          "y": 0,
+          "from": [
+            430,
+            360
+          ],
+          "to": [
+            1080,
+            300
+          ],
+          "on": {
+            "ru": "шаг"
+          }
+        },
+        {
+          "type": "glasspanel",
+          "id": "g4",
+          "x": 1080,
+          "y": 260,
+          "icon": "check",
+          "on": {
+            "ru": "план"
+          }
+        }
+      ]
+    },
+    {
+      "stage": "truth",
+      "note": {
+        "ru": "2B: Зик идёт по дороге в закат",
+        "en": "2B: Zeke walks a dusk highway"
+      },
+      "say": {
+        "ru": "Сделай один шаг — и дорога начнёт появляться сама."
+      },
+      "set": "dusk",
+      "cast": [
+        {
+          "id": "zeke",
+          "x": 640,
+          "face": "happy",
+          "pose": "walk"
+        }
+      ]
+    },
+    {
+      "stage": "elevation",
+      "note": {
+        "ru": "2B: Зик ликует на вершине над облаками",
+        "en": "2B: Zeke cheers on a summit above clouds"
+      },
+      "say": {
+        "ru": "Какой шаг ты откладываешь уже неделю?"
+      },
+      "set": "summit",
+      "cast": [
+        {
+          "id": "zeke",
+          "x": 400,
+          "y": 600,
+          "face": "joy",
+          "pose": "cheer"
+        }
+      ]
+    }
+  ]
+}

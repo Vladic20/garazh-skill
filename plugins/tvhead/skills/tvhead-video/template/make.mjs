@@ -20,6 +20,7 @@ import { buildTimeline, toSrt, localize, storyLanguages, resolveFormat, LANGS } 
 import { buildVoice, defaultVoice, defaultModel, provider } from './lib/voice.mjs';
 import { voiceStem, bedStem, muxFinal } from './lib/audio.mjs';
 import { findAE, aeClip } from './lib/ae.mjs';
+import { writeDirector } from './lib/director.mjs';
 import { LOOKS, resolveLook } from './lib/story.mjs';
 import { renderStills, renderVideo } from './lib/frames.mjs';
 
@@ -54,11 +55,12 @@ if (!langs.length) fail(`--lang: one of ${LANGS.join(', ')} or all (story has: $
 let FMT, NATIVE;
 try { NATIVE = resolveFormat(storyRaw.format); FMT = opt('--format') ? resolveFormat(opt('--format')) : NATIVE; } catch (e) { fail(e.message); }
 const FSUF = FMT.id === NATIVE.id ? '' : '_' + FMT.id.replace(':', 'x');   // --format override → separate build dir and file names
+const DIRECTOR = flag('--director');   // only the director's proposal + AI-video prompt package (lib/director.mjs)
 const PREVIEW = flag('--preview'), STILLS = opt('--stills', null), OFFLINE = flag('--offline') || (!!STILLS && !provider());
 const JOBS = +opt('--jobs', Math.max(1, Math.min(6, cpus().length - 2)));
 const T0 = Date.now(), el = () => `${((Date.now() - T0) / 1000).toFixed(1)}s`;
 const assetBase = path.relative(path.join(root, 'engine'), epDir).split(path.sep).join('/') + '/';
-const results = [];
+const results = [], TLs = {}, voiceIds = {};
 
 // ─── --cast: model sheet of the story's characters + one frame per environment (for the app's "Cast & world" panel) ──
 if (flag('--cast')) {
@@ -91,7 +93,7 @@ if (flag('--cast')) {
   process.exit(0);
 }
 
-for (const lang of (STILLS ? langs.slice(0, 1) : langs)) {
+for (const lang of (STILLS && !DIRECTOR ? langs.slice(0, 1) : langs)) {
   const story = localize(storyRaw, lang);
   const buildDir = path.join(epDir, 'build', lang + FSUF); mkdirSync(buildDir, { recursive: true });
 
@@ -134,6 +136,8 @@ for (const lang of (STILLS ? langs.slice(0, 1) : langs)) {
   emit({ stage: 'timeline', lang, format: TL.format, duration: TL.duration, scenes: TL.scenes.map(s => [s.from, s.to]) });
 
   // 3a) stills + contact sheet
+  TLs[lang] = TL; voiceIds[lang] = voice;
+  if (DIRECTOR) { console.log(`▸ director [${lang}]: timeline ${TL.duration.toFixed(1)}s`); continue; }
   if (STILLS) {
     const times = STILLS === 'auto' ? TL.scenes.map(s => +(s.from + Math.min(s.to - s.from - .05, Math.max(1.1, (s.to - s.from) * .72))).toFixed(2)) : STILLS.split(',').map(Number);
     if (times.some(t => !Number.isFinite(t) || t < 0)) fail(`--stills: seconds separated by commas, or "auto"`);
@@ -183,4 +187,13 @@ for (const lang of (STILLS ? langs.slice(0, 1) : langs)) {
     `${V.estimated ? `⚠ ${V.estimated} line(s) silent (no TTS key)` : `voice: ${V.generated} new line(s), rest from cache`} · ${el()}`);
   emit({ stage: 'done', lang, ...res });
 }
+// director's proposal (Phase A) + AI-video prompt package (Phase B), from the timelines built above
+try {
+  const d = writeDirector({ story: storyRaw, TLs, langs: langs.filter(l => TLs[l]), outDir: path.join(epDir, 'build'), format: FMT.id, voiceIds });
+  if (d) {
+    console.log(`✓ director → ${path.relative(root, d.proposal)} + build/<lang>/prompts.md`);
+    d.checks.forEach(c => console.log(`  ⚠ ${c}`));
+    emit({ stage: 'director', proposal: path.relative(root, d.proposal), checks: d.checks });
+  }
+} catch (e) { console.warn(`⚠ director: ${e.message}`); }
 if (!STILLS) emit({ stage: 'finished', results });

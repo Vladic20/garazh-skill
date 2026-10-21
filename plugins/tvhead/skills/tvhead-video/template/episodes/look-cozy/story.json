@@ -1,0 +1,83 @@
+{
+  "title": {
+    "ru": "Стиль: уютные истории",
+    "en": "Look: cozy storytelling"
+  },
+  "look": "cozy",
+  "languages": [
+    "ru"
+  ],
+  "transition": "curve",
+  "arc": "heartbeat",
+  "characters": {
+    "me": {
+      "name": {
+        "ru": "Аня",
+        "en": "Anya"
+      },
+      "kind": "stick"
+    }
+  },
+  "scenes": [
+    {
+      "stage": "hook",
+      "note": {
+        "ru": "Платформа метро, поезд проезжает, телефон вибрирует",
+        "en": "Metro platform, a train passes, the phone buzzes"
+      },
+      "say": {
+        "ru": "На платформе телефон снова вибрирует, и сердце уходит в пятки."
+      },
+      "set": "platform",
+      "cast": [
+        {
+          "id": "me",
+          "x": 640,
+          "face": "worried",
+          "pose": "phone",
+          "hold": "phone"
+        }
+      ]
+    },
+    {
+      "stage": "secret",
+      "note": {
+        "ru": "Офис: она отвечает сразу, хотя можно подождать",
+        "en": "Office: she replies at once though it can wait"
+      },
+      "say": {
+        "ru": "На работе ты отвечаешь сразу, даже если это может подождать."
+      },
+      "set": "office2",
+      "cast": [
+        {
+          "id": "me",
+          "x": 820,
+          "face": "tired",
+          "pose": "phone",
+          "hold": "phone"
+        }
+      ]
+    },
+    {
+      "stage": "elevation",
+      "note": {
+        "ru": "Терраса кафе: звук выключен, кофе тёплый",
+        "en": "Café terrace: sound off, the coffee stays warm"
+      },
+      "say": {
+        "ru": "А потом выключаешь звук — и кофе впервые за день остаётся тёплым."
+      },
+      "set": "terrace",
+      "cast": [
+        {
+          "id": "me",
+          "x": 520,
+          "face": "happy",
+          "pose": "hold",
+          "hold": "coffee"
+        }
+      ]
+    }
+  ]
+}
