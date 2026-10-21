@@ -149,6 +149,8 @@ Every prop takes `x`, `y`, `scale`, `rot`, `flip`, `enter`, `z`, cues and `then`
 | `pixel` | 8-bit game: the whole frame is pixelated (`"pixel": 8` = block size), scanlines, RPG dialog-box captions | pixelworld, dungeon (any set works) | any (TV heads read well) | pickup, text | chiptune |
 | `comic` | comic-book page: heavy ink, halftone, panel border, yellow caption boxes | burst (`colors`), skyline (any set works) | any outlined figure (`back: cape`) | pow, speedlines, text | upbeat |
 
+Per-scene `"ae"` (any look, needs After Effects): a real 3D plate rendered by AE behind the scene — `{ "recipe": "title3d" | "cube3d" | "cards3d" | "rings3d", "text", "sub", "items", "colors" }`; see `references/after-effects.md`.
+
 Per-scene `"cam3d"` (desk3d only): `tilt` · `left` · `right` · `close` · `wide` · `top` · `low` or `{ "rx": 40, "rz": -15, "s": 1.2, "x": 0, "y": 30 }`; without it the camera cycles through presets and glides between scenes. Use `"transition": "cut"` in desk3d: the camera glide is the transition.
 
 **Props of the new looks** (all work in any look):

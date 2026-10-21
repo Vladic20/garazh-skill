@@ -391,9 +391,11 @@ export function buildTimeline(story0, clips, ctx = { lang: 'en', assetBase: '' }
     if (speaker && clip) for (const [a, b] of clip.speech) talk.push([r3(vStart + a), r3(vStart + b), speaker.id]);
 
     const prevSc = keep ? scenes[scenes.length - 1] : null;
-    scenes.push({ from, to, cam: resolveCam(raw.cam, g), cam3d: raw.cam3d ?? null, transition, ground: raw.ground ?? prevSc?.ground ?? (raw.layout === 'pile' || raw.layout === 'title' ? false : true),
-      particles: raw.particles ?? prevSc?.particles ?? story.particles ?? 1, dark: raw.dark ?? prevSc?.dark ?? false,
-      set: normSet(raw.set !== undefined ? raw.set : prevSc ? prevSc.set : story.set), weather: normSet(raw.weather !== undefined ? raw.weather : prevSc ? prevSc.weather : story.weather), items });
+    // "ae": an After Effects 3D plate is the background of this scene (lib/ae.mjs); the drawn set and ground step aside
+    const ae = raw.ae ? (typeof raw.ae === 'string' ? { recipe: raw.ae } : raw.ae) : null;
+    scenes.push({ from, to, cam: resolveCam(raw.cam, g), cam3d: raw.cam3d ?? null, ae, transition, ground: raw.ground ?? (ae ? false : prevSc?.ground ?? (raw.layout === 'pile' || raw.layout === 'title' ? false : true)),
+      particles: raw.particles ?? (ae ? 0 : prevSc?.particles ?? story.particles ?? 1), dark: raw.dark ?? prevSc?.dark ?? false,
+      set: normSet(raw.set !== undefined ? raw.set : ae ? null : prevSc ? prevSc.set : story.set), weather: normSet(raw.weather !== undefined ? raw.weather : prevSc ? prevSc.weather : story.weather), items });
     // captions: phrases of ≤ 6 words / ≤ 38 chars (9:16: ≤ 5 / ≤ 28), broken after punctuation
     let cur = [];
     const flush = end => { if (!cur.length) return; subs.push({ from: cur[0][1], to: end, words: cur }); cur = []; };

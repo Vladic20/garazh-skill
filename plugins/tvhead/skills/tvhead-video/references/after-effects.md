@@ -27,10 +27,42 @@ Plus every prop option: `x`, `y`, `scale`, `rot`, `z`, `enter`, cues (`on` / `at
 - **From LottieFiles**: download the Lottie JSON of a free animation (check its licence; the "Lottie Simple License" allows commercial use).
 - **Check**: `node make.mjs <slug> --stills auto` shows whether it renders; a missing file fails the build with the list of pack names.
 
-## Driving After Effects directly (when it is installed)
+## Real 3D scenes rendered by After Effects (`"ae"` on a scene)
 
-With After Effects installed (it comes with Creative Cloud plans that include it), two more things become possible:
-1. **Render AE templates** with `aerender` (ships with AE): fill text / swap footage through an ExtendScript (`.jsx`) and render the comp to a PNG sequence or ProRes 4444 with alpha, then place it in a scene. Open-source helper: [nexrender](https://github.com/inlife/nexrender).
-2. **Let Claude build comps in AE** through an After Effects MCP server (an extension panel inside AE that runs ExtendScript for Claude), e.g. [dakkshin/after-effects-mcp](https://github.com/dakkshin/after-effects-mcp) or [junkdoge-joe/after-effects-mcp](https://github.com/junkdoge-joe/after-effects-mcp). Animations built this way are exported back as Lottie for the engine.
+When After Effects is installed (`bash scripts/bootstrap.sh` prints its path), a scene can use a **3D plate built and rendered by AE** (Cinema 4D renderer: extruded type and shapes with bevels, spot/point/ambient lights, soft shadows, a moving camera, depth of field). Our characters, props, lottie animations and captions are still drawn on top.
 
-`bash scripts/bootstrap.sh` reports whether `aerender` was found.
+```json
+{ "say": "…", "ae": { "recipe": "title3d", "text": "TV-HEAD", "sub": "AFTER EFFECTS · 3D" } }
+{ "say": "…", "ae": { "recipe": "cube3d", "text": "ПРИВЕТ!" } }
+{ "say": "…", "ae": { "recipe": "cards3d", "items": ["СЦЕНАРИЙ", "ОЗВУЧКА", "3D-РЕНДЕР"] } }
+{ "say": "…", "ae": { "recipe": "rings3d", "text": "3D" } }
+```
+
+| recipe | what you get | params |
+|---|---|---|
+| `title3d` | extruded beveled title cascading in letter by letter, accent bar, sub line, floating dust, camera orbit, spotlight + floor shadows | `text`, `sub` |
+| `cube3d` | the clay cube mascot in real 3D: rounded body, blinking eyes, legs, hops with squash and turns, camera circles it | `text` (title above, optional), `color` (body, default clay orange) |
+| `cards3d` | thick rounded 3D cards with words flying past the camera one after another | `items` (up to 6) |
+| `rings3d` | flight through a tunnel of turning extruded rings, a title waiting at the end | `text` |
+
+All take `colors: { bg, bg2, accent, fill, ink }` (hex); by default they come from the look's palette. The clip length follows the scene's narration. A scene with `ae` drops its drawn set and ground (set them explicitly to draw both).
+
+- **Speed**: the Cinema 4D renderer takes ~1–2.5 s per 1080p frame, so a 5-second plate renders in 2–6 minutes. Clips are cached in `episodes/<slug>/build/ae/` (same recipe, params, length and size → reused), so re-voicing or editing other scenes costs nothing. `--preview` renders plates at 720p.
+- **Text**: keep each 3D word in one script — a word mixing Latin and Cyrillic ("3D-РЕНДЕР") renders with broken glyphs in the Cinema 4D renderer; write "РЕНДЕР" or "3D RENDER".
+- **Stills**: `--stills` shows a placeholder until a plate exists; add `--ae` to render the plates for the sheet.
+- **How it works**: `lib/ae.mjs` writes an ExtendScript, runs it with `AfterFX -r` (After Effects opens for a few seconds, builds and saves the comp, and quits if it was not already open; it never touches an open project with unsaved changes), renders it with `aerender`, and the engine shows the frames behind the drawing (`engine/ae.js`).
+- **New recipes**: add a function to `R` in `lib/ae.mjs` (ExtendScript ES3: `var`, no arrow functions); the helpers `text3d`, `rrect`, `ellipse`, `extrude`, `cascade`, `lights`, `camera`, `floor`, `background`, `dust` do most of the work. Errors come back as "After Effects script error in <recipe>: L<line> …".
+
+## Claude inside After Effects (MCP)
+
+The After Effects MCP server ([dakkshin/after-effects-mcp](https://github.com/dakkshin/after-effects-mcp), MIT) lets Claude build and inspect comps in the running After Effects interactively (create comps, layers, cameras, keyframes, expressions, masks, run scripts).
+1. `git clone https://github.com/Dakkshin/after-effects-mcp && cd after-effects-mcp && npm install && npm run build`
+2. Panel: copy `build/scripts/mcp-bridge-auto.jsx` into `<After Effects>/Support Files/Scripts/ScriptUI Panels/` (needs admin: `npm run install-bridge` in an admin terminal); the per-user folder `%APPDATA%/Adobe/After Effects/<version>/Scripts/ScriptUI Panels/` also works in recent versions.
+3. In After Effects: *Edit → Preferences → Scripting & Expressions → Allow Scripts to Write Files and Access Network*, then *Window → mcp-bridge-auto.jsx* and tick *Auto-run commands*.
+4. `claude mcp add --scope user AfterEffectsMCP -- node <path>/after-effects-mcp/build/index.js` and start a new Claude Code session.
+
+Animations built in AE this way can go into a video as a plate (render the comp with aerender) or as Lottie (export with Bodymovin).
+
+## Other routes
+
+- [nexrender](https://github.com/inlife/nexrender): data-driven rendering of AE templates (swap text and footage in an .aep by JSON).

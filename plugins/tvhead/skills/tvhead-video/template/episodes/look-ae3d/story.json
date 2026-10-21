@@ -1,0 +1,19 @@
+{
+  "title": { "ru": "After Effects 3D", "en": "After Effects 3D" },
+  "look": "cartoon", "languages": ["ru"], "transition": "fade", "music": "epic",
+  "scenes": [
+    { "note": { "ru": "AE: объёмный титр падает по буквам, камера облетает", "en": "AE: extruded title cascades in, camera orbits" },
+      "say": { "ru": "Теперь в нашей студии работает настоящий After Effects." },
+      "ae": { "recipe": "title3d", "text": "TV-HEAD", "sub": "AFTER EFFECTS · 3D" } },
+    { "note": { "ru": "AE: 3D-кубик-маскот прыгает, свет и тени", "en": "AE: the 3D cube mascot hops, light and shadows" },
+      "say": { "ru": "Наш кубик стал по-настоящему объёмным: свет, тени, камера облетает его по кругу." },
+      "ae": { "recipe": "cube3d", "text": "ПРИВЕТ!" } },
+    { "note": { "ru": "AE: 3D-карточки пролетают мимо камеры", "en": "AE: 3D cards fly past the camera" },
+      "say": { "ru": "Сценарий, озвучка и трёхмерный рендер — всё собирается из одного промпта." },
+      "ae": { "recipe": "cards3d", "items": ["СЦЕНАРИЙ", "ОЗВУЧКА", "РЕНДЕР"] } },
+    { "note": { "ru": "AE: полёт сквозь туннель колец к финальному титру", "en": "AE: flight through a ring tunnel to the end title" },
+      "say": { "ru": "А дальше — полёт сквозь туннель прямо в финал." },
+      "ae": { "recipe": "rings3d", "text": "3D" },
+      "props": [ { "type": "lottie", "id": "cf", "src": "pack:confetti", "x": 640, "y": 330, "w": 760, "h": 760, "loop": true, "at": 0.7 } ] }
+  ]
+}
