@@ -1,16 +1,18 @@
 {
   "name": "tvhead-studio",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "private": true,
   "type": "module",
   "description": "Hand-drawn TV-head explainer videos from a story.json: Fish Audio narration via OpenRouter, SVG frames in headless Chrome, ffmpeg",
   "scripts": {
-    "app": "node app/launch.mjs", "shortcut": "node app/install-shortcut.mjs",
+    "app": "node app/launch.mjs",
+    "shortcut": "node app/install-shortcut.mjs",
     "demo": "node make.mjs demo",
     "preview": "node make.mjs demo --preview"
   },
   "dependencies": {
     "gsap": "^3.15.0",
+    "lottie-web": "^5.13.0",
     "puppeteer-core": "^23.11.1",
     "undici": "^7.30.1"
   }

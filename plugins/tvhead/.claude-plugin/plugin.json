@@ -2,7 +2,7 @@
   "name": "tvhead",
   "description": "Topic → finished narrated motion video in EN/RU, 16:9 or vertical 9:16, in eight looks (doodle, cartoon, 3D desk UI, neon noir, Dota-like, Roblox-like, 8-bit, comic), free generated music: TV-head characters, transitions, kinetic type, infographics, free Fish Audio voices via OpenRouter, local studio app (brief → storyboard → render)",
   "author": { "name": "Vladic20" },
-  "version": "2.5.0",
+  "version": "2.6.0",
   "license": "MIT",
   "homepage": "https://github.com/Vladic20/tvhead-studio",
   "keywords": ["video", "motion-graphics", "animation", "explainer", "tts", "fish-audio", "openrouter", "skill", "russian"]

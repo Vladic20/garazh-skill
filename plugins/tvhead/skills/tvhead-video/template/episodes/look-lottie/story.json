@@ -1,0 +1,31 @@
+{
+  "title": { "ru": "After Effects-анимации (Lottie)", "en": "After Effects animations (Lottie)" },
+  "look": "cartoon", "languages": ["ru"], "transition": "curve",
+  "characters": { "max": { "name": { "ru": "Макс", "en": "Max" }, "head": "tv", "body": "hoodie", "color": "#3f6d9e", "hat": "headphones" } },
+  "scenes": [
+    { "note": { "ru": "Настоящий экспорт из After Effects (логотип Bodymovin) на стене гаража", "en": "A real After Effects export (Bodymovin logo) on the garage wall" },
+      "say": { "ru": "Это анимация из After Effects — она играет прямо внутри нашего ролика, кадр в кадр." },
+      "set": "garage", "cam": "push",
+      "props": [ { "type": "lottie", "id": "bm", "src": "ae/bodymovin.json", "x": 640, "y": 230, "w": 900, "h": 136 } ],
+      "cast": [ { "id": "max", "x": 640, "face": "awe", "pose": "raise", "scale": 0.8 } ] },
+    { "note": { "ru": "Галочка, лучи и сердце из стартового набора", "en": "Check, burst and heart from the starter pack" },
+      "say": { "ru": "Галочки, вспышки, сердечки — всё рисуется векторно и чётко в любом разрешении." },
+      "set": "garage", "cam": "drift",
+      "props": [ { "type": "lottie", "id": "ck", "src": "pack:check", "x": 330, "y": 300, "w": 300, "h": 300, "delay": 0.4 },
+                 { "type": "lottie", "id": "bu", "src": "pack:burst", "x": 640, "y": 260, "w": 340, "h": 340, "loop": true, "delay": 1.2 },
+                 { "type": "lottie", "id": "he", "src": "pack:heart", "x": 950, "y": 300, "w": 260, "h": 260, "loop": true, "delay": 2.0 } ],
+      "cast": [ { "id": "max", "x": 640, "face": "joy", "pose": "cheer", "scale": 0.7 } ] },
+    { "note": { "ru": "Сложная AE-сцена с огнями", "en": "A busier AE scene with lights" },
+      "say": { "ru": "Даже сложные сцены с десятками слоёв." },
+      "set": "blackout", "cam": "push",
+      "props": [ { "type": "lottie", "id": "li", "src": "ae/lights.json", "x": 640, "y": 330, "w": 800, "h": 600, "loop": true } ] },
+    { "note": { "ru": "Пин падает, конфетти, искры", "en": "Pin drop, confetti, sparkles" },
+      "say": { "ru": "Экспортируешь из After Effects через Bodymovin — и кидаешь JSON в сцену. Готово!" },
+      "set": "garage", "cam": "pull",
+      "props": [ { "type": "lottie", "id": "cf", "src": "pack:confetti", "x": 640, "y": 330, "w": 760, "h": 760, "loop": true, "delay": 2.2 },
+                 { "type": "lottie", "id": "pn", "src": "pack:pin", "x": 360, "y": 300, "w": 300, "h": 300, "delay": 0.3 },
+                 { "type": "lottie", "id": "sp", "src": "pack:sparkle", "x": 920, "y": 280, "w": 300, "h": 300, "loop": true },
+                 { "type": "lottie", "id": "ar", "src": "pack:arrow", "x": 640, "y": 190, "w": 260, "h": 260, "delay": 1.0 } ],
+      "cast": [ { "id": "max", "x": 640, "face": "joy", "pose": "wave", "scale": 0.7 } ] }
+  ]
+}

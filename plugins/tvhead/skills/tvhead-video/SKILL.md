@@ -36,6 +36,7 @@ Before the first story of a session, read:
 - `references/motion.md`: seams, staging, kinetic type, infographics, references, custom GSAP;
 - `references/story-api.md`: the full JSON API;
 - `references/cast-and-world.md`: designing characters (heads, bodies, hats, props) and places (sets, weather) for the topic, and drawing new ones.
+- `references/after-effects.md`: After Effects animations (Lottie) as props — the starter pack and the user's own AE exports. Reach for them for polished motion accents: ticks, bursts, confetti, logo reveals, icons.
 Glance at `references/images/demo_sheet.jpg` for the doodle look (`demo_sheet_9x16.jpg` for vertical) and `cartoon_sheet.jpg` for the cartoon look. Examples: `$STUDIO/episodes/demo/story.json` (doodle, bilingual), `$STUDIO/episodes/promo/story.json` (cartoon, 9:16, bilingual, every screen type).
 
 Checklist for `story.json`:
