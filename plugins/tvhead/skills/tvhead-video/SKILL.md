@@ -37,6 +37,7 @@ Before the first story of a session, read:
 - `references/story-api.md`: the full JSON API;
 - `references/cast-and-world.md`: designing characters (heads, bodies, hats, props) and places (sets, weather) for the topic, and drawing new ones.
 - `references/after-effects.md`: After Effects — Lottie animations as props (polished accents: ticks, bursts, confetti, logo reveals) and, when AE is installed, real 3D scenes rendered by AE (`"ae"` on a scene: extruded titles, the 3D cube mascot, flying cards, ring tunnels). Use 3D plates for hooks, title cards and finales; they render slowly (minutes per scene) but are cached.
+- `$STUDIO/films/promo3d/README.md`: a standalone code-rendered 3D film (three.js on the GPU, clay mascot in an editor UI, accumulation depth of field, SFX and music on one shared `timeline.js`). Use it as the base when the user asks for a real 3D product film rather than a story.json episode: write `brief.md` + `shotlist.json`, adapt `timeline.js`/`scene.js`, check `node render.mjs sheet` before `node render.mjs video`.
 Glance at `references/images/demo_sheet.jpg` for the doodle look (`demo_sheet_9x16.jpg` for vertical) and `cartoon_sheet.jpg` for the cartoon look. Examples: `$STUDIO/episodes/demo/story.json` (doodle, bilingual), `$STUDIO/episodes/promo/story.json` (cartoon, 9:16, bilingual, every screen type).
 
 Checklist for `story.json`:

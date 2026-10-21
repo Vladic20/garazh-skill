@@ -1,0 +1,33 @@
+{
+  "title": "tvhead-studio — clay cube promo",
+  "duration": 60,
+  "fps": 30,
+  "size": [1920, 1080],
+  "voiceId": "bf322df2096a46f18c579d0baa36f41d",
+  "voice": [
+    { "at": 8.6,  "until": 13.0, "text": "Night. A topic. The video is due by morning." },
+    { "at": 14.4, "until": 18.0, "text": "You type the topic." },
+    { "at": 19.0, "until": 23.0, "text": "Claude builds the story." },
+    { "at": 23.8, "until": 28.0, "text": "Characters. Worlds. Transitions." },
+    { "at": 33.6, "until": 38.0, "text": "The voice generates itself." },
+    { "at": 39.0, "until": 43.0, "text": "Music too." },
+    { "at": 43.6, "until": 48.0, "text": "Two languages. Wide or vertical." },
+    { "at": 49.2, "until": 53.0, "text": "Topic in. Video out." },
+    { "at": 57.4, "until": 60.0, "text": "TV head studio." }
+  ],
+  "beats": [
+    { "t": 0,  "id": "wake",     "what": "Dark. Editor UI fades up on the desk. Tiny clay cube in the composition window wakes, blinks, looks around." },
+    { "t": 4,  "id": "leap",     "what": "Cube jumps from the composition onto the timeline, squash on landing, glowing playhead line, camera follows." },
+    { "t": 8,  "id": "run",      "what": "Cube runs along the coloured tracks; clips bounce under its feet; stops and looks at the empty composition." },
+    { "t": 13, "id": "topic",    "what": "A 'topic' field appears in the composition; cube pokes it; 'How prediction markets work' types in." },
+    { "t": 18, "id": "cards",    "what": "Cube hops back into the composition; 6 storyboard cards fly in and line up." },
+    { "t": 23, "id": "alive",    "what": "Cards turn into live scenes (doodle / cartoon); cube watches and nods." },
+    { "t": 28, "id": "arrange",  "what": "Cube runs on along the timeline; coloured scene blocks drop onto the tracks as it hops from one to the next." },
+    { "t": 33, "id": "voice",    "what": "Voice waveform in the composition pulses; cube listens and sways." },
+    { "t": 38, "id": "music",    "what": "Music track appears below; beat markers pulse; cube jumps on the beat." },
+    { "t": 43, "id": "montage",  "what": "Fast cuts of finished frames in different looks; 16:9 and 9:16; EN / RU; cube blinks approvingly." },
+    { "t": 48, "id": "title",    "what": "Cube sits on the timeline edge; 'tvhead-studio' title in the composition; cube looks at the viewer." },
+    { "t": 53, "id": "pullback", "what": "Camera pulls back; 'MADE WITH CLAUDE' appears; cube sits in the bottom-right corner of the composition." },
+    { "t": 57, "id": "end",      "what": "Final frame: cube blinks and hops; GitHub line appears; music fades." }
+  ]
+}

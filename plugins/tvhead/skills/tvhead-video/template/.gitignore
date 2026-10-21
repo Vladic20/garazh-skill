@@ -11,3 +11,9 @@ episodes/*/make.log
 episodes/*/claude.log
 app/server.log
 library/
+films/*/node_modules/
+films/*/kokoro/
+films/*/voice/
+films/*/review/
+films/*/env.json
+films/*/voice.json
