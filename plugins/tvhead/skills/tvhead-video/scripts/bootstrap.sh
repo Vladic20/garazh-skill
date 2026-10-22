@@ -8,7 +8,7 @@ TPL="$HERE/../template"
 SHORTCUT=0; ARGS=(); for a in "$@"; do [ "$a" = --shortcut ] && SHORTCUT=1 || ARGS+=("$a"); done
 STUDIO="${ARGS[0]:-${TVHEAD_STUDIO:-$HOME/tvhead-studio}}"
 mkdir -p "$STUDIO/episodes"
-for f in engine lib fonts lottie app make.mjs voices.mjs package.json package-lock.json .gitignore .env.example start-app.cmd start-app.sh; do
+for f in engine lib tools fonts lottie app make.mjs voices.mjs package.json package-lock.json .gitignore .env.example start-app.cmd start-app.sh; do
   [ -e "$TPL/$f" ] || continue
   if [ "$f" = app ]; then mkdir -p "$STUDIO/app"; for a in "$TPL/app/"*; do n=$(basename "$a"); [ "$n" = thumbs ] && continue; rm -rf "$STUDIO/app/$n"; cp -R "$a" "$STUDIO/app/$n"; done; continue; fi
   rm -rf "$STUDIO/$f"; cp -R "$TPL/$f" "$STUDIO/$f"

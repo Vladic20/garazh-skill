@@ -7,6 +7,11 @@ description: Turns any topic into a finished narrated motion video — horizonta
 
 Topic in → finished mp4 out. **Don't stop to ask questions** unless the topic is genuinely unclear: pick a sensible angle, ~60–90 s, the language the user writes in (or the app brief's languages), 16:9 unless they ask for vertical / Shorts / Reels / TikTok (then `"format": "9:16"`, ~30–60 s), and deliver. Edits come afterwards.
 
+**Three rules for every video** (details: `references/direction.md`):
+1. *Quality by default*: a living camera with depth and parallax, type that acts, weight and secondary reactions, motion blur and depth of field where the shot is spatial, music **and** SFX from the start.
+2. *Direct before you build*: one thread, 3–5 real variants for the opening, finale and key scene (fewer for links), a plan card for every scene, a probe of the riskiest moment.
+3. *The first build is a draft*: watch it all and every seam, listen to the mix, fix causes (interval → observation → cause → fix → re-check), then deliver with honest statuses.
+
 `${CLAUDE_SKILL_DIR}` = this skill's folder. The engine ("studio") = `$STUDIO` = `$TVHEAD_STUDIO` or `~/tvhead-studio`.
 
 ## 0. Studio (every time, takes a second)
@@ -37,6 +42,7 @@ Before the first story of a session, read:
 - `references/story-api.md`: the full JSON API;
 - `references/cast-and-world.md`: designing characters (heads, bodies, hats, props) and places (sets, weather) for the topic, and drawing new ones.
 - `references/after-effects.md`: After Effects — Lottie animations as props (polished accents: ticks, bursts, confetti, logo reveals) and, when AE is installed, real 3D scenes rendered by AE (`"ae"` on a scene: extruded titles, the 3D cube mascot, flying cards, ring tunnels). Use 3D plates for hooks, title cards and finales; they render slowly (minutes per scene) but are cached.
+- `references/direction.md`: the three rules, plan cards, stack choice, film rules that cost us iterations, sound on accents, acceptance, social cuts.
 - `$STUDIO/films/promo3d/README.md`: a standalone code-rendered 3D film (three.js on the GPU, clay mascot in an editor UI, accumulation depth of field, SFX and music on one shared `timeline.js`). Use it as the base when the user asks for a real 3D product film rather than a story.json episode: write `brief.md` + `shotlist.json`, adapt `timeline.js`/`scene.js`, check `node render.mjs sheet` before `node render.mjs video`.
 Glance at `references/images/demo_sheet.jpg` for the doodle look (`demo_sheet_9x16.jpg` for vertical) and `cartoon_sheet.jpg` for the cartoon look. Examples: `$STUDIO/episodes/demo/story.json` (doodle, bilingual), `$STUDIO/episodes/promo/story.json` (cartoon, 9:16, bilingual, every screen type).
 
@@ -54,6 +60,9 @@ Checklist for `story.json`:
 - Format: `"format": "9:16"` for vertical. Write 16:9 coordinates as usual (they are mapped), pin exact portrait spots with `{ "16:9": …, "9:16": … }` where the sheet shows a collision. See story-api.md "Vertical 9:16".
 - Voice: a user-given Fish id (`fish.audio/m/<id>` → `<id>`) goes into `voice` (per language if needed); otherwise leave it out. Find voices with `node voices.mjs deep calm --lang ru`. Avoid voices that imitate real people.
 
+## 2b. Motion promos and 3D films
+A fast kinetic promo, a product film, anything with a real 3D camera → a film in `$STUDIO/films/<name>` (copy `films/promo3d` or `films/promo15`): `brief.md` → plan cards in `shotlist.json` → `timeline.js` + `scene.js` → `node render.mjs sheet` → `probe` → `video` → `node audio.mjs` → `node tools/verify.mjs …`. Default delivery for films: 1920×1080, 60 fps, H.264 yuv420p, AAC. `films/promo15` is the 15-second hardcore kinetic example (150 BPM `hype` music, eighth-note cuts, extruded type in 3D, real look frames).
+
 ## 3. Check the pictures (no API calls)
 ```bash
 cd "$STUDIO" && node make.mjs <slug> --stills auto
@@ -67,7 +76,7 @@ cd "$STUDIO" && node make.mjs <slug>            # all languages → out/<slug>.<
 This voices only missing lines (cached per line), aligns words, times scenes to the real audio, renders 1920×1080@30 (1080×1920 for 9:16; about real time), and mixes voice + music (or the drone) + transition sounds. Use `--lang ru` for one language, `--preview` for a fast 720p draft, `--offline` to make no API calls, `--format 9:16` to render a 16:9 story vertically as well (→ `out/<slug>.<lang>_9x16.mp4`, sheet in `build/<lang>_9x16/`). Run it in the background when it may take over 2 minutes. App jobs are rendered by the app after approval; use `node app/bridge.mjs render <id>` only if the user asks you to.
 
 ## 5. Deliver
-Check each summary line (1920×1080 or 1080×1920, duration, "voice: N new line(s)", not "silent"). Send the mp4(s) with SendUserFile. Files over 30 MB don't reach phones: also send a 720p copy (`ffmpeg -i in.mp4 -vf scale=1280:720 -c:v libx264 -preset slow -crf 27 -c:a aac -b:a 128k out_share.mp4`; for 9:16 use `scale=720:1280`). Add 2–3 lines: title, length, voices. For app jobs, say it's in the app.
+Check each summary line (1920×1080 or 1080×1920, duration, "voice: N new line(s)", not "silent"). Run `node tools/verify.mjs out/<file>.mp4 --w 1920 --h 1080 --duration <s>` and look at `node tools/sheet.mjs out/<file>.mp4`; fix FAILs before sending. Send the mp4(s) with SendUserFile. Files over 30 MB don't reach phones: also send a 720p copy (`ffmpeg -i in.mp4 -vf scale=1280:720 -c:v libx264 -preset slow -crf 27 -c:a aac -b:a 128k out_share.mp4`; for 9:16 use `scale=720:1280`). Add 2–3 lines: title, length, voices. For app jobs, say it's in the app.
 
 ## Edits
 - Change a line → edit `say` and re-render: only that line is re-voiced.

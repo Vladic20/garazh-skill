@@ -10,8 +10,7 @@ voice = sys.argv[1] if len(sys.argv) > 1 else 'am_michael'
 speed = float(sys.argv[2]) if len(sys.argv) > 2 else 0.9
 model, voices = os.path.join(here, 'kokoro', 'kokoro-v1.0.int8.onnx'), os.path.join(here, 'kokoro', 'voices-v1.0.bin')
 if not (os.path.exists(model) and os.path.exists(voices)):
-    sys.exit('Kokoro model missing: download kokoro-v1.0.int8.onnx and voices-v1.0.bin from
-'
+    sys.exit('Kokoro model missing: download kokoro-v1.0.int8.onnx and voices-v1.0.bin from '
              'https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0 into films/promo3d/kokoro/ (pip install kokoro-onnx soundfile)')
 k = Kokoro(model, voices)
 shots = json.load(open(os.path.join(here, 'shotlist.json'), encoding='utf8'))

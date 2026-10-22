@@ -662,7 +662,7 @@ const quadCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 const accMat = new THREE.ShaderMaterial({
   uniforms: { tex: { value: rtSample.texture }, w: { value: 1 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }',
-  fragmentShader: 'uniform sampler2D tex; uniform float w; varying vec2 vUv; void main(){ gl_FragColor = vec4(texture2D(tex, vUv).rgb * w, 1.); }',
+  fragmentShader: 'uniform sampler2D tex; uniform float w; varying vec2 vUv; void main(){ gl_FragColor = vec4(texture2D(tex, vUv).rgb * w, w); }   // alpha sums to 1: N samples must not leave alpha = N for the copy pass',
   blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor, depthTest: false, depthWrite: false,
 });
 const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), accMat), quadScene = new THREE.Scene(); quadScene.add(quad);

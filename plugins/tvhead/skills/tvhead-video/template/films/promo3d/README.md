@@ -17,6 +17,8 @@ Everything is a pure function of time, so any frame renders on its own and every
 ```bash
 cd films/promo3d
 node render.mjs sheet --samples 6        # review/sheet.jpg — one still per beat
+node render.mjs check                    # determinism: cold reload + reverse order give the same frames
+node render.mjs probe 4:6                # the riskiest interval through the final path → review/probe.mp4
 node voice.mjs                           # or: python voice_kokoro.py am_michael 0.9
 node audio.mjs --video none              # env.json + mix (run before the final picture so the bars follow the voice)
 node render.mjs video --samples 20       # out/promo3d.video.mp4 (~0.2 s/frame on a GTX 1050 Ti)

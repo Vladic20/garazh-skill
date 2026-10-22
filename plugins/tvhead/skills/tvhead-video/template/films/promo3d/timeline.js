@@ -2,6 +2,7 @@
 export const DUR = 60, FPS = 30;
 export const BPM = 84, BEAT = 60 / BPM, BEAT0 = 0.12;           // lib/music.mjs grid: beats at 0.12 + k·BEAT
 export const beatAt = k => BEAT0 + k * BEAT;
+export const SHEET = [1.2, 3.4, 4.6, 6.2, 10, 12.8, 14.8, 16.5, 20.5, 25, 27.4, 29.6, 31.4, 35.2, 39.6, 41.6, 44.2, 46.6, 48.95, 51.2, 54.8, 58.4];   // one still per beat
 
 // ─── editor layout (UI canvas px, 2048 × 1280; 1 px = 0.1 world units) ──────────────────────────────
 export const UI = {

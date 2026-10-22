@@ -5,6 +5,7 @@
 // upbeat  — brighter chords, plucked arpeggio, claps, four-on-the-floor-ish groove (launches, product demos)
 // chiptune — square-wave lead and arpeggio, crunchy noise drums (8-bit / pixel look)
 // synthwave — saw pads, pulsing saw bass, gated snare, sparse saw lead (neon noir)
+// hype    — 150 BPM four-on-the-floor, saw bass pulses, saw stabs, 16th hats (fast kinetic promos)
 // epic    — brass/string swells, taiko drums, big reverb (fantasy / game trailers)
 // tribal  — hand drums, wooden clicks, a low drone and a sparse bone-flute line (prehistoric stories)
 // koto    — pentatonic plucked strings over soft taiko and a pad (historical / East-Asian scenes)
@@ -35,6 +36,9 @@ export const MUSIC_PRESETS = {
     chords: [[38, 50, 57, 62, 64], [36, 48, 55, 60, 62], [41, 53, 60, 65, 67], [38, 50, 57, 62, 64]] },
   koto: { label: 'Koto', bpm: 76, swing: .5, barsPerChord: 1, drums: 'koto', ep: 0, pad: .3, pluck: .9, crackle: 0, lp: 9000, volume: .5, reverb: .4,
     chords: [[38, 62, 64, 67, 69, 74], [45, 64, 67, 69, 72, 76], [43, 62, 67, 69, 74, 76], [38, 57, 62, 64, 69, 72]] },
+  hype: { label: 'Hype', bpm: 150, swing: .5, barsPerChord: 1, drums: 'hype', ep: 0, pad: 0, pluck: 0, crackle: 0, lp: 12000, volume: .5,
+    synthPad: .3, lead: .28, leadWave: 'saw', leadPattern: [1, 0, 1, 0, 0, 1, 0, 1], arp: .22, arpWave: 'pulse', bassWave: 'saw', bassPulse: true, reverb: .16,
+    chords: [[33, 57, 60, 64, 69], [29, 57, 60, 65, 69], [36, 55, 60, 64, 67], [31, 55, 59, 62, 67]] },
   epic: { label: 'Epic', bpm: 80, swing: .5, barsPerChord: 1, drums: 'epic', ep: 0, pad: .25, pluck: 0, crackle: 0, lp: 7000, volume: .55,
     synthPad: .55, brass: true, lead: .3, leadWave: 'brass', leadPattern: [1, 0, 0, 0, 1, 0, 1, 0], bassWave: 'saw', reverb: .55,
     chords: [[38, 57, 62, 65, 69], [34, 58, 62, 65, 70], [41, 57, 60, 65, 69], [36, 55, 60, 64, 67]] },
@@ -230,6 +234,12 @@ export function renderMusic(opts, outFile) {
           if (e === 0 || e === 4) place(L, kit.kick, tt, .9, 0, L, R);
           if (e === 2 || e === 6) { place(L, kit.snare, tt, .7, 0, L, R); place(sL, kit.snare, tt, 1, 0, sL, sR); }
           place(L, kit.hats[1], tt, e % 2 ? .3 : .16, .3, L, R);
+          continue;
+        }
+        if (P.drums === 'hype') {                                      // four on the floor, clap+snare on 2 and 4, 16th hats
+          if (e % 2 === 0) place(L, kit.kick, tt, .95, 0, L, R);
+          if (e === 2 || e === 6) { place(L, kit.clap, tt, .65, -.05, L, R); place(L, kit.snare, tt, .45, .05, L, R); place(sL, kit.clap, tt, .45, 0, sL, sR); }
+          place(L, kit.hats[e % 2 ? 0 : 1], tt, e % 2 ? .36 : .18, .3, L, R); place(L, kit.hats[1], tt + beat / 4, .14, -.3, L, R);
           continue;
         }
         if (P.drums === 'lofi') {
