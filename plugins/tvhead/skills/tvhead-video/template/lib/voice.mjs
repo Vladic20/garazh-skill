@@ -5,6 +5,7 @@
 //                          credits are for the website only); on HTTP 402 it falls back to OpenRouter automatically
 //   no key              → estimated durations, silent narration (stills and previews still work)
 // Cache: episodes/<ep>/voice/<sha1(model|voice|text)>.mp3 + .json  — editing one line regenerates only that line.
+import './net.mjs';                                                   // proxy-aware fetch: any script that voices lines works behind a proxy
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
