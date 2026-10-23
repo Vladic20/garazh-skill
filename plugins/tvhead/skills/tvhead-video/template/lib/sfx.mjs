@@ -60,6 +60,15 @@ export function createMix(duration, seed = 99) {
       put(t, g * 0.35, (r() - 0.5) * 0.8, (i, tt) => { if (i % hold === 0) v = Math.sign(Math.sin(2 * Math.PI * (600 + 900 * Math.floor(tt * 40) % 3) * tt)) * (r() < 0.85 ? 1 : 0); return v * env(tt, 0.001, 0.05); }, 0.12);
     },
     snap(t, g) { const n = hp(1200); put(t, g * 0.6, 0, (i, tt) => n(r() - 0.5) * env(tt, 0.0004, 0.02) * 1.6 + Math.sin(2 * Math.PI * 1500 * tt) * env(tt, 0.001, 0.015) * 0.4, 0.1); },
+    tear(t, g) {                                              // ripping: a falling noise sweep with crackle grains and a low thump
+      const f = svf(), s = sweep(160, 50, 0.3);
+      put(t, g * 0.8, 0, (i, tt) => { const x = Math.min(1, tt / 0.45); const grain = r() < 0.03 * (1 - x) ? (r() - 0.5) * 3 : 0;
+        return f(r() - 0.5, 3800 - 3200 * x, 0.35) * (1 - x) * 1.6 + grain + s(tt) * env(tt, 0.003, 0.18) * 0.9; }, 0.6);
+    },
+    chime(t, g, c) {                                          // a check: bell in A minor pentatonic, rising with every step
+      const steps = [0, 3, 5, 7, 10, 12, 15, 17, 19, 22, 24, 27], f = 440 * Math.pow(2, steps[(c.step || 0) % steps.length] / 12);
+      put(t, g * 0.22, ((c.step || 0) % 5 - 2) * 0.25, (i, tt) => (Math.sin(2 * Math.PI * f * tt) + 0.35 * Math.sin(2 * Math.PI * f * 2.01 * tt) * Math.exp(-tt / 0.25)) * env(tt, 0.002, 0.7), 1.6);
+    },
     stab(t, g) {                                              // detuned saw chord stab
       const fs = [220, 261.6, 329.6, 440].flatMap(f => [f * 0.997, f * 1.003]), ph = fs.map(() => r());
       put(t, g * 0.16, 0, (i, tt) => fs.reduce((a, f, k) => a + (((tt * f + ph[k]) % 1) * 2 - 1), 0) / fs.length * 2.2 * env(tt, 0.003, 0.09) * (1 - Math.min(1, tt / 0.18)), 0.2);

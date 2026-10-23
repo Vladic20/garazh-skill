@@ -29,6 +29,14 @@ if (opt('duration')) {
   check('frame count', Math.abs(frames - want) <= 1, frames, want);
   check('duration', Math.abs(vdur - +opt('duration')) <= 1.5 / (fps || 30), vdur.toFixed(3) + ' s', opt('duration') + ' s');
 }
+// frozen time (motion-video-kit quality bar): stretches where nothing changes; ≤ ~1 s per 30 s, no hold > 0.6 s except the end card
+{
+  const fz = run('ffmpeg', ['-hide_banner', '-nostats', '-i', file, '-map', '0:v:0', '-vf', 'scale=480:-2,freezedetect=n=0.0015:d=0.6', '-f', 'null', '-']).stderr;
+  const st = [...fz.matchAll(/freeze_start: ([\d.]+)/g)].map(m => +m[1]), du = [...fz.matchAll(/freeze_duration: ([\d.]+)/g)].map(m => +m[1]);
+  const body = st.map((s0, i) => [s0, du[i] ?? vdur - s0]).filter(([s0]) => s0 < vdur - 2.5);
+  const total = body.reduce((a2, [, d]) => a2 + d, 0), longest = body.reduce((m, [, d]) => Math.max(m, d), 0);
+  check('frozen time', total <= vdur / 30 * 1.2 && longest <= 1.5, `${total.toFixed(1)} s total, longest ${longest.toFixed(1)} s${body.length ? ' at ' + body.map(([s0]) => s0.toFixed(1)).join(', ') : ''}`, `≤ ${(vdur / 30).toFixed(1)} s, end card excepted`);
+}
 // timestamps: monotonic and evenly spaced
 const pts = run('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'packet=pts_time', '-of', 'csv=p=0', file]).stdout.split(/\s+/).filter(Boolean).map(Number).sort((x, y) => x - y);
 const steps = pts.slice(1).map((t, i) => t - pts[i]), step = 1 / (fps || 30);

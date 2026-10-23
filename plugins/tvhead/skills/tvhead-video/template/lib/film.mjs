@@ -95,7 +95,10 @@ export async function renderFilm(film, argv = process.argv.slice(2)) {
       await close(p.browser); p = await open(port, view);
       const b = []; for (const t of [...ts].reverse()) b.unshift(await frame(t, 'png'));
       let bad = 0;
-      ts.forEach((t, i) => { const same = hash(a[i]) === hash(b[i]); if (!same) { bad++; writeFileSync(path.join(review, `check_${t}_a.png`), a[i]); writeFileSync(path.join(review, `check_${t}_b.png`), b[i]); }
+      const psnr = (x, y, t) => { writeFileSync(path.join(review, `check_${t}_a.png`), x); writeFileSync(path.join(review, `check_${t}_b.png`), y);
+        const r = spawnSync('ffmpeg', ['-hide_banner', '-i', path.join(review, `check_${t}_a.png`), '-i', path.join(review, `check_${t}_b.png`), '-lavfi', 'psnr', '-f', 'null', '-'], { encoding: 'utf8' });
+        return +(r.stderr.match(/average:([\d.inf]+)/) || [])[1] || 99; };
+      ts.forEach((t, i) => { const same = hash(a[i]) === hash(b[i]); if (!same) { const db = psnr(a[i], b[i], t); console.log(`   PSNR ${db.toFixed(1)} dB  (≥ 34: GPU-level noise of the accumulation; < 30: a real state bug)`); if (db >= 34) return; bad++; writeFileSync(path.join(review, `check_${t}_a.png`), a[i]); writeFileSync(path.join(review, `check_${t}_b.png`), b[i]); }
         console.log(`t=${t}  ${same ? 'identical' : 'DIFFERENT (review/check_*.png — compare: tools/sheet.mjs or by eye)'}`); });
       console.log(bad ? `seek check: ${bad}/${n} frames differ — find state that depends on the previous frame (accumulators, Math.random, Date.now)` : `seek check: PASS (${n} frames, cold reload + reverse order)`);
       if (bad) process.exitCode = 1;

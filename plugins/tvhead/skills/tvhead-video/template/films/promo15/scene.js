@@ -15,7 +15,7 @@ const W = +(Q.get('w') || 1920), H = +(Q.get('h') || 1080);
 let SAMPLES = +(Q.get('samples') || 8);
 const INK = '#f4f1ea', HOT = '#ff5b1f', BG = 0x0b0b0c, HOTX = 0xff5b1f;
 
-const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(1); renderer.setSize(W, H); renderer.autoClear = false;
 renderer.toneMapping = THREE.NoToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
@@ -429,7 +429,7 @@ function renderFrame(t, samples) {
     renderer.setClearColor(s.bg(ts), 1); renderer.setRenderTarget(rtSample); renderer.clear(); renderer.render(s.scene, camera);
     accMat.uniforms.w.value = 1 / samples; renderer.setRenderTarget(rtAccum); renderer.render(quadScene, quadCam);
   }
-  camera.clearViewOffset(); renderer.setRenderTarget(null);
+  camera.clearViewOffset(); renderer.setRenderTarget(null); renderer.setClearColor(0x000000, 1); renderer.clear();   // never composite over the previous frame
   grade.uniforms.seed.value = (Math.round(t * TL.FPS) % 89) * 1.37;
   composer.render();
 }

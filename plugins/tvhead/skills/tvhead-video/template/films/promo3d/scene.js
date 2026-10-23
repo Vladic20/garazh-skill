@@ -18,7 +18,7 @@ const W = +(Q.get('w') || 1920), H = +(Q.get('h') || 1080);
 let SAMPLES = +(Q.get('samples') || 16);
 
 // ─── renderer ────────────────────────────────────────────────────────────────────────────────────────
-const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(1); renderer.setSize(W, H);
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
@@ -719,7 +719,7 @@ function renderFrame(t, samples = SAMPLES) {
     renderer.setRenderTarget(rtAccum); renderer.render(quadScene, quadCam);
   }
   camera.clearViewOffset();
-  renderer.setRenderTarget(null);
+  renderer.setRenderTarget(null); renderer.setClearColor(0x000000, 1); renderer.clear();   // never composite over the previous frame
   grade.uniforms.fade.value = fade; grade.uniforms.seed.value = (Math.round(t * TL.FPS) % 97) * 1.37;
   composer.render();
 }

@@ -123,3 +123,33 @@ over the grid. Music presets: `lofi`, `ambient`, `upbeat`, `chiptune`, `synthwav
 - Fast is not chaotic: cut on eighths only where the eye already knows where to look (same anchor, same scale, same
   direction); hold every word until it can be read (≈ 0.25 s for one short word at that size, longer for lines).
 - Avoid repeated full-screen flashes as a substitute for energy (and for flash safety: no more than ~3 big luminance flips per second).
+
+## Lessons from other motion skills (MIT / Apache-2.0, studied 2026-10-23; ideas restated, no code copied)
+
+Sources: echris6/motion-video-kit, Seokwoooo/promptfilm, klsoen/opus-js-animations, whaleyxbt/claude-motion,
+charlie947/motion-graphics-skills, iart-ai/webgl-animation-skills, Vincentwei1021/video-shotcraft, howseen-ai/claude-motion-design,
+OpenAEC-Foundation/Three.js-Claude-Skill-Package.
+
+**Motion grammar (from 28 launch films):** the foreground becomes the transition (a word or object flies through the lens while the
+next scene already waits underneath); one persistent actor carries identity across shots; density comes from hierarchy (one primary
+move, staggered secondaries, tertiary detail), not from starting and stopping everything; readable arrival → fast exit → slowing arrival;
+hard cuts are fine when subject, scale, direction and material match; every action visibly produces a result (cause → effect).
+
+**Quality bar:** frame 0 is a finished composition (it is the thumbnail); the lead subject fills 60–85 % of the frame in feature beats;
+no hold over ~0.6 s except the end card, frozen time ≤ ~1 s per 30 s (`tools/verify.mjs` measures it); exits faster than entrances; one
+focal point per frame; nothing important within ~60 px of the edge; check text-over-text on every frame of a crossfade, not only on
+settled frames; the CTA readable at phone size for ≥ 1.5 s.
+
+**Pace by beat kind:** mark stretches as *hook*, *key* (what people came to see: held, readable), *normal*, *transit* (long moves where
+nothing new appears: fastest). Never fly past a step to save time; merge steps instead. Captions are stops: up for their reading time with
+the camera holding on what they name. Nothing pops, grows or fades into view in the middle of the frame without a cause.
+
+**Sound:** accent, don't narrate — continuous motion stays silent; one riser and one big impact per film; keep tonal sounds in one key and
+let pitch rise with progress; hero hits ≈ 3× supporting sounds; effects ≈ +4 dB over the music in their own band, never spiking; −14 LUFS
+for punchy pieces, ≈ −16 for calm ones, true peak ≤ −1 dBTP; a mix of short hits with silence can't reach −14 — add a bed, don't crush.
+
+**WebGL pitfalls:** a full-frame canvas with alpha < 1 lets the previous frame ghost through — create the renderer with `alpha: false` and
+clear before the final pass; one NaN pixel (`pow` of a slightly negative base) is spread over the whole frame by bloom — clamp bases;
+keep emissive/additive layers under ~1.0 except the hero moment; big glossy surfaces under a low key give white streaks (roughness ≥ 0.45,
+env ≈ 0.5); simulate anything stateful once at load and let `render(t)` only read it; more than two parallel render workers don't help on
+one GPU; an independent critic (a fresh agent that did not build the film, judging only rendered frames) catches what the builder misses.

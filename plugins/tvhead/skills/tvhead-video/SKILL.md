@@ -61,7 +61,7 @@ Checklist for `story.json`:
 - Voice: a user-given Fish id (`fish.audio/m/<id>` → `<id>`) goes into `voice` (per language if needed); otherwise leave it out. Find voices with `node voices.mjs deep calm --lang ru`. Avoid voices that imitate real people.
 
 ## 2b. Motion promos and 3D films
-A fast kinetic promo, a product film, anything with a real 3D camera → a film in `$STUDIO/films/<name>` (copy `films/promo3d` or `films/promo15`): `brief.md` → plan cards in `shotlist.json` → `timeline.js` + `scene.js` → `node render.mjs sheet` → `probe` → `video` → `node audio.mjs` → `node tools/verify.mjs …`. Default delivery for films: 1920×1080, 60 fps, H.264 yuv420p, AAC. `films/promo15` is the 15-second hardcore kinetic example (150 BPM `hype` music, eighth-note cuts, extruded type in 3D, real look frames).
+A fast kinetic promo, a product film, anything with a real 3D camera → a film in `$STUDIO/films/<name>` (copy `films/promo3d` or `films/promo15`): `brief.md` → plan cards in `shotlist.json` → `timeline.js` + `scene.js` → `node render.mjs sheet` → `probe` → `video` → `node audio.mjs` → `node tools/verify.mjs …`. Default delivery for films: 1920×1080, 60 fps, H.264 yuv420p, AAC. `films/duet` is a 130-second character film (five clay agents building the studio; `lib/choreo.js` gives hops, squash, carrying, throws and slot inserts as pure functions of time). `films/promo15` is the 15-second hardcore kinetic example (150 BPM `hype` music, eighth-note cuts, extruded type in 3D, real look frames).
 
 ## 3. Check the pictures (no API calls)
 ```bash
