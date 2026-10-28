@@ -24,6 +24,12 @@ const scenes = spec.scenes.map((s, i) => {
   }
   return o;
 });
+// optional spec.money { head ("ДЕНЬГИ"), scenes: [...] }: a new sheet between the build and the summary, e.g. mkLedger + mkBars
+if (spec.money) spec.money.scenes.forEach((s, i) => scenes.push(i === 0
+  ? { note: { ru: s.note, en: s.note }, transition: { type: 'page', dir: 'up' }, say: { ru: s.say },
+      cam: { from: [360, 600, 1.0], to: s.cam || [360, 600, 1.02], ease: 'from' },
+      props: [{ type: 'ui', id: 'ui', colors: spec.colors }, hand, { type: 'sk', id: 'mhead', obj: 'mkHead', text: spec.money.head || 'ДЕНЬГИ', delay: 0.2, dur: 0.8 }, ...s.props] }
+  : { note: { ru: s.note, en: s.note }, keep: true, say: { ru: s.say }, cam: { to: s.cam || [360, 640, 1.0], ease: 'glide' }, props: s.props }));
 // summary page + ending, identical layout in every episode
 const sm = spec.summary;
 scenes.push({
@@ -34,13 +40,17 @@ scenes.push({
   props: [{ type: 'ui', id: 'ui' }, hand,
     { type: 'sk', id: 'head', obj: 'mkHead', delay: 0.25, dur: 0.8 },
     { type: 'sk', id: 'res', obj: 'mkResult', lines: sm.result, delay: 1.1, dur: sm.resultDur || 2.0 },
-    { type: 'sk', id: 'rows', obj: 'mkRows', rows: sm.rows, ...(sm.rowsOn ? { on: sm.rowsOn } : { at: 0.42 }), dur: sm.rowsDur || 3.6, top: sm.rowsY }],
+    // sm.ledger [[label, value], …] + sm.total [label, value] replace the checklist with a price list (mkLedger)
+    sm.ledger ? { type: 'sk', id: 'rows', obj: 'mkLedger', rows: sm.ledger, total: sm.total, size: 34, step: 56, ...(sm.rowsOn ? { on: sm.rowsOn } : { at: 0.42 }), dur: sm.rowsDur || 3.6, top: sm.rowsY || 440 }
+      : { type: 'sk', id: 'rows', obj: 'mkRows', rows: sm.rows, ...(sm.rowsOn ? { on: sm.rowsOn } : { at: 0.42 }), dur: sm.rowsDur || 3.6, top: sm.rowsY }],
 });
+// optional spec.cta { say, text, sub }: e.g. tease the next episode of a mini-series
+const cta = spec.cta || {};
 scenes.push({
   note: { ru: 'Внизу листа: «Что нарисовать дальше?» и стрелка в комментарии.', en: 'Bottom of the sheet: what next? arrow to the comments.' },
-  keep: true, say: { ru: 'Что нарисовать дальше? Пишите идеи в комментариях.' },
+  keep: true, say: { ru: cta.say || 'Что нарисовать дальше? Пишите идеи в комментариях.' },
   cam: { to: [360, 640, 1.0], ease: 'glide' }, hold: 0.8,
-  props: [{ type: 'sk', id: 'cta', obj: 'mkCta', at: 0.02, dur: 2.2 }],
+  props: [{ type: 'sk', id: 'cta', obj: 'mkCta', at: 0.02, dur: 2.2, ...(cta.text && { text: cta.text }), ...(cta.sub && { sub: cta.sub }) }],
 });
 
 const story = {

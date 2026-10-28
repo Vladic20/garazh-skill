@@ -115,6 +115,20 @@
         { k: 'a', from: [x1, y - 12], to: [x1 + 50, y - 12], bend: 0, head: 13 }, { k: 't', x: x1 + 64, y, s: b, size: sb, c: 'g' }, { k: 'v', x: Math.min(670, x1 + 64 + wb + 26), y: y - 14, s: 24, c: 'g' }]; }); },
     mkCta: p => { const y = p.top || 840; return [{ k: 't', x: 360, y, s: p.text || 'Что нарисовать дальше?', size: fit(p.text || 'Что нарисовать дальше?', 50, 620), anchor: 'middle' },
       { k: 'a', from: [360, y + 26], to: [360, y + 110], bend: .15 }, { k: 't', x: 360, y: y + 150, s: p.sub || 'пишите идеи в комментариях', size: 36, anchor: 'middle', c: 'b' }]; },
+    // money pages — mkLedger { rows: [[label, value, c], …], total: [label, value], top (), step (66), line (true) } receipt lines,
+    //   values right-aligned, the total under a rule on a yellow highlighter; split one ledger into several props to cue each line
+    // mkBars { bars: [[label, share 0–1, value, c], …], top (), step (110) } a scenario per bar (load, price, speed) with its profit
+    mkLedger: p => { const y0 = p.top || 270, st = p.step || 66, sz = p.size || 40, R = p.right || 650, L = 70, rows = p.rows || [], o = [];
+      rows.forEach(([a, b, c], i) => { const y = y0 + i * st; o.push({ k: 't', x: L, y, s: a, size: fit(a, sz, 380) }, { k: 't', x: R, y, s: b, size: sz, anchor: 'end', c: c || 'k' }); });
+      if (p.total) { const [a, b] = p.total, y = y0 + rows.length * st + (rows.length ? 16 : 0), s2 = sz * 1.18, tw = textW(b, s2);
+        if (p.line !== false) o.push({ k: 'l', p: [[L, y - s2 - 8], [R, y - s2 - 8]], w: 3 });
+        o.push({ k: 'f', x: R - tw - 10, y: y - s2 * .78, w: tw + 20, h: s2 * .9, c: 'y', op: .55 }, { k: 't', x: L, y, s: a, size: fit(a, s2, 600 - tw), c: 'g' }, { k: 't', x: R, y, s: b, size: s2, anchor: 'end', c: 'g' }); }
+      return o; },
+    mkBars: p => { const y0 = p.top || 600, st = p.step || 110, bw = p.w || 400, L = 70;
+      return (p.bars || []).flatMap(([a, k, v, c], i) => { const y = y0 + i * st, cc = c || 'g';
+        return [{ k: 't', x: L, y, s: a, size: fit(a, 30, 600), c: '#5a5f68' }, { k: 'r', x: L, y: y + 14, w: bw, h: 46, w2: 3 },
+          { k: 'f', x: L + 6, y: y + 20, w: Math.max(8, (bw - 12) * Math.min(1, k)), h: 34, c: cc, w2: 16, op: .7 },
+          { k: 't', x: L + bw + 18, y: y + 52, s: v, size: fit(v, 40, 640 - L - bw - 18), c: cc }]; }); },
   });
 
   // ── schedule: each prop's strokes laid out in time from its t0 (cached per item) ──
