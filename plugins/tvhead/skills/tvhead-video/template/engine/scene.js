@@ -67,7 +67,22 @@ function itemSvg(it, t) {
   return `<g transform="${pr.tf}" opacity="${f2(pr.op)}">${body}</g>`;
 }
 
+// cam.ease "glide": travel from where the previous scene's camera ended to `to` in ~1 s, then a slow live push (one
+// connected camera path across keep-chains); "shake" = glide + a tremor; "from" = start this glide at cam.from (first shot).
+const camEnd = new Map();
+function glideCam(sc, t) {
+  const c = sc.cam, i = TL.scenes.indexOf(sc);
+  const end = j => { if (!camEnd.has(j)) camEnd.set(j, camAt(TL.scenes[j], TL.scenes[j].to)); return camEnd.get(j); };
+  const from = i > 0 && c.ease !== 'from' ? end(i - 1) : (c.from || c.to), to = c.to;
+  const gd = Math.min(1.05, (sc.to - sc.from) * .7), k = easeInOut(prog(t, sc.from, sc.from + gd));
+  const drift = Math.exp(Math.log(1.035) * easeInOut(prog(t, sc.from + gd, Math.max(sc.to, sc.from + gd + 2))));
+  const z = Math.exp(lerp(Math.log(from[2]), Math.log(to[2]), k)) * drift, cl = (v, a, b) => Math.min(b, Math.max(a, v));
+  let x = cl(lerp(from[0], to[0], k), W / 2 / z, W - W / 2 / z), y = cl(lerp(from[1], to[1], k), H / 2 / z, H - H / 2 / z);
+  if (c.ease === 'shake') { const a = 5 * clamp((t - sc.from) / .3); x += (Math.sin(t * 47) + Math.sin(t * 31) * .6) * a / z; y += Math.sin(t * 53 + 1) * a * .8 / z; }
+  return [x, y, z];
+}
 function camAt(sc, t) {
+  if (sc.cam && ['glide', 'shake', 'from'].includes(sc.cam.ease)) return glideCam(sc, t);
   const c = sc.cam || { from: [CX, CY, 1], to: [CX, CY, 1.06] }, k = easeInOut(prog(t, sc.from, sc.to));
   // zoom interpolated in log space so push-ins feel constant-speed
   return [lerp(c.from[0], c.to[0], k), lerp(c.from[1], c.to[1], k), Math.exp(lerp(Math.log(c.from[2]), Math.log(c.to[2]), k))];

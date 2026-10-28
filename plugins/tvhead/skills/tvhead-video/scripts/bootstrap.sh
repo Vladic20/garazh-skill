@@ -15,7 +15,7 @@ for f in engine lib tools fonts lottie app make.mjs voices.mjs package.json pack
 done
 # films: source files only, never remove a film's renders, voices or downloaded models
 [ -d "$TPL/films" ] && { mkdir -p "$STUDIO/films"; cp -R "$TPL/films/." "$STUDIO/films/"; }
-for ex in demo promo look-lottie look-ae3d look-desk3d look-noir look-dota look-blocks look-pixel look-comic look-stick look-beanie look-prehistoric look-cozy look-history; do [ -d "$STUDIO/episodes/$ex" ] || cp -R "$TPL/episodes/$ex" "$STUDIO/episodes/$ex"; done
+for ex in demo promo look-lottie look-ae3d look-desk3d look-noir look-dota look-blocks look-pixel look-comic look-stick look-beanie look-prehistoric look-cozy look-history look-underground look-marker; do [ -d "$STUDIO/episodes/$ex" ] || cp -R "$TPL/episodes/$ex" "$STUDIO/episodes/$ex"; done
 command -v node >/dev/null || { echo "!! need Node.js >= 18" >&2; exit 1; }
 command -v ffmpeg >/dev/null || echo "!! need ffmpeg in PATH (Windows: winget install Gyan.FFmpeg · macOS: brew install ffmpeg · Linux: apt install ffmpeg)" >&2
 (cd "$STUDIO" && npm install --silent --no-audit --no-fund)   # fast no-op when up to date; picks up new deps after updates

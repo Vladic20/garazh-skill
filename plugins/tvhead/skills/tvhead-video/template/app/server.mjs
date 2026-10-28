@@ -145,7 +145,7 @@ async function ensureThumbs() {
   for (const name of Object.keys(THEMES)) {
     const out = path.join(dir, `${name}.png`); if (existsSync(out)) continue;
     const ep = `_theme_${name}`, epd = path.join(EPISODES, ep); mkdirSync(epd, { recursive: true });
-    writeJson(path.join(epd, 'story.json'), { theme: name, transition: 'cut', ...(name === 'garage' ? { look: 'cartoon', set: 'garage' } : {}), ...({ desk: { look: 'desk3d' }, noir: { look: 'noir', set: 'motel' }, dota: { look: 'dota', set: 'lane' }, blocks: { look: 'blocks', set: 'baseplate' }, pixel: { look: 'pixel', set: 'pixelworld' }, comic: { look: 'comic', set: 'skyline' } }[name] || {}), scenes: [{ say: 'Hello there, this is a style preview.', layout: 'lineup', count: 3,
+    writeJson(path.join(epd, 'story.json'), { theme: name, transition: 'cut', ...(name === 'garage' ? { look: 'cartoon', set: 'garage' } : {}), ...({ desk: { look: 'desk3d' }, noir: { look: 'noir', set: 'motel' }, dota: { look: 'dota', set: 'lane' }, blocks: { look: 'blocks', set: 'baseplate' }, pixel: { look: 'pixel', set: 'pixelworld' }, comic: { look: 'comic', set: 'skyline' }, underground: { look: 'underground', set: 'cutaway' }, marker: { look: 'marker', set: 'sheet' } }[name] || {}), scenes: [{ say: 'Hello there, this is a style preview.', layout: 'lineup', count: 3,
       props: [{ type: 'heart', x: 1060, y: 190, scale: .8 }, { type: 'text', text: name, x: 300, y: 150, size: 64, enter: 'none' }] }] });
     await new Promise(r => spawn(process.execPath, [path.join(STUDIO, 'make.mjs'), ep, '--stills', '2.4', '--offline', '--lang', 'en'], { cwd: STUDIO, stdio: 'ignore' }).on('exit', r));
     const still = path.join(epd, 'build', 'en', 'stills', 's_000.png');

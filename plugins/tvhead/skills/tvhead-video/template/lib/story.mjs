@@ -89,6 +89,8 @@ export const THEMES = {
   prehistoric: { label: 'Prehistoric ochre', paper: '#e7d3a8', paperLight: '#f1e2bf', paperDark: '#b88f5a', ink: '#2b1a0e', bezel: '#6a4a2e', screen: '#f6efe0', fill: '#f6efe0', accent: '#e8742a', dark: '#1a0f06', halo: '#2b1a0e', muted: '#8a6a4a', texture: .14 },
   cozy:      { label: 'Cozy colour', paper: '#f3e6cf', paperLight: '#fbf3e3', paperDark: '#c8b08a', ink: '#1f1a17', bezel: '#3f6d9e', screen: '#ffffff', fill: '#ffffff', accent: '#f2a03d', dark: '#120e0c', halo: '#1f1a17', muted: '#8a7a6a', texture: 0 },
   history:   { label: 'Historical painterly', paper: '#efe1c0', paperLight: '#f8eed6', paperDark: '#c9a873', ink: '#141414', bezel: '#7a4a24', screen: '#fbf3e1', fill: '#ffffff', accent: '#b8322a', accent2: '#d4a33a', dark: '#100c08', halo: '#141414', muted: '#8a7a5a', texture: .03 },
+  underground: { label: 'Underground sim (flat cutaway)', paper: '#2c2945', paperLight: '#3a3558', paperDark: '#14121e', ink: '#1b1820', bezel: '#3a3a3a', screen: '#f4f1ea', fill: '#f3f1ec', accent: '#ffd23f', dark: '#0d0b12', halo: '#1b1820', muted: '#8b8378', texture: .03 },
+  marker:    { label: 'Marker sketch (white sheet)', paper: '#fbfaf6', paperLight: '#fdfcf9', paperDark: '#f1efe8', ink: '#1f2024', bezel: '#585858', screen: '#ffffff', fill: '#ffffff', accent: '#e5322d', dark: '#2c3134', halo: '#dde5ee', muted: '#8a8f98', texture: .03 },
   mint:      { label: 'Mint notebook', paper: '#cfe3d8', paperLight: '#e0efe7', paperDark: '#9fbcad', ink: '#14231c', bezel: '#4f6a5d', screen: '#eef6f1', fill: '#f3faf6', accent: '#e4572e', dark: '#15261e', halo: '#a9c6b7', muted: '#6c8478' },
 };
 export function resolveTheme(th, look) {
@@ -112,6 +114,8 @@ export const LOOKS = {
   prehistoric: { label: 'Stickman — prehistoric dark comedy', theme: 'prehistoric', captions: true, music: 'tribal' },
   cozy:    { label: 'Stickman — cozy storytelling', theme: 'cozy', captions: true, music: 'lofi' },
   history: { label: 'Stickman — historical cartoon (Edo, Egypt, Rome)', theme: 'history', captions: true, music: 'koto' },
+  underground: { label: 'Underground engineering sim — cutaway, HUD counter, upgrades', theme: 'underground', captions: true, music: 'upbeat' },
+  marker:  { label: 'Marker sketch — a hand draws problem → fix with numbers', theme: 'marker', captions: true, music: 'upbeat' },
 };
 export function resolveLook(v) {
   const id = v || 'doodle';
@@ -179,6 +183,8 @@ function resolveCam(c, g) {
   if (typeof c === 'string') { const p = P[c]; if (!p) throw new Error(`unknown cam "${c}" (have: ${Object.keys(CAM).join(', ')})`); return { from: p[0], to: p[1] }; }
   const v = k => nat(k) ? pickFormat(c[k], g.F) : pt(g, pickFormat(c[k], g.F));
   if (c.from && c.to) return { from: clampCam(v('from'), g), to: clampCam(v('to'), g), ease: c.ease };
+  // { to, ease: "glide" | "shake" }: travel from wherever the previous scene's camera ended (engine/scene.js glideCam)
+  if (c.to && c.ease) return { from: null, to: clampCam(v('to'), g), ease: c.ease };
   if (c.focus) { const z = pickFormat(c.zoom, g.F) || 1.4, [x, y] = v('focus'); const cl = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
     const fx = cl(x, g.W / 2 / z, g.W - g.W / 2 / z), fy = cl(y, g.H / 2 / z, g.H - g.H / 2 / z);
     if (c.from) return { from: clampCam(v('from'), g), to: [fx, fy, z] };   // travel from a wide shot onto the subject

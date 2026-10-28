@@ -97,6 +97,12 @@ Rules that cost us iterations:
 
 ## Sound on the picture
 
+story.json films also get event sounds from the page: a look or an episode script may define `window.sfxEvents = () => [{ t, dur, kind, gain }]`
+(kinds `marker` squeak for dur, `stamp` thud, `pop`, `tick`); lib/frames.mjs collects them and lib/audio.mjs mixes them into the bed.
+The marker look squeaks on every stroke; underground thuds on stamps and pops on new upgrades. For any ffmpeg `bandpass`, pass `t=h`
+(width in Hz): the default width type is Q, and `w=1800` read as Q silences the sound.
+
+
 Music and SFX come from the same `timeline.js` cues as the picture. After the real mix exists, map the actual accents —
 `node tools/accents.mjs out/mix.wav --fps 60 --lowpass 160` — and put cuts, landings and reveals on the *heard* peaks,
 not on a computed BPM grid. Sync is a periodic device, not a cut on every beat; reading time, meaning and the voice win

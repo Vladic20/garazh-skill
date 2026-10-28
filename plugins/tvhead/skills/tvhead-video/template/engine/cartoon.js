@@ -18,6 +18,7 @@ const TOON_LOOKS = {
   prehistoric: { thick: 1.3, outline: 2.2, blush: false, dust: '#ffd08a', typeFont: 'Pangolin, Hand', typeFill: '#f6efe0', typeScale: .92 },
   cozy:    { thick: 1.1, outline: 0, blush: true, dust: null, typeFont: 'Rubik, sans-serif', typeWeight: 800, typeFill: '#ffffff', typeScale: .8 },
   history: { thick: 1.2, outline: 0, blush: false, dust: null, typeFont: "Cinzel, 'Cormorant SC', serif", typeWeight: 700, typeFill: '#fbf3e1', typeScale: .8 },
+  underground: { thick: 1.15, outline: 1.8, blush: false, dust: null, typeFont: 'Rubik, sans-serif', typeWeight: 900, typeFill: '#ffffff', typeScale: .8, skin: '#f1c7a0' },
   desk3d:  { thick: 1.1, outline: 0, blush: false, dust: null, typeFont: 'Inter, Rubik, sans-serif', typeWeight: 800, typeFill: '#ffffff', typeScale: .78 },
 };
 const LOOK = (typeof TL === 'object' && TL.look) || 'doodle';

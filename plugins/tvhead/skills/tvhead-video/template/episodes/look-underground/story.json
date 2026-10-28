@@ -1,0 +1,1176 @@
+{
+  "title": {
+    "ru": "Подпольная криптоферма под гаражом",
+    "en": "Underground crypto farm under a garage"
+  },
+  "look": "underground",
+  "format": "9:16",
+  "remap": false,
+  "languages": [
+    "ru"
+  ],
+  "voice": {
+    "ru": "ad345871bcbd4ab0af5f3af9940287d2"
+  },
+  "style": "energetic, fast, playful",
+  "music": {
+    "preset": "upbeat",
+    "volume": 0.45
+  },
+  "captions": true,
+  "pace": 0.7,
+  "outro": 1.6,
+  "particles": 0,
+  "scripts": [
+    "art/crypto.js"
+  ],
+  "characters": {
+    "me": {
+      "name": {
+        "ru": "Инженер",
+        "en": "The engineer"
+      },
+      "desc": {
+        "ru": "это вы: каска, худи, руки из нужного места",
+        "en": "you: hard hat, hoodie, good hands"
+      },
+      "head": "round",
+      "skin": "#f1c7a0",
+      "hat": "hardhat",
+      "body": "hoodie",
+      "color": "#2f6f8f",
+      "legColor": "#2b2b38",
+      "accentParts": true
+    },
+    "sosed": {
+      "name": {
+        "ru": "Сосед",
+        "en": "The neighbour"
+      },
+      "desc": {
+        "ru": "всё слышит, всё видит",
+        "en": "hears everything, sees everything"
+      },
+      "head": "round",
+      "skin": "#f1c7a0",
+      "hat": "cap",
+      "body": "coat",
+      "color": "#7a5a3a",
+      "legColor": "#2b2b38"
+    }
+  },
+  "set": {
+    "type": "cutaway",
+    "top": "garage",
+    "label": "ГАРАЖ №12",
+    "sky": "dusk",
+    "neighbor": true,
+    "ladder": 470
+  },
+  "scenes": [
+    {
+      "note": {
+        "ru": "Общий план: гараж, под ним бункер со стойкой асиков. Инженер съезжает по лестнице.",
+        "en": "Wide: garage, a bunker below with a miner rack. The engineer slides down the ladder."
+      },
+      "say": {
+        "ru": "Решили майнить биткоин прямо под гаражом?"
+      },
+      "cam": {
+        "from": [
+          360,
+          640,
+          1
+        ],
+        "to": [
+          360,
+          720,
+          1.18
+        ],
+        "ease": "from"
+      },
+      "props": [
+        {
+          "type": "ui",
+          "id": "ui",
+          "hud": "ГАРАЖ №12 · −5 М · {n} TH/S",
+          "n": 0,
+          "colors": {
+            "y": [
+              "биткоин",
+              "гаражом",
+              "асика",
+              "асики",
+              "криптоферму"
+            ],
+            "r": [
+              "девяносто",
+              "воют",
+              "самолёт",
+              "слышно",
+              "проводка",
+              "квартир",
+              "зима",
+              "парит",
+              "сухая"
+            ],
+            "g": [
+              "скважину",
+              "воду",
+              "сэндвич",
+              "шумка",
+              "солнечные",
+              "аккумуляторный",
+              "теплицу",
+              "огурцы",
+              "построили",
+              "тишине"
+            ],
+            "c": [
+              "четыреста",
+              "терахешей"
+            ]
+          }
+        },
+        {
+          "type": "asics",
+          "id": "rack",
+          "x": 178,
+          "y": 883,
+          "power": false,
+          "enter": "fade"
+        },
+        {
+          "type": "wire",
+          "id": "wire",
+          "x": 0,
+          "y": 0,
+          "pts": [
+            [
+              658,
+              600
+            ],
+            [
+              300,
+              600
+            ],
+            [
+              300,
+              690
+            ],
+            [
+              262,
+              690
+            ]
+          ],
+          "enter": "none"
+        },
+        {
+          "type": "emeter",
+          "id": "meter",
+          "x": 530,
+          "y": 372,
+          "scale": 0.8,
+          "enter": "none"
+        }
+      ],
+      "cast": [
+        {
+          "id": "me",
+          "x": 470,
+          "scale": 0.5,
+          "y": 883,
+          "face": "happy",
+          "enter": "drop",
+          "delay": 0.15,
+          "then": [
+            {
+              "delay": 0.9,
+              "pose": "walk"
+            },
+            {
+              "delay": 0.9,
+              "x": 380,
+              "dur": 0.8
+            },
+            {
+              "delay": 1.7,
+              "pose": "point"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Асики включаются, температура летит до 90°, штамп ПЕРЕГРЕВ, красная мигалка.",
+        "en": "Miners power on, temperature shoots to 90°, OVERHEAT stamp, red beacon."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Включаем четыре асика — и через минуту тут девяносто градусов."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          250,
+          745,
+          1.6
+        ],
+        "ease": "glide"
+      },
+      "change": [
+        {
+          "id": "rack",
+          "on": "Включаем",
+          "power": true
+        },
+        {
+          "id": "ui",
+          "on": "асика",
+          "n": 400,
+          "ndur": 0.7
+        },
+        {
+          "id": "ui",
+          "on": "девяносто",
+          "alert": true,
+          "n": 0,
+          "ndur": 0.5
+        },
+        {
+          "id": "rack",
+          "on": "минуту",
+          "hot": true
+        },
+        {
+          "id": "me",
+          "on": "девяносто",
+          "face": "shock",
+          "pose": "head"
+        }
+      ],
+      "props": [
+        {
+          "type": "heat",
+          "id": "heat",
+          "x": 178,
+          "y": 720,
+          "w": 200,
+          "h": 150,
+          "on": "минуту"
+        },
+        {
+          "type": "thermo",
+          "id": "thermo",
+          "x": 178,
+          "y": 640,
+          "from": 24,
+          "to": 90,
+          "dur": 2.2,
+          "on": "минуту"
+        },
+        {
+          "type": "beacon",
+          "id": "beacon",
+          "x": 330,
+          "y": 580,
+          "on": "девяносто"
+        },
+        {
+          "type": "stamp2",
+          "id": "st1",
+          "x": 230,
+          "y": 846,
+          "text": "ПЕРЕГРЕВ",
+          "size": 32,
+          "on": "девяносто"
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Бурим скважину до водоносного слоя, вода идёт по трубам через стойку, 90° → 35°.",
+        "en": "A borehole to the water table, water loops through the rack, 90° → 35°."
+      },
+      "keep": true,
+      "remove": [
+        "st1"
+      ],
+      "say": {
+        "ru": "Кондиционер тут не спасёт. Бурим скважину и гоним воду прямо через асики."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          250,
+          800,
+          1.32
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "acunit",
+          "id": "ac",
+          "x": 420,
+          "y": 632,
+          "on": "Кондиционер"
+        },
+        {
+          "type": "aquifer",
+          "id": "aq",
+          "x": 190,
+          "y": 968,
+          "w": 330,
+          "on": "скважину"
+        },
+        {
+          "type": "depth",
+          "id": "dep",
+          "x": 120,
+          "y": 930,
+          "text": "−30 М",
+          "on": "скважину"
+        },
+        {
+          "type": "pipe",
+          "id": "pin",
+          "x": 0,
+          "y": 0,
+          "pts": [
+            [
+              96,
+              985
+            ],
+            [
+              96,
+              728
+            ],
+            [
+              262,
+              728
+            ]
+          ],
+          "w": 12,
+          "color": "#9fb6c8",
+          "on": "скважину",
+          "draw": 0.8
+        },
+        {
+          "type": "pipe",
+          "id": "pout",
+          "x": 0,
+          "y": 0,
+          "pts": [
+            [
+              262,
+              760
+            ],
+            [
+              282,
+              760
+            ],
+            [
+              282,
+              985
+            ]
+          ],
+          "w": 12,
+          "color": "#9fb6c8",
+          "on": "скважину",
+          "draw": 0.8,
+          "z": 2
+        },
+        {
+          "type": "tag",
+          "id": "tg1",
+          "x": 420,
+          "y": 960,
+          "text": "ВОДОНОСНЫЙ СЛОЙ",
+          "color": "#5fd2ff",
+          "on": "скважину"
+        }
+      ],
+      "change": [
+        {
+          "id": "ac",
+          "on": "спасёт",
+          "fail": true
+        },
+        {
+          "id": "pin",
+          "on": "воду",
+          "flow": true
+        },
+        {
+          "id": "pout",
+          "on": "воду",
+          "flow": true,
+          "flowColor": "#ff8a3d"
+        },
+        {
+          "id": "heat",
+          "on": "асики",
+          "off": true
+        },
+        {
+          "id": "thermo",
+          "on": "асики",
+          "val": 35
+        },
+        {
+          "id": "rack",
+          "on": "асики",
+          "hot": false
+        },
+        {
+          "id": "beacon",
+          "on": "асики",
+          "off": true
+        },
+        {
+          "id": "ui",
+          "on": "асики",
+          "alert": false,
+          "n": 400,
+          "upg": [
+            [
+              "1. ВОДА ИЗ СКВАЖИНЫ",
+              "90° → 35°"
+            ]
+          ]
+        },
+        {
+          "id": "me",
+          "on": "Бурим",
+          "face": "smug",
+          "pose": "hip"
+        },
+        {
+          "id": "me",
+          "on": "асики",
+          "face": "happy",
+          "pose": "cheer"
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Наверх: от гаража расходятся звуковые волны, сосед у забора с вопросами.",
+        "en": "Up top: sound waves from the garage, the neighbour at the fence asks questions."
+      },
+      "keep": true,
+      "remove": [
+        "tg1",
+        "dep",
+        "ac"
+      ],
+      "say": {
+        "ru": "Но асики воют, как самолёт, — и это слышно на всю улицу."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          470,
+          470,
+          1.32
+        ],
+        "ease": "glide"
+      },
+      "change": [
+        {
+          "id": "ui",
+          "on": "воют",
+          "alert": true
+        },
+        {
+          "id": "me",
+          "at": 0.05,
+          "face": "worried",
+          "pose": "idle"
+        }
+      ],
+      "props": [
+        {
+          "type": "waves",
+          "id": "w1",
+          "x": 178,
+          "y": 760,
+          "r": 150,
+          "on": "воют"
+        },
+        {
+          "type": "waves",
+          "id": "w2",
+          "x": 394,
+          "y": 400,
+          "r": 220,
+          "n": 4,
+          "on": "самолёт"
+        },
+        {
+          "type": "stamp2",
+          "id": "st2",
+          "x": 400,
+          "y": 300,
+          "text": "СЛЫШНО НА УЛИЦЕ",
+          "size": 28,
+          "tilt": -5,
+          "on": "слышно"
+        },
+        {
+          "type": "huh",
+          "id": "huh1",
+          "x": 642,
+          "y": 360,
+          "text": "?!",
+          "on": "улицу"
+        }
+      ],
+      "cast": [
+        {
+          "id": "sosed",
+          "x": 642,
+          "y": 470,
+          "scale": 0.4,
+          "face": "angry",
+          "pose": "cross",
+          "flip": true,
+          "enter": "rise",
+          "on": "слышно"
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Стены бункера обшиваются панелями плитка за плиткой, волны гаснут.",
+        "en": "Panels tile over the bunker walls, the waves die down."
+      },
+      "keep": true,
+      "remove": [
+        "st2",
+        "huh1"
+      ],
+      "say": {
+        "ru": "Обшиваем стены сэндвич-панелями, а поверх — автомобильная шумка."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          360,
+          735,
+          1.24
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "foam",
+          "id": "foam",
+          "x": 0,
+          "y": 0,
+          "z": -10,
+          "color": "#4a4757",
+          "on": "сэндвич",
+          "enter": "fade",
+          "enterDur": 0.01
+        },
+        {
+          "type": "foam",
+          "id": "foam2",
+          "x": 0,
+          "y": 0,
+          "z": -9,
+          "color": "#312f3b",
+          "on": "шумка",
+          "enter": "fade",
+          "enterDur": 0.01
+        }
+      ],
+      "change": [
+        {
+          "id": "w1",
+          "on": "шумка",
+          "off": true
+        },
+        {
+          "id": "w2",
+          "on": "шумка",
+          "off": true
+        },
+        {
+          "id": "sosed",
+          "on": "шумка",
+          "face": "neutral",
+          "pose": "idle"
+        },
+        {
+          "id": "ui",
+          "on": "шумка",
+          "alert": false,
+          "upg": [
+            [
+              "1. ВОДА ИЗ СКВАЖИНЫ",
+              "90° → 35°"
+            ],
+            [
+              "2. ШУМОИЗОЛЯЦИЯ",
+              "ВОЙ → ТИШИНА"
+            ]
+          ]
+        },
+        {
+          "id": "me",
+          "on": "Обшиваем",
+          "face": "happy",
+          "pose": "point"
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Проводка под потолком раскаляется, искры, счётчик крутится как бешеный.",
+        "en": "The ceiling wiring glows red, sparks fly, the meter spins like mad."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Дальше проводка. Четыре асика едят электричества, как десять квартир."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          420,
+          560,
+          1.28
+        ],
+        "ease": "glide"
+      },
+      "change": [
+        {
+          "id": "wire",
+          "on": "проводка",
+          "hot": true
+        },
+        {
+          "id": "meter",
+          "on": "едят",
+          "fast": true
+        },
+        {
+          "id": "ui",
+          "on": "проводка",
+          "alert": true
+        },
+        {
+          "id": "me",
+          "on": "проводка",
+          "face": "shock",
+          "pose": "head"
+        }
+      ],
+      "props": [
+        {
+          "type": "sparks",
+          "id": "sp1",
+          "x": 300,
+          "y": 600,
+          "on": "проводка"
+        },
+        {
+          "type": "sparks",
+          "id": "sp2",
+          "x": 560,
+          "y": 600,
+          "seed": 9,
+          "on": "электричества"
+        },
+        {
+          "type": "stamp2",
+          "id": "st3",
+          "x": 430,
+          "y": 670,
+          "text": "ПРОВОДКА ПЛАВИТСЯ",
+          "size": 26,
+          "tilt": 4,
+          "on": "квартир"
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "На крышу падают солнечные панели, в бункере заряжается аккумулятор, провод остывает.",
+        "en": "Solar panels drop onto the roof, a battery charges below, the wire cools."
+      },
+      "keep": true,
+      "remove": [
+        "st3"
+      ],
+      "say": {
+        "ru": "Ставим солнечные панели на крышу и аккумуляторный блок — он гасит пиковую нагрузку."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          400,
+          560,
+          1.12
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "solar",
+          "id": "solar",
+          "x": 488,
+          "y": 238,
+          "on": "солнечные",
+          "enter": "fade",
+          "enterDur": 0.01
+        },
+        {
+          "type": "battery2",
+          "id": "bat",
+          "x": 592,
+          "y": 883,
+          "scale": 0.9,
+          "on": "аккумуляторный",
+          "fill": 2.6
+        }
+      ],
+      "change": [
+        {
+          "id": "wire",
+          "on": "нагрузку",
+          "hot": false
+        },
+        {
+          "id": "sp1",
+          "on": "нагрузку",
+          "off": true
+        },
+        {
+          "id": "sp2",
+          "on": "нагрузку",
+          "off": true
+        },
+        {
+          "id": "meter",
+          "on": "нагрузку",
+          "fast": false
+        },
+        {
+          "id": "ui",
+          "on": "нагрузку",
+          "alert": false,
+          "upg": [
+            [
+              "1. ВОДА ИЗ СКВАЖИНЫ",
+              "90° → 35°"
+            ],
+            [
+              "2. ШУМОИЗОЛЯЦИЯ",
+              "ВОЙ → ТИШИНА"
+            ],
+            [
+              "3. СОЛНЦЕ + АККУМУЛЯТОР",
+              "ПИКИ СГЛАЖЕНЫ"
+            ]
+          ]
+        },
+        {
+          "id": "me",
+          "on": "Ставим",
+          "face": "smug",
+          "pose": "hip"
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Победа: асики гудят, из стойки летят биткоины, штамп РАБОТАЕТ.",
+        "en": "Win: the rack hums, coins fly out, WORKS stamp."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Итог: четыреста терахешей в секунду, круглые сутки и в полной тишине."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          290,
+          770,
+          1.42
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "coins",
+          "id": "coins",
+          "x": 178,
+          "y": 712,
+          "rate": 2.6,
+          "spread": 150,
+          "on": "четыреста"
+        },
+        {
+          "type": "stamp2",
+          "id": "st4",
+          "x": 330,
+          "y": 640,
+          "text": "РАБОТАЕТ!",
+          "color": "green",
+          "size": 32,
+          "tilt": -4,
+          "on": "тишине"
+        }
+      ],
+      "change": [
+        {
+          "id": "me",
+          "on": "четыреста",
+          "face": "joy",
+          "pose": "cheer"
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Зима: всё в снегу, только крыша гаража сухая и парит. Сосед снова с вопросами.",
+        "en": "Winter: snow everywhere, only the garage roof is dry and steaming. The neighbour wonders."
+      },
+      "keep": true,
+      "remove": [
+        "st4"
+      ],
+      "set": {
+        "type": "cutaway",
+        "top": "garage",
+        "label": "ГАРАЖ №12",
+        "sky": "winter",
+        "skyFrom": "dusk",
+        "snow": true,
+        "roofBare": true,
+        "neighbor": true,
+        "ladder": 470
+      },
+      "say": {
+        "ru": "Но приходит зима. У всех крыши в снегу, а у вас — сухая и парит."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          430,
+          400,
+          1.22
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "flakes",
+          "id": "snow",
+          "x": 0,
+          "y": 0,
+          "z": 20,
+          "n": 70
+        },
+        {
+          "type": "steam",
+          "id": "roofsteam",
+          "x": 394,
+          "y": 214,
+          "w": 260,
+          "rise": 200,
+          "n": 9,
+          "on": "сухая"
+        },
+        {
+          "type": "huh",
+          "id": "huh2",
+          "x": 642,
+          "y": 360,
+          "text": "??",
+          "on": "парит"
+        },
+        {
+          "type": "stamp2",
+          "id": "st5",
+          "x": 400,
+          "y": 120,
+          "text": "ТЕПЛО ВЫДАЁТ",
+          "size": 28,
+          "on": "парит"
+        }
+      ],
+      "change": [
+        {
+          "id": "coins",
+          "at": 0.02,
+          "off": true
+        },
+        {
+          "id": "ui",
+          "on": "сухая",
+          "alert": true
+        },
+        {
+          "id": "sosed",
+          "on": "сухая",
+          "face": "worried",
+          "pose": "think"
+        },
+        {
+          "id": "me",
+          "at": 0.05,
+          "face": "neutral",
+          "pose": "idle"
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Тепло уходит по трубе в теплицу у гаража, растут огурцы, крышу заносит снегом.",
+        "en": "Heat goes up a pipe into a greenhouse, cucumbers grow, the roof gets its snow."
+      },
+      "keep": true,
+      "remove": [
+        "huh2",
+        "st5"
+      ],
+      "say": {
+        "ru": "Отводим тепло в теплицу за гаражом. Теперь у вас огурцы в январе."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          300,
+          470,
+          1.24
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "pipe",
+          "id": "pgh",
+          "x": 0,
+          "y": 0,
+          "pts": [
+            [
+              120,
+              712
+            ],
+            [
+              120,
+              560
+            ],
+            [
+              110,
+              470
+            ]
+          ],
+          "w": 12,
+          "color": "#9fb6c8",
+          "on": "теплицу",
+          "draw": 0.7,
+          "flow": true,
+          "flowColor": "#ff8a3d"
+        },
+        {
+          "type": "greenhouse",
+          "id": "gh",
+          "x": 105,
+          "y": 470,
+          "on": "теплицу",
+          "grow": 2.4
+        },
+        {
+          "type": "snowcap",
+          "id": "cap",
+          "x": 394,
+          "y": 210,
+          "on": "Теперь"
+        }
+      ],
+      "change": [
+        {
+          "id": "roofsteam",
+          "on": "Теперь",
+          "off": true
+        },
+        {
+          "id": "sosed",
+          "on": "огурцы",
+          "face": "love",
+          "pose": "wave"
+        },
+        {
+          "id": "ui",
+          "on": "огурцы",
+          "alert": false,
+          "upg": [
+            [
+              "1. ВОДА ИЗ СКВАЖИНЫ",
+              "90° → 35°"
+            ],
+            [
+              "2. ШУМОИЗОЛЯЦИЯ",
+              "ВОЙ → ТИШИНА"
+            ],
+            [
+              "3. СОЛНЦЕ + АККУМУЛЯТОР",
+              "ПИКИ СГЛАЖЕНЫ"
+            ],
+            [
+              "4. ТЕПЛИЦА",
+              "ТЕПЛО → ОГУРЦЫ"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Общий план всей базы, сверху карточка-итог с галочками, летят монеты.",
+        "en": "Wide shot of the whole base, a summary card ticks off, coins fly."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Поздравляю, вы построили подпольную криптоферму!"
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          360,
+          640,
+          1
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "card",
+          "id": "card",
+          "x": 360,
+          "y": 330,
+          "title": "Итог · криптоферма",
+          "on": "Поздравляю",
+          "items": [
+            [
+              "Жара",
+              "скважина"
+            ],
+            [
+              "Шум",
+              "панели"
+            ],
+            [
+              "Проводка",
+              "солнце"
+            ],
+            [
+              "Зима",
+              "теплица"
+            ]
+          ]
+        },
+        {
+          "type": "coins",
+          "id": "coins2",
+          "x": 178,
+          "y": 712,
+          "rate": 3,
+          "spread": 180,
+          "on": "построили"
+        }
+      ],
+      "change": [
+        {
+          "id": "ui",
+          "at": 0.02,
+          "hideupg": true
+        },
+        {
+          "id": "me",
+          "on": "построили",
+          "face": "joy",
+          "pose": "cheer"
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Финал: вопрос зрителю, инженер машет.",
+        "en": "Ending: a question to the viewer, the engineer waves."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Что построить дальше? Пишите в комментариях."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          360,
+          660,
+          1.04
+        ],
+        "ease": "glide"
+      },
+      "hold": 0.6,
+      "change": [
+        {
+          "id": "me",
+          "at": 0.05,
+          "face": "happy",
+          "pose": "wave"
+        }
+      ]
+    }
+  ]
+}

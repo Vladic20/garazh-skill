@@ -88,6 +88,8 @@ Faces and poses are unchanged (see story-api.md). On `round`/`cat`/`bulb`/`cloud
 | `dungeon` | — | pixel: stone bricks, torches |
 | `burst` | `colors: [a, b]` | comic: radial rays behind an action beat |
 | `skyline` | `seed` | comic: flat-colour city under a dotted sky |
+| `cutaway` | `top` garage/house/none, `room` under/attic, `sky` dusk/day/night/winter (+ `skyFrom` crossfade), `label`, `neighbor`, `ladder`, `row`, `snow`, `roofBare`, `lampsOff`, `alarm` | underground: the hidden-room diorama (720×1280 coordinates) |
+| `sheet` | `grid` (24, 0 = none), `gridColor`, `margin` (x or false), `paper` | marker: white gridded sheet for drawings |
 
 Character kinds besides the TV head: `"kind": "cube"` (clay box mascot that hops; `color`, `hat: "candle"`) and `"kind": "blocky"` (brick figure; `skin`, `color`, `legs`, `hat: cap/crown/headphones`). Fantasy parts: hats `helm`, `horns`, `hood2`; body `armor`; held `sword`, `staff` (`staff:#ff6a3a` = orb colour), `shield`.
 

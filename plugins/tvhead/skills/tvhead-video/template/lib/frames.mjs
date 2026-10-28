@@ -71,13 +71,15 @@ export async function renderVideo({ root, tlRel, duration, out, world = WORLD, d
   rmSync(tmp, { recursive: true, force: true }); mkdirSync(tmp, { recursive: true });
   const ranges = Array.from({ length: J }, (_, k) => [Math.floor(k * n / J), Math.floor((k + 1) * n / J)]);
   const W = Math.round(world.w * dsf / 2) * 2, Hh = Math.round(world.h * dsf / 2) * 2;
-  let done = 0; const t0 = Date.now();
+  let done = 0; const t0 = Date.now(); let events = [];
   await Promise.all(ranges.map(async ([a, b], k) => {
     const p = await openPage(root, tlRel, dsf, world);
+    // sound events declared by the look / episode scripts (window.sfxEvents → [{ t, dur, kind, gain }]), mixed by lib/audio.mjs
+    if (k === 0) events = await p.page.evaluate(() => (typeof window.sfxEvents === "function" ? window.sfxEvents() : []) || []);
     const seg = path.join(tmp, `seg_${k}.mp4`);
     try {
       await run('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
-        '-vf', `scale=${W}:${Hh}:flags=lanczos,format=yuv420p`, '-c:v', 'libx264', '-preset', preset, '-crf', String(crf), '-threads', String(threads), '-r', String(FPS), seg], async pr => {
+        '-vf', `scale=${W}:${Hh}:flags=lanczos:in_range=full:out_range=tv,format=yuv420p`, '-color_range', 'tv', '-c:v', 'libx264', '-preset', preset, '-crf', String(crf), '-threads', String(threads), '-r', String(FPS), seg], async pr => {
         try {
           for (let i = a; i < b; i++) {
             await p.page.evaluate(t => render(t), i / FPS);
@@ -95,5 +97,5 @@ export async function renderVideo({ root, tlRel, duration, out, world = WORLD, d
   writeFileSync(list, ranges.map((_, k) => `file 'seg_${k}.mp4'`).join('\n'));
   await run('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', '-movflags', '+faststart', out]);
   rmSync(tmp, { recursive: true, force: true });
-  return { frames: n, seconds: (Date.now() - t0) / 1000, size: [W, Hh] };
+  return { frames: n, seconds: (Date.now() - t0) / 1000, size: [W, Hh], events };
 }

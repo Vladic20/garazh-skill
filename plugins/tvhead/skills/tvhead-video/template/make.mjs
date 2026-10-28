@@ -157,10 +157,12 @@ for (const lang of (STILLS && !DIRECTOR ? langs.slice(0, 1) : langs)) {
   const outDir = path.join(root, 'out'); mkdirSync(outDir, { recursive: true });
   const out = path.resolve(langs.length === 1 && opt('--out') ? opt('--out') : path.join(outDir, `${ep}.${lang}${FSUF}${PREVIEW ? '_preview' : ''}.mp4`));
   const silent = path.join(buildDir, 'video.mp4');
+  let events = [];   // sound events reported by the page (window.sfxEvents): marker squeaks, stamps, pops
   try {
     const r = await renderVideo({ root, tlRel, duration: TL.duration, out: silent, world: TL.world, dsf: PREVIEW ? 1 : 1.5, jobs: JOBS, preset: PREVIEW ? 'veryfast' : 'medium', crf: PREVIEW ? 28 : 26,
       onProgress: (d, n, s) => { if (JSON_OUT) emit({ stage: 'frames', lang, done: d, total: n }); else process.stdout.write(`\r▸ frames ${d}/${n}  ${(d / s).toFixed(1)} fps  `); } });
     console.log(`\r▸ frames [${lang}] ${r.frames}/${r.frames} → ${r.size.join('×')} in ${r.seconds.toFixed(1)}s            `);
+    events = r.events || [];
   } catch (e) { fail(`render: ${e.message}`); }
 
   // 4) sound
@@ -173,7 +175,7 @@ for (const lang of (STILLS && !DIRECTOR ? langs.slice(0, 1) : langs)) {
     const quiet = TL.scenes.filter(s => s.dark || (s.set && s.set.type === 'blackout')).map(s => [s.from, s.to]);
     const hits = TL.scenes.slice(1).filter(s => ['zoom', 'iris', 'whip', 'pull'].includes(s.transition.type)).map(s => s.from);
     const music = story.music !== undefined ? story.music : LOOKS[resolveLook(story.look)].music;
-    bedStem({ duration: TL.duration, mood: story.mood ?? 'dark', cuts, music: music || null, root: epDir, quiet, hits, sfx: resolveLook(story.look) === 'cartoon' ? 'soft' : 'paper', seed: [...ep].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7) }, bedWav);
+    bedStem({ duration: TL.duration, mood: story.mood ?? 'dark', cuts, music: music || null, root: epDir, quiet, hits, events, sfx: ['cartoon', 'underground', 'marker'].includes(resolveLook(story.look)) ? 'soft' : 'paper', seed: [...ep].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7) }, bedWav);
     muxFinal({ video: silent, voiceWav, bedWav, out, hasVoice });
   } catch (e) { fail(`audio: ${e.message}`); }
   writeFileSync(out.replace(/\.mp4$/, '.srt'), toSrt(TL.subs));

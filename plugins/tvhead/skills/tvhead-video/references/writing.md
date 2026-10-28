@@ -13,6 +13,12 @@ TV-headed stick people on grey paper, floating pencil confetti. Think "why you f
 - Ellipses `...` and em-dashes make the voice pause; `[softly]`, `[whispering]`, `[warm]`, `(sighs)` steer delivery. Don't overuse tags — set the overall `style` once.
 - Last scene: short, lands on an image, `"hold": 0.6`.
 
+## Engineering formats (looks underground and marker)
+
+- **Underground sim** (~45–55 s, 11–12 lines): absurd goal in a hidden room → problem 1 → simple engineering fix → problem 2 → fix → problem 3 → fix → result on the counter → a side effect of success (neighbours, smoke, snow that does not lie) → its fix or a punchline → "Поздравляю, вы построили …" + summary card → "Что построить дальше? Пишите в комментариях." Problems turn the HUD red and get a stamp; every fix adds an upgrade chip.
+- **Marker sketch** (~45–50 s): "Хотите … ? Давайте нарисуем" while the hand draws the object → each problem in red (cracks, rings, a crossed-out part, "!") → the fix in green / blue drawn over it → one line of real arithmetic next to it (volumes, frequencies, percentages, parts per hour) → page flip to a summary: problem struck out → fix ✓ and the boxed result → CTA. Numbers are real arithmetic or honest assumptions written as such ("× 30 обменов/ч").
+- Both: show safe, legal engineering (exhaust outside, explosion-proof fans, respirators); skip ideas about evading platform bans, tapping utilities or hiding hazards.
+
 ## Arcs and density (from the stickman director)
 
 - **Heartbeat** (`"arc": "heartbeat"`, explainers): 1 golden hook (a counter-intuitive question or visual paradox in the first 2–5 s) → 2 disrupting assumptions (state the common belief, break it in one sentence) → 3 insider secret (the hidden mechanism or friction) → 4 truth revelation (the "aha") → 5 elevation: a memorable punchline plus an open question for the comments. For 60 s: hook 1 block, assumptions 1, secret 1, truth 2, elevation 1.

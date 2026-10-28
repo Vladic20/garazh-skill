@@ -1,0 +1,514 @@
+{
+  "title": {
+    "ru": "Цех горячей штамповки в подвале — маркерный скетч",
+    "en": "Hot stamping shop in a basement — marker sketch"
+  },
+  "look": "marker",
+  "format": "9:16",
+  "remap": false,
+  "languages": [
+    "ru"
+  ],
+  "voice": {
+    "ru": "48ec28a45588422b977a86460c11977f"
+  },
+  "style": "energetic, clear, explaining",
+  "music": {
+    "preset": "upbeat",
+    "volume": 0.32
+  },
+  "captions": true,
+  "pace": 0.75,
+  "outro": 1.6,
+  "particles": 0,
+  "flips": true,
+  "scripts": [
+    "art/stamping.js"
+  ],
+  "set": {
+    "type": "sheet"
+  },
+  "scenes": [
+    {
+      "note": {
+        "ru": "Рука пишет заголовок и рисует разрез дома с подвалом.",
+        "en": "The hand writes the title and draws a house section with a basement."
+      },
+      "say": {
+        "ru": "Хотите штамповать детали прямо в подвале своего дома? Давайте нарисуем."
+      },
+      "cam": {
+        "from": [
+          360,
+          600,
+          1.08
+        ],
+        "to": [
+          360,
+          620,
+          1
+        ],
+        "ease": "from"
+      },
+      "props": [
+        {
+          "type": "ui",
+          "id": "ui",
+          "colors": {
+            "r": [
+              "трещины",
+              "окалина",
+              "потолок",
+              "удар"
+            ],
+            "g": [
+              "пружины",
+              "блок",
+              "блок,",
+              "четыре",
+              "трёх",
+              "лотку",
+              "минуту",
+              "шестьдесят",
+              "четыреста"
+            ],
+            "b": [
+              "циклон",
+              "рукавный",
+              "рукава",
+              "чистый",
+              "воздух"
+            ],
+            "o": [
+              "индукционный",
+              "двадцать"
+            ]
+          }
+        },
+        {
+          "type": "hand",
+          "id": "hand",
+          "x": 0,
+          "y": 0,
+          "z": 999,
+          "enter": "fade",
+          "enterDur": 0.01
+        },
+        {
+          "type": "sk",
+          "id": "title",
+          "obj": "title",
+          "delay": 0.25,
+          "dur": 1.6
+        },
+        {
+          "type": "sk",
+          "id": "house",
+          "obj": "house",
+          "on": "подвале",
+          "dur": 3.4
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "В подвале появляется пресс на 20 т и индукционный нагреватель на 1100°.",
+        "en": "A 20 t press and an induction heater at 1100° appear in the basement."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Ставим гидравлический пресс на двадцать тонн и индукционный нагрев заготовок."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          240,
+          690,
+          1.55
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "sk",
+          "id": "press",
+          "obj": "press",
+          "on": "гидравлический",
+          "dur": 2.4
+        },
+        {
+          "type": "sk",
+          "id": "heater",
+          "obj": "heater",
+          "on": "индукционный",
+          "dur": 1.3
+        },
+        {
+          "type": "sk",
+          "id": "hot",
+          "obj": "hot",
+          "on": "заготовок",
+          "dur": 0.5
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Красным: волны от удара, трещины по стенам подвала и дома.",
+        "en": "In red: shock waves, cracks across the basement and house walls."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Но первый же удар — и по фундаменту идут трещины."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          340,
+          620,
+          1.12
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "sk",
+          "id": "vibe",
+          "obj": "vibe",
+          "on": "удар",
+          "dur": 2.4
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Крепёж перечёркнут, зелёным: приямок, бетонный блок и пять пружин под ним.",
+        "en": "Bolts crossed out; in green: a pit, a concrete block and five springs under it."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Жёсткое крепление зачёркиваем. Ставим пресс на бетонный блок, а блок — на пружины."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          250,
+          820,
+          1.6
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "sk",
+          "id": "x1",
+          "obj": "fixbolts",
+          "on": "зачёркиваем",
+          "dur": 0.7
+        },
+        {
+          "type": "sk",
+          "id": "block",
+          "obj": "block",
+          "on": "бетонный",
+          "dur": 1.6
+        },
+        {
+          "type": "sk",
+          "id": "springs",
+          "obj": "springs",
+          "on": "пружины",
+          "dur": 1.2
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Расчёт рядом с приямком: f₀ ≈ 4 Гц, удар ≈ 25 Гц, в дом < 3%.",
+        "en": "The calculation next to the pit: f0 ≈ 4 Hz, impact ≈ 25 Hz, < 3% reaches the house."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Пружины настроены на четыре герца, а вибрация удара — около двадцати пяти. В дом уходит меньше трёх процентов."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          430,
+          900,
+          1.5
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "sk",
+          "id": "calc1",
+          "obj": "calc1",
+          "on": "четыре",
+          "dur": 4.2
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Красные точки окалины летят от штампа к потолку, подпись «окалина 900°».",
+        "en": "Red scale particles fly from the die to the ceiling, labelled 'scale 900°'."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Вторая проблема: раскалённая окалина и пыль летят под потолок."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          260,
+          630,
+          1.45
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "sk",
+          "id": "scale",
+          "obj": "scale",
+          "on": "окалина",
+          "dur": 2.2
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Зелёный зонт над штампом, воздуховод, синий циклон и рукавный фильтр.",
+        "en": "A green hood over the die, a duct, a blue cyclone and a bag filter."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Рисуем зонт над штампом, циклон и рукавный фильтр."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          470,
+          610,
+          1.4
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "sk",
+          "id": "hood",
+          "obj": "hood",
+          "on": "зонт",
+          "dur": 1.2
+        },
+        {
+          "type": "sk",
+          "id": "cyc",
+          "obj": "cyclone",
+          "on": "циклон",
+          "dur": 1.3
+        },
+        {
+          "type": "sk",
+          "id": "filt",
+          "obj": "filter",
+          "on": "рукавный",
+          "dur": 1.4
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Подписи −90% и 99%, выход трубы наружу и стрелка «чистый воздух».",
+        "en": "Labels −90% and 99%, the outlet pipe and a 'clean air' arrow."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Циклон ловит тяжёлую окалину, рукава — мелкую пыль, а наружу выходит чистый воздух."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          500,
+          560,
+          1.15
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "sk",
+          "id": "lab2",
+          "obj": "labels2",
+          "on": "ловит",
+          "dur": 2.2
+        },
+        {
+          "type": "sk",
+          "id": "out",
+          "obj": "outlet",
+          "on": "наружу",
+          "dur": 1.6
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Лоток от пресса в ящик с деталями, часы и подпись «1 дет/мин».",
+        "en": "A chute from the press into a parts box, a clock and '1 part/min'."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Готовые детали съезжают по лотку в ящик: одна штука в минуту."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          430,
+          760,
+          1.55
+        ],
+        "ease": "glide"
+      },
+      "props": [
+        {
+          "type": "sk",
+          "id": "tray",
+          "obj": "tray",
+          "on": "детали",
+          "dur": 2.6
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Новый лист: расчёт 1/мин × 60 × 8 ч = 480 за смену, обведено зелёным.",
+        "en": "A new sheet: 1/min × 60 × 8 h = 480 per shift, boxed in green."
+      },
+      "transition": {
+        "type": "page",
+        "dir": "up"
+      },
+      "say": {
+        "ru": "Считаем: шестьдесят деталей в час и четыреста восемьдесят за смену. Трещины закрыли пружины, окалину — циклон и рукава."
+      },
+      "cam": {
+        "from": [
+          360,
+          600,
+          1
+        ],
+        "to": [
+          360,
+          560,
+          1.04
+        ],
+        "ease": "from"
+      },
+      "props": [
+        {
+          "type": "ui",
+          "id": "ui"
+        },
+        {
+          "type": "hand",
+          "id": "hand",
+          "x": 0,
+          "y": 0,
+          "z": 999,
+          "enter": "fade",
+          "enterDur": 0.01
+        },
+        {
+          "type": "sk",
+          "id": "sum1",
+          "obj": "sum1",
+          "delay": 0.3,
+          "dur": 2.6
+        },
+        {
+          "type": "sk",
+          "id": "sum2",
+          "obj": "sum2",
+          "on": "четыреста",
+          "dur": 1.6
+        },
+        {
+          "type": "sk",
+          "id": "sum3",
+          "obj": "sum3",
+          "on": "Трещины",
+          "dur": 3.2
+        }
+      ]
+    },
+    {
+      "note": {
+        "ru": "Внизу листа: «Какой цех дальше?» и стрелка в комментарии.",
+        "en": "At the bottom: 'Which shop next?' and an arrow to the comments."
+      },
+      "keep": true,
+      "say": {
+        "ru": "Какой цех нарисовать следующим? Пишите в комментариях."
+      },
+      "cam": {
+        "from": [
+          0,
+          0,
+          1
+        ],
+        "to": [
+          360,
+          640,
+          1
+        ],
+        "ease": "glide"
+      },
+      "hold": 0.6,
+      "props": [
+        {
+          "type": "sk",
+          "id": "cta",
+          "obj": "cta",
+          "at": 0.02,
+          "dur": 2.4
+        }
+      ]
+    }
+  ]
+}

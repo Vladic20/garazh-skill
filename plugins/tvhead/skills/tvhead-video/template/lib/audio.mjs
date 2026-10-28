@@ -32,7 +32,7 @@ const MOODS = {
 // bed: hiss + drone + paper flips at cut times; music (optional) looped under everything
 // music: "lofi" | "ambient" | "upbeat" | { preset, bpm, volume } → generated (lib/music.mjs); any other string = audio file in the episode folder.
 // quiet: [[a, b]] windows where the drums drop out; hits: times of big transitions (swell + kick)
-export function bedStem({ duration, mood = 'dark', cuts = [], music = null, root, quiet = [], hits = [], seed = 7, sfx = 'paper' }, out) {
+export function bedStem({ duration, mood = 'dark', cuts = [], music = null, root, quiet = [], hits = [], seed = 7, sfx = 'paper', events = [] }, out) {
   const d = duration.toFixed(3), inputs = [], parts = [];
   const spec = typeof music === 'string' && MUSIC_PRESETS[music] ? { preset: music } : music && typeof music === 'object' ? music : null;
   let musicFile = spec ? null : music, musicVol = .35;
@@ -54,8 +54,8 @@ export function bedStem({ duration, mood = 'dark', cuts = [], music = null, root
   }
   // transition sounds: paper flip (cut/page/wipe), soft whoosh (curve/zoom/pull/whip), low thump (iris). cuts = [{ t, type }] or [seconds]
   const SFX = {
-    flip:  { src: 'white', dur: .22, chain: 'bandpass=f=2400:w=1800,afade=t=in:d=0.015,afade=t=out:st=0.03:d=0.18,volume=0.16' },
-    whoosh:{ src: 'pink', dur: .42, chain: 'bandpass=f=900:w=1400,afade=t=in:d=0.25:curve=exp,afade=t=out:st=0.25:d=0.17,volume=0.13' },
+    flip:  { src: 'white', dur: .22, chain: 'bandpass=f=2400:t=h:w=1800,afade=t=in:d=0.015,afade=t=out:st=0.03:d=0.18,volume=0.16' },
+    whoosh:{ src: 'pink', dur: .42, chain: 'bandpass=f=900:t=h:w=1400,afade=t=in:d=0.25:curve=exp,afade=t=out:st=0.25:d=0.17,volume=0.13' },
     thump: { src: 'brown', dur: .3, chain: 'lowpass=f=180,afade=t=in:d=0.01,afade=t=out:st=0.02:d=0.26,volume=0.5' },
   };
   // sfx 'soft' (cartoon style): no paper flips, every seam is a soft whoosh
@@ -67,6 +67,24 @@ export function bedStem({ duration, mood = 'dark', cuts = [], music = null, root
     inputs.push('-f', 'lavfi', '-t', String(S.dur), '-i', `anoisesrc=r=${SR}:color=${S.src}:amplitude=0.6:seed=3`);
     parts.push(`[${n}:a]${S.chain},pan=stereo|c0=c0|c1=c0,asplit=${ts.length}${ts.map((_, i) => `[${k}${i}]`).join('')}`, ...ts.map((t, i) => `[${k}${i}]adelay=${Math.round(t * 1000)}:all=1[${k}d${i}]`));
     tags.push(...ts.map((_, i) => `[${k}d${i}]`));
+  }
+  // page sound events (window.sfxEvents): [{ t, dur, kind, gain }]. kinds: marker (felt-tip squeak for dur), stamp (thud + slap),
+  // pop (short pitched blip), tick (dry click). One source per kind, split and trimmed per event.
+  const EV = {
+    marker: { src: `anoisesrc=r=${SR}:color=white:amplitude=0.7:seed=11`, chain: d => `bandpass=f=3400:t=h:w=3800,tremolo=f=11:d=0.75,highpass=f=900,afade=t=in:d=0.02,afade=t=out:st=${Math.max(0, d - .06).toFixed(3)}:d=0.06`, vol: .11 },
+    stamp:  { src: `anoisesrc=r=${SR}:color=brown:amplitude=0.9:seed=5`, chain: () => 'lowpass=f=260,afade=t=in:d=0.004,afade=t=out:st=0.01:d=0.22', vol: .9, len: .26 },
+    pop:    { src: `aevalsrc='sin(2*PI*(520+1400*exp(-40*t))*t)*exp(-26*t)':s=${SR}`, chain: () => 'afade=t=out:st=0.08:d=0.06', vol: .22, len: .15 },
+    tick:   { src: `anoisesrc=r=${SR}:color=white:amplitude=0.8:seed=9`, chain: () => 'highpass=f=2500,afade=t=in:d=0.001,afade=t=out:st=0.004:d=0.03', vol: .18, len: .04 },
+  };
+  const evGroups = {};
+  for (const e of events || []) if (EV[e.kind] && e.t >= 0 && e.t < duration) (evGroups[e.kind] ||= []).push(e);
+  for (const [k, list] of Object.entries(evGroups)) {
+    const E = EV[k], maxD = Math.max(...list.map(e => E.len ?? Math.max(.05, e.dur || .3))) + .05, n = inputs.filter(x => x === '-i').length;
+    inputs.push('-f', 'lavfi', '-t', maxD.toFixed(3), '-i', E.src);
+    parts.push(`[${n}:a]aresample=${SR},asplit=${list.length}${list.map((_, i) => `[e${k}${i}]`).join('')}`);
+    list.forEach((e, i) => { const dd = E.len ?? Math.max(.05, e.dur || .3);
+      parts.push(`[e${k}${i}]atrim=0:${dd.toFixed(3)},${E.chain(dd)},volume=${(E.vol * (e.gain ?? 1)).toFixed(3)},pan=stereo|c0=c0|c1=c0,adelay=${Math.round(e.t * 1000)}:all=1[e${k}d${i}]`); });
+    tags.push(...list.map((_, i) => `[e${k}d${i}]`));
   }
   if (musicFile) {
     const mp = path.isAbsolute(musicFile) ? musicFile : path.join(root, musicFile);
